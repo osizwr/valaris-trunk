@@ -4460,6 +4460,76 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 	FreeBlockLock freeLock;
 	switch(skill_id)
 	{
+	// ===== Custom Hokage Skills =====
+	case HOK_KAGEBUNSHIN: // Kage Bunshin no Jutsu - summon 2 clones of the caster
+		if( sd ){
+			int32 spawned = 0;
+			// Clone lifespan is taken from the skill's Duration1 (per level) in skill_db.
+			uint32 duration = skill_get_time( skill_id, skill_lv );
+
+			for( int32 c = 0; c < 2; c++ ){ // always exactly 2 clones
+				int16 nx = 0, ny = 0;
+				int32 tries = 0;
+
+				// Find a passable cell near the caster for the clone.
+				do {
+					nx = src->x + rnd_value( -2, 2 );
+					ny = src->y + rnd_value( -2, 2 );
+				} while( map_getcell( src->m, nx, ny, CELL_CHKNOPASS ) && tries++ < 10 );
+				if( tries >= 10 ){
+					nx = src->x;
+					ny = src->y;
+				}
+
+				// Spawn a friendly slave clone that inherits the caster's Max HP/SP,
+				// stats and learned skills (same primitive as @slaveclone).
+				if( mob_clone_spawn( sd, src->m, nx, ny, "", src->id, MD_NONE, 1, duration ) > 0 )
+					spawned++;
+			}
+
+			if( spawned > 0 )
+				clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			else
+				clif_skill_fail( *sd, skill_id );
+		}
+		break;
+
+	case HOK_TAJUU_KAGEBUNSHIN: // Tajuu Kage Bunshin no Jutsu - 20 fragile, non-casting clones
+		if( sd ){
+			int32 spawned = 0;
+			uint32 duration = skill_get_time( skill_id, skill_lv );
+
+			for( int32 c = 0; c < 20; c++ ){ // 20 clones
+				int16 nx = 0, ny = 0;
+				int32 tries = 0;
+
+				// Scatter the clones a bit wider than Kage Bunshin.
+				do {
+					nx = src->x + rnd_value( -4, 4 );
+					ny = src->y + rnd_value( -4, 4 );
+				} while( map_getcell( src->m, nx, ny, CELL_CHKNOPASS ) && tries++ < 10 );
+				if( tries >= 10 ){
+					nx = src->x;
+					ny = src->y;
+				}
+
+				// flag 1 = friendly slave, flag 2 = no skill copy (clones cannot cast).
+				int32 gid = mob_clone_spawn( sd, src->m, nx, ny, "", src->id, MD_NONE, 1|2, duration );
+				if( gid > 0 ){
+					spawned++;
+					// Fragile clones: die after 3 hits.
+					if( mob_data* cmd = map_id2md( gid ) )
+						cmd->hits_to_die = 3;
+				}
+			}
+
+			if( spawned > 0 )
+				clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			else
+				clif_skill_fail( *sd, skill_id );
+		}
+		break;
+
 	// New guild skills [Celest]
 	case GD_BATTLEORDER:
 	case GD_REGENERATION:

@@ -383,6 +383,8 @@ struct mob_data : public block_list {
 	int32 deletetimer;
 	int32 master_id,master_dist;
 
+	int16 hits_to_die; // Custom: if >0, this mob (e.g. a fragile clone) dies after this many hits. 0 = normal.
+
 	int8 skill_idx; // Index of last used skill from db->skill[]
 	t_tick skilldelay[MAX_MOBSKILL];
 	char npc_event[EVENT_NAME_LENGTH];

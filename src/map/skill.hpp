@@ -2439,6 +2439,10 @@ enum e_skill {
 	TR_RHYTHMICAL_WAVE,
 	ABC_ABYSS_FLAME_ATK,
 
+	// ===== Custom Skills (7001+ is a free ID range, safe from official skills) =====
+	HOK_KAGEBUNSHIN = 7001, // Kage Bunshin no Jutsu (Hokage custom class)
+	HOK_TAJUU_KAGEBUNSHIN = 7002, // Tajuu Kage Bunshin no Jutsu (Hokage custom class)
+
 	HLIF_HEAL = 8001,
 	HLIF_AVOID,
 	HLIF_BRAIN,

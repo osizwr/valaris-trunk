@@ -2773,6 +2773,12 @@ void mob_log_damage(mob_data* md, block_list* src, int64 damage, int64 damage_ta
 //Call when a mob has received damage.
 void mob_damage(mob_data *md, block_list *src, int32 damage)
 {
+	// Custom: fragile clones (e.g. Tajuu Kage Bunshin) die after a set number of hits,
+	// regardless of remaining HP. Zeroing HP here lets status_damage()'s death handling
+	// (which runs right after this call) finish the mob off cleanly.
+	if (md->hits_to_die > 0 && damage > 0 && --md->hits_to_die <= 0)
+		md->status.hp = 0;
+
 	if (src != nullptr) { //Store total damage...
 		//Log damage
 		mob_log_damage(md, src, static_cast<int64>(damage));
@@ -4636,7 +4642,8 @@ int32 mob_clone_spawn(map_session_data *sd, int16 m, int16 x, int16 y, const cha
 	//Go Backwards to give better priority to advanced skills.
 	std::shared_ptr<s_skill_tree> tree = skill_tree_db.find(sd->status.class_);
 
-	if( tree != nullptr && !tree->skills.empty() ){
+	// flag&2: clone cannot cast skills (skip copying the source's skill tree).
+	if( !(flag&2) && tree != nullptr && !tree->skills.empty() ){
 		std::vector<uint16> skill_list;
 
 		for (const auto &it : tree->skills)
