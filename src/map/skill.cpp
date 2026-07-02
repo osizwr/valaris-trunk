@@ -4544,7 +4544,8 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 	case HOK_DAICHI_HASAI: // Daichi Hasai no Jutsu - cast NPC_EARTHQUAKE beneath the caster
 		if( sd ){
 			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
-			skill_castend_damage_id( src, src, NPC_EARTHQUAKE, skill_lv, tick, 0 );
+			// NPC_EARTHQUAKE is a ground skill unit (UNT_EARTHQUAKE); place it at the caster.
+			skill_unitsetting( src, NPC_EARTHQUAKE, skill_lv, src->x, src->y, 0 );
 		}
 		break;
 

@@ -4045,7 +4045,9 @@ static int32 mob_clear_clones_sub(block_list *bl, va_list ap)
 			delete_timer(md->deletetimer, mob_timer_delete);
 			md->deletetimer = INVALID_TIMER;
 		}
-		unit_free(bl, CLR_DEAD);
+		// CLR_OUTSIGHT removes the sprite cleanly on all clients (CLR_DEAD can
+		// leave the clone's body lingering as a visual bug).
+		unit_free(bl, CLR_OUTSIGHT);
 	}
 	return 0;
 }
