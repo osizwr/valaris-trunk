@@ -1,7 +1,7 @@
 ###########################################################################
 # Custom skill tree override (auto-imported after db/<re|pre-re>/skill_tree.yml)
 #
-# Hokage (job 4031 / Death Knight slot).
+# Hokage (job 4051 = Death_Knight slot).
 # The parser MERGES with the base Death_Knight entry (pc.cpp SkillTreeDatabase),
 # so:
 #   - Novice: false  removes the placeholder inheritance the base file had.
@@ -32,3 +32,7 @@ Body:
         Requires:
           - Name: HOK_KAGEBUNSHIN   # advanced form - master Kage Bunshin first
             Level: 10
+      - Name: HOK_GYAKU_KUCHIYOSE  # Gyaku Kuchiyose - dispel clones (id 7003)
+        MaxLevel: 1
+      - Name: HOK_DAICHI_HASAI     # Daichi Hasai no Jutsu - earthquake (id 7004)
+        MaxLevel: 10

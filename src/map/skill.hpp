@@ -2442,6 +2442,8 @@ enum e_skill {
 	// ===== Custom Skills (7001+ is a free ID range, safe from official skills) =====
 	HOK_KAGEBUNSHIN = 7001, // Kage Bunshin no Jutsu (Hokage custom class)
 	HOK_TAJUU_KAGEBUNSHIN = 7002, // Tajuu Kage Bunshin no Jutsu (Hokage custom class)
+	HOK_GYAKU_KUCHIYOSE = 7003, // Gyaku Kuchiyose (dispels the caster's clones)
+	HOK_DAICHI_HASAI = 7004, // Daichi Hasai no Jutsu (casts NPC_EARTHQUAKE at self)
 
 	HLIF_HEAL = 8001,
 	HLIF_AVOID,

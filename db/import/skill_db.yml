@@ -102,3 +102,61 @@ Body:
         - { Level: 8,  Amount: 150 }
         - { Level: 9,  Amount: 160 }
         - { Level: 10, Amount: 170 }
+
+  # Gyaku Kuchiyose - dispels the caster's summoned clones on cast.
+  # Behavior in src/map/skill.cpp -> case HOK_GYAKU_KUCHIYOSE (requires recompile).
+  - Id: 7003
+    Name: HOK_GYAKU_KUCHIYOSE
+    Description: "Gyaku Kuchiyose"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 0
+    AfterCastActDelay:
+      - Level: 1
+        Time: 500
+    Cooldown:
+      - Level: 1
+        Time: 1000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 20
+
+  # Daichi Hasai no Jutsu - casts NPC_EARTHQUAKE at the caster's level beneath them.
+  # Behavior in src/map/skill.cpp -> case HOK_DAICHI_HASAI (requires recompile).
+  - Id: 7004
+    Name: HOK_DAICHI_HASAI
+    Description: "Daichi Hasai no Jutsu"
+    MaxLevel: 10
+    Type: Magic
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - { Level: 1, Time: 1000 }
+      - { Level: 10, Time: 3000 }
+    FixedCastTime:
+      - Level: 1
+        Time: 500
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - { Level: 1,  Time: 5000 }
+      - { Level: 10, Time: 15000 }
+    Requires:
+      SpCost:
+        - { Level: 1,  Amount: 60 }
+        - { Level: 2,  Amount: 70 }
+        - { Level: 3,  Amount: 80 }
+        - { Level: 4,  Amount: 90 }
+        - { Level: 5,  Amount: 100 }
+        - { Level: 6,  Amount: 110 }
+        - { Level: 7,  Amount: 120 }
+        - { Level: 8,  Amount: 130 }
+        - { Level: 9,  Amount: 140 }
+        - { Level: 10, Amount: 150 }

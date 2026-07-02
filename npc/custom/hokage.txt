@@ -4,7 +4,7 @@
 //= Custom
 //===== Description: =========================================
 //= Advances a Ninja into the custom Hokage class.
-//= Hokage occupies job 4031 (the reskinned Death Knight slot);
+//= Hokage occupies job 4051 = JOB_DEATH_KNIGHT (the reskinned Death Knight slot);
 //= display name is set to "Hokage" in
 //= conf/msg_conf/import/map_msg_eng_conf.txt.
 //===== Additional Comments: =================================
@@ -18,7 +18,7 @@ prontera,155,181,5	script	Hokage Master	4_M_NINJA_RED,{
 	next;
 
 	// Already a Hokage?
-	if (Class == 4031) {
+	if (Class == Job_Death_Knight) {
 		mes "[Hokage Master]";
 		mes "You already walk the path of the Hokage. Make your village proud.";
 		close;
@@ -61,7 +61,7 @@ prontera,155,181,5	script	Hokage Master	4_M_NINJA_RED,{
 	}
 
 	Zeny -= .@cost;
-	jobchange 4031;		// JOB_DEATH_KNIGHT, displayed as Hokage
+	jobchange Job_Death_Knight;		// job 4051, displayed as Hokage
 	mes "[Hokage Master]";
 	mes "Rise, ^FF0000Hokage^000000. Wield your new power with honor.";
 	close;

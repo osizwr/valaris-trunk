@@ -1,7 +1,7 @@
 ###########################################################################
 # Custom job stats override (auto-imported after db/<re|pre-re>/job_stats.yml)
 #
-# Hokage - custom class occupying job 4031 (the vestigial Death Knight slot).
+# Hokage - custom class occupying job 4051 = Death_Knight (the vestigial slot).
 # Positioned as the advanced class after Ninja. The base slot had NO job_stats
 # entry, so this adds one from scratch (HP/SP/weight/stat bonuses).
 #
@@ -15,7 +15,7 @@ Header:
 
 Body:
   - Jobs:
-      Death_Knight: true          # internal name of slot 4031 (displayed as "Hokage")
+      Death_Knight: true          # internal name of slot 4051 (displayed as "Hokage")
     MaxWeight: 30000
     HpFactor: 90                   # tankier than Ninja (75)
     HpIncrease: 500

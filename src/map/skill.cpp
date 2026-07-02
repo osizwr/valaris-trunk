@@ -4464,6 +4464,8 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 	case HOK_KAGEBUNSHIN: // Kage Bunshin no Jutsu - summon 2 clones of the caster
 		if( sd ){
 			int32 spawned = 0;
+			// Recasting either bunshin skill replaces the caster's existing clones.
+			mob_clear_clones( src );
 			// Clone lifespan is taken from the skill's Duration1 (per level) in skill_db.
 			uint32 duration = skill_get_time( skill_id, skill_lv );
 
@@ -4497,6 +4499,8 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 	case HOK_TAJUU_KAGEBUNSHIN: // Tajuu Kage Bunshin no Jutsu - 20 fragile, non-casting clones
 		if( sd ){
 			int32 spawned = 0;
+			// Recasting either bunshin skill replaces the caster's existing clones.
+			mob_clear_clones( src );
 			uint32 duration = skill_get_time( skill_id, skill_lv );
 
 			for( int32 c = 0; c < 20; c++ ){ // 20 clones
@@ -4527,6 +4531,20 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 				clif_skill_nodamage( src, *bl, skill_id, skill_lv );
 			else
 				clif_skill_fail( *sd, skill_id );
+		}
+		break;
+
+	case HOK_GYAKU_KUCHIYOSE: // Gyaku Kuchiyose - dispels all of the caster's clones
+		if( sd ){
+			mob_clear_clones( src );
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+		}
+		break;
+
+	case HOK_DAICHI_HASAI: // Daichi Hasai no Jutsu - cast NPC_EARTHQUAKE beneath the caster
+		if( sd ){
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			skill_castend_damage_id( src, src, NPC_EARTHQUAKE, skill_lv, tick, 0 );
 		}
 		break;
 

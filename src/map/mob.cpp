@@ -4029,6 +4029,34 @@ int32 mob_countslave(block_list *bl)
 	return map_foreachinmap(mob_countslave_sub, bl->m, BL_MOB,bl->id);
 }
 
+/*==========================================
+ * Removes (kills) every clone-slave owned by the given master.
+ * Used by the Hokage bunshin skills so recasting either skill replaces the
+ * caster's previous clones instead of stacking them.
+ *------------------------------------------*/
+static int32 mob_clear_clones_sub(block_list *bl, va_list ap)
+{
+	mob_data *md = BL_CAST(BL_MOB, bl);
+	int32 master_id = va_arg(ap, int32);
+
+	if( md != nullptr && md->special_state.clone && md->master_id == master_id ){
+		// Cancel the pending auto-delete (duration) timer before freeing.
+		if( md->deletetimer != INVALID_TIMER ){
+			delete_timer(md->deletetimer, mob_timer_delete);
+			md->deletetimer = INVALID_TIMER;
+		}
+		unit_free(bl, CLR_DEAD);
+	}
+	return 0;
+}
+
+int32 mob_clear_clones(block_list *master)
+{
+	if( master == nullptr )
+		return 0;
+	return map_foreachinmap(mob_clear_clones_sub, master->m, BL_MOB, master->id);
+}
+
 /**
  * Remove slaves if master logs off.
  * @param bl: Mob data

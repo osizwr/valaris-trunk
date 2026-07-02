@@ -3,6 +3,6 @@
 //  This file is auto-imported by conf/msg_conf/map_msg.conf
 // ============================================================
 
-// Rename job 4031 (the vestigial Death Knight slot) to Hokage.
+// Rename job 4051 = JOB_DEATH_KNIGHT (the vestigial Death Knight slot) to Hokage.
 // Read by pc.cpp job_name() -> shown in @job list, char select, etc.
 623: Hokage
