@@ -5211,7 +5211,9 @@ void npc_parse_mob2(struct spawn_data* mob)
 				md->centerY = rnd_value(mob->y - mob->ys + 1, mob->y + mob->ys - 1);
 		}
 		md->spawn->active++;
-		mob_spawn(md);
+		// Restore a persisted MVP respawn timer instead of spawning now, if one is still pending.
+		if( !mob_load_delayspawn(md) )
+			mob_spawn(md);
 	}
 }
 

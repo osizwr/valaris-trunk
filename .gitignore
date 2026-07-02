@@ -63,10 +63,6 @@ Thumbs.db
 /3rdparty/httplib/Makefile
 /3rdparty/httplib/obj
 
-# /conf/
-# NOTE: /conf/import stays ignored - it can contain DB credentials (inter_conf.txt).
-/conf/import
-
 # /lib
 /lib
 

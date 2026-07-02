@@ -1,0 +1,434 @@
+###########################################################################
+# Custom exp-table override (auto-imported after db/<re|pre-re>/job_exp.yml)
+#
+# Raises the transcendent line to Base 255 / Job 120 (pre-renewal trans-only).
+# Exp is assigned by index into a MAX_LEVEL-sized vector, so this override
+# cleanly extends the caps. Curves are smooth/monotonic; tune real rates via
+# conf/battle/exp.conf multipliers.
+###########################################################################
+
+Header:
+  Type: JOB_STATS
+  Version: 4
+
+Body:
+  # Base level 255 for the entire transcendent line (High Novice -> trans 2nd)
+  - Jobs:
+      Novice_High: true
+      Swordman_High: true
+      Mage_High: true
+      Archer_High: true
+      Acolyte_High: true
+      Merchant_High: true
+      Thief_High: true
+      Lord_Knight: true
+      High_Priest: true
+      High_Wizard: true
+      Whitesmith: true
+      Sniper: true
+      Assassin_Cross: true
+      Lord_Knight2: true
+      Paladin: true
+      Champion: true
+      Professor: true
+      Stalker: true
+      Creator: true
+      Clown: true
+      Gypsy: true
+      Paladin2: true
+    MaxBaseLevel: 255
+    BaseExp:
+      - { Level: 1, Exp: 200 }
+      - { Level: 2, Exp: 1056 }
+      - { Level: 3, Exp: 2793 }
+      - { Level: 4, Exp: 5572 }
+      - { Level: 5, Exp: 9518 }
+      - { Level: 6, Exp: 14743 }
+      - { Level: 7, Exp: 21343 }
+      - { Level: 8, Exp: 29407 }
+      - { Level: 9, Exp: 39013 }
+      - { Level: 10, Exp: 50238 }
+      - { Level: 11, Exp: 63150 }
+      - { Level: 12, Exp: 77815 }
+      - { Level: 13, Exp: 94296 }
+      - { Level: 14, Exp: 112652 }
+      - { Level: 15, Exp: 132938 }
+      - { Level: 16, Exp: 155209 }
+      - { Level: 17, Exp: 179518 }
+      - { Level: 18, Exp: 205913 }
+      - { Level: 19, Exp: 234444 }
+      - { Level: 20, Exp: 265156 }
+      - { Level: 21, Exp: 298096 }
+      - { Level: 22, Exp: 333307 }
+      - { Level: 23, Exp: 370832 }
+      - { Level: 24, Exp: 410712 }
+      - { Level: 25, Exp: 452987 }
+      - { Level: 26, Exp: 497698 }
+      - { Level: 27, Exp: 544883 }
+      - { Level: 28, Exp: 594579 }
+      - { Level: 29, Exp: 646823 }
+      - { Level: 30, Exp: 701651 }
+      - { Level: 31, Exp: 759098 }
+      - { Level: 32, Exp: 819200 }
+      - { Level: 33, Exp: 881990 }
+      - { Level: 34, Exp: 947500 }
+      - { Level: 35, Exp: 1015765 }
+      - { Level: 36, Exp: 1086816 }
+      - { Level: 37, Exp: 1160684 }
+      - { Level: 38, Exp: 1237401 }
+      - { Level: 39, Exp: 1316998 }
+      - { Level: 40, Exp: 1399503 }
+      - { Level: 41, Exp: 1484948 }
+      - { Level: 42, Exp: 1573361 }
+      - { Level: 43, Exp: 1664770 }
+      - { Level: 44, Exp: 1759205 }
+      - { Level: 45, Exp: 1856693 }
+      - { Level: 46, Exp: 1957261 }
+      - { Level: 47, Exp: 2060938 }
+      - { Level: 48, Exp: 2167749 }
+      - { Level: 49, Exp: 2277721 }
+      - { Level: 50, Exp: 2390881 }
+      - { Level: 51, Exp: 2507254 }
+      - { Level: 52, Exp: 2626867 }
+      - { Level: 53, Exp: 2749743 }
+      - { Level: 54, Exp: 2875908 }
+      - { Level: 55, Exp: 3005387 }
+      - { Level: 56, Exp: 3138205 }
+      - { Level: 57, Exp: 3274384 }
+      - { Level: 58, Exp: 3413950 }
+      - { Level: 59, Exp: 3556926 }
+      - { Level: 60, Exp: 3703335 }
+      - { Level: 61, Exp: 3853200 }
+      - { Level: 62, Exp: 4006545 }
+      - { Level: 63, Exp: 4163392 }
+      - { Level: 64, Exp: 4323764 }
+      - { Level: 65, Exp: 4487682 }
+      - { Level: 66, Exp: 4655169 }
+      - { Level: 67, Exp: 4826247 }
+      - { Level: 68, Exp: 5000937 }
+      - { Level: 69, Exp: 5179261 }
+      - { Level: 70, Exp: 5361241 }
+      - { Level: 71, Exp: 5546896 }
+      - { Level: 72, Exp: 5736249 }
+      - { Level: 73, Exp: 5929320 }
+      - { Level: 74, Exp: 6126129 }
+      - { Level: 75, Exp: 6326697 }
+      - { Level: 76, Exp: 6531044 }
+      - { Level: 77, Exp: 6739191 }
+      - { Level: 78, Exp: 6951156 }
+      - { Level: 79, Exp: 7166961 }
+      - { Level: 80, Exp: 7386624 }
+      - { Level: 81, Exp: 7610164 }
+      - { Level: 82, Exp: 7837603 }
+      - { Level: 83, Exp: 8068957 }
+      - { Level: 84, Exp: 8304247 }
+      - { Level: 85, Exp: 8543492 }
+      - { Level: 86, Exp: 8786710 }
+      - { Level: 87, Exp: 9033919 }
+      - { Level: 88, Exp: 9285139 }
+      - { Level: 89, Exp: 9540387 }
+      - { Level: 90, Exp: 9799683 }
+      - { Level: 91, Exp: 10063043 }
+      - { Level: 92, Exp: 10330487 }
+      - { Level: 93, Exp: 10602031 }
+      - { Level: 94, Exp: 10877694 }
+      - { Level: 95, Exp: 11157494 }
+      - { Level: 96, Exp: 11441447 }
+      - { Level: 97, Exp: 11729572 }
+      - { Level: 98, Exp: 12021885 }
+      - { Level: 99, Exp: 12318405 }
+      - { Level: 100, Exp: 12619147 }
+      - { Level: 101, Exp: 12924129 }
+      - { Level: 102, Exp: 13233369 }
+      - { Level: 103, Exp: 13546882 }
+      - { Level: 104, Exp: 13864685 }
+      - { Level: 105, Exp: 14186796 }
+      - { Level: 106, Exp: 14513230 }
+      - { Level: 107, Exp: 14844004 }
+      - { Level: 108, Exp: 15179134 }
+      - { Level: 109, Exp: 15518638 }
+      - { Level: 110, Exp: 15862529 }
+      - { Level: 111, Exp: 16210826 }
+      - { Level: 112, Exp: 16563543 }
+      - { Level: 113, Exp: 16920697 }
+      - { Level: 114, Exp: 17282304 }
+      - { Level: 115, Exp: 17648379 }
+      - { Level: 116, Exp: 18018937 }
+      - { Level: 117, Exp: 18393995 }
+      - { Level: 118, Exp: 18773568 }
+      - { Level: 119, Exp: 19157671 }
+      - { Level: 120, Exp: 19546319 }
+      - { Level: 121, Exp: 19939528 }
+      - { Level: 122, Exp: 20337314 }
+      - { Level: 123, Exp: 20739690 }
+      - { Level: 124, Exp: 21146673 }
+      - { Level: 125, Exp: 21558276 }
+      - { Level: 126, Exp: 21974515 }
+      - { Level: 127, Exp: 22395405 }
+      - { Level: 128, Exp: 22820961 }
+      - { Level: 129, Exp: 23251196 }
+      - { Level: 130, Exp: 23686126 }
+      - { Level: 131, Exp: 24125766 }
+      - { Level: 132, Exp: 24570129 }
+      - { Level: 133, Exp: 25019230 }
+      - { Level: 134, Exp: 25473083 }
+      - { Level: 135, Exp: 25931703 }
+      - { Level: 136, Exp: 26395104 }
+      - { Level: 137, Exp: 26863300 }
+      - { Level: 138, Exp: 27336304 }
+      - { Level: 139, Exp: 27814132 }
+      - { Level: 140, Exp: 28296797 }
+      - { Level: 141, Exp: 28784313 }
+      - { Level: 142, Exp: 29276693 }
+      - { Level: 143, Exp: 29773952 }
+      - { Level: 144, Exp: 30276103 }
+      - { Level: 145, Exp: 30783160 }
+      - { Level: 146, Exp: 31295136 }
+      - { Level: 147, Exp: 31812046 }
+      - { Level: 148, Exp: 32333902 }
+      - { Level: 149, Exp: 32860717 }
+      - { Level: 150, Exp: 33392506 }
+      - { Level: 151, Exp: 33929282 }
+      - { Level: 152, Exp: 34471057 }
+      - { Level: 153, Exp: 35017846 }
+      - { Level: 154, Exp: 35569661 }
+      - { Level: 155, Exp: 36126515 }
+      - { Level: 156, Exp: 36688422 }
+      - { Level: 157, Exp: 37255394 }
+      - { Level: 158, Exp: 37827445 }
+      - { Level: 159, Exp: 38404587 }
+      - { Level: 160, Exp: 38986833 }
+      - { Level: 161, Exp: 39574196 }
+      - { Level: 162, Exp: 40166689 }
+      - { Level: 163, Exp: 40764324 }
+      - { Level: 164, Exp: 41367115 }
+      - { Level: 165, Exp: 41975073 }
+      - { Level: 166, Exp: 42588212 }
+      - { Level: 167, Exp: 43206544 }
+      - { Level: 168, Exp: 43830081 }
+      - { Level: 169, Exp: 44458836 }
+      - { Level: 170, Exp: 45092821 }
+      - { Level: 171, Exp: 45732049 }
+      - { Level: 172, Exp: 46376532 }
+      - { Level: 173, Exp: 47026282 }
+      - { Level: 174, Exp: 47681311 }
+      - { Level: 175, Exp: 48341633 }
+      - { Level: 176, Exp: 49007257 }
+      - { Level: 177, Exp: 49678198 }
+      - { Level: 178, Exp: 50354467 }
+      - { Level: 179, Exp: 51036075 }
+      - { Level: 180, Exp: 51723036 }
+      - { Level: 181, Exp: 52415360 }
+      - { Level: 182, Exp: 53113060 }
+      - { Level: 183, Exp: 53816148 }
+      - { Level: 184, Exp: 54524635 }
+      - { Level: 185, Exp: 55238534 }
+      - { Level: 186, Exp: 55957855 }
+      - { Level: 187, Exp: 56682612 }
+      - { Level: 188, Exp: 57412814 }
+      - { Level: 189, Exp: 58148474 }
+      - { Level: 190, Exp: 58889605 }
+      - { Level: 191, Exp: 59636216 }
+      - { Level: 192, Exp: 60388320 }
+      - { Level: 193, Exp: 61145928 }
+      - { Level: 194, Exp: 61909051 }
+      - { Level: 195, Exp: 62677702 }
+      - { Level: 196, Exp: 63451891 }
+      - { Level: 197, Exp: 64231629 }
+      - { Level: 198, Exp: 65016929 }
+      - { Level: 199, Exp: 65807801 }
+      - { Level: 200, Exp: 66604257 }
+      - { Level: 201, Exp: 67406307 }
+      - { Level: 202, Exp: 68213963 }
+      - { Level: 203, Exp: 69027236 }
+      - { Level: 204, Exp: 69846138 }
+      - { Level: 205, Exp: 70670679 }
+      - { Level: 206, Exp: 71500870 }
+      - { Level: 207, Exp: 72336722 }
+      - { Level: 208, Exp: 73178247 }
+      - { Level: 209, Exp: 74025454 }
+      - { Level: 210, Exp: 74878356 }
+      - { Level: 211, Exp: 75736963 }
+      - { Level: 212, Exp: 76601286 }
+      - { Level: 213, Exp: 77471336 }
+      - { Level: 214, Exp: 78347123 }
+      - { Level: 215, Exp: 79228658 }
+      - { Level: 216, Exp: 80115952 }
+      - { Level: 217, Exp: 81009016 }
+      - { Level: 218, Exp: 81907860 }
+      - { Level: 219, Exp: 82812495 }
+      - { Level: 220, Exp: 83722932 }
+      - { Level: 221, Exp: 84639181 }
+      - { Level: 222, Exp: 85561253 }
+      - { Level: 223, Exp: 86489158 }
+      - { Level: 224, Exp: 87422906 }
+      - { Level: 225, Exp: 88362509 }
+      - { Level: 226, Exp: 89307977 }
+      - { Level: 227, Exp: 90259319 }
+      - { Level: 228, Exp: 91216547 }
+      - { Level: 229, Exp: 92179671 }
+      - { Level: 230, Exp: 93148701 }
+      - { Level: 231, Exp: 94123647 }
+      - { Level: 232, Exp: 95104520 }
+      - { Level: 233, Exp: 96091330 }
+      - { Level: 234, Exp: 97084088 }
+      - { Level: 235, Exp: 98082802 }
+      - { Level: 236, Exp: 99087484 }
+      - { Level: 237, Exp: 100098144 }
+      - { Level: 238, Exp: 101114792 }
+      - { Level: 239, Exp: 102137438 }
+      - { Level: 240, Exp: 103166091 }
+      - { Level: 241, Exp: 104200763 }
+      - { Level: 242, Exp: 105241462 }
+      - { Level: 243, Exp: 106288200 }
+      - { Level: 244, Exp: 107340986 }
+      - { Level: 245, Exp: 108399829 }
+      - { Level: 246, Exp: 109464741 }
+      - { Level: 247, Exp: 110535730 }
+      - { Level: 248, Exp: 111612807 }
+      - { Level: 249, Exp: 112695981 }
+      - { Level: 250, Exp: 113785263 }
+      - { Level: 251, Exp: 114880661 }
+      - { Level: 252, Exp: 115982187 }
+      - { Level: 253, Exp: 117089849 }
+      - { Level: 254, Exp: 118203658 }
+      - { Level: 255, Exp: 119323622 }
+  # Job level 120 for the transcendent 2nd classes
+  - Jobs:
+      Lord_Knight: true
+      High_Priest: true
+      High_Wizard: true
+      Whitesmith: true
+      Sniper: true
+      Assassin_Cross: true
+      Lord_Knight2: true
+      Paladin: true
+      Champion: true
+      Professor: true
+      Stalker: true
+      Creator: true
+      Clown: true
+      Gypsy: true
+      Paladin2: true
+    MaxJobLevel: 120
+    JobExp:
+      - { Level: 1, Exp: 150 }
+      - { Level: 2, Exp: 739 }
+      - { Level: 3, Exp: 1877 }
+      - { Level: 4, Exp: 3638 }
+      - { Level: 5, Exp: 6077 }
+      - { Level: 6, Exp: 9244 }
+      - { Level: 7, Exp: 13177 }
+      - { Level: 8, Exp: 17914 }
+      - { Level: 9, Exp: 23488 }
+      - { Level: 10, Exp: 29929 }
+      - { Level: 11, Exp: 37264 }
+      - { Level: 12, Exp: 45521 }
+      - { Level: 13, Exp: 54722 }
+      - { Level: 14, Exp: 64891 }
+      - { Level: 15, Exp: 76050 }
+      - { Level: 16, Exp: 88220 }
+      - { Level: 17, Exp: 101420 }
+      - { Level: 18, Exp: 115669 }
+      - { Level: 19, Exp: 130986 }
+      - { Level: 20, Exp: 147387 }
+      - { Level: 21, Exp: 164891 }
+      - { Level: 22, Exp: 183512 }
+      - { Level: 23, Exp: 203266 }
+      - { Level: 24, Exp: 224170 }
+      - { Level: 25, Exp: 246237 }
+      - { Level: 26, Exp: 269482 }
+      - { Level: 27, Exp: 293919 }
+      - { Level: 28, Exp: 319562 }
+      - { Level: 29, Exp: 346423 }
+      - { Level: 30, Exp: 374516 }
+      - { Level: 31, Exp: 403853 }
+      - { Level: 32, Exp: 434446 }
+      - { Level: 33, Exp: 466308 }
+      - { Level: 34, Exp: 499451 }
+      - { Level: 35, Exp: 533885 }
+      - { Level: 36, Exp: 569622 }
+      - { Level: 37, Exp: 606674 }
+      - { Level: 38, Exp: 645050 }
+      - { Level: 39, Exp: 684762 }
+      - { Level: 40, Exp: 725821 }
+      - { Level: 41, Exp: 768235 }
+      - { Level: 42, Exp: 812016 }
+      - { Level: 43, Exp: 857173 }
+      - { Level: 44, Exp: 903717 }
+      - { Level: 45, Exp: 951656 }
+      - { Level: 46, Exp: 1001000 }
+      - { Level: 47, Exp: 1051759 }
+      - { Level: 48, Exp: 1103942 }
+      - { Level: 49, Exp: 1157557 }
+      - { Level: 50, Exp: 1212613 }
+      - { Level: 51, Exp: 1269120 }
+      - { Level: 52, Exp: 1327086 }
+      - { Level: 53, Exp: 1386519 }
+      - { Level: 54, Exp: 1447428 }
+      - { Level: 55, Exp: 1509821 }
+      - { Level: 56, Exp: 1573706 }
+      - { Level: 57, Exp: 1639092 }
+      - { Level: 58, Exp: 1705987 }
+      - { Level: 59, Exp: 1774397 }
+      - { Level: 60, Exp: 1844332 }
+      - { Level: 61, Exp: 1915799 }
+      - { Level: 62, Exp: 1988805 }
+      - { Level: 63, Exp: 2063358 }
+      - { Level: 64, Exp: 2139465 }
+      - { Level: 65, Exp: 2217134 }
+      - { Level: 66, Exp: 2296372 }
+      - { Level: 67, Exp: 2377187 }
+      - { Level: 68, Exp: 2459585 }
+      - { Level: 69, Exp: 2543573 }
+      - { Level: 70, Exp: 2629158 }
+      - { Level: 71, Exp: 2716348 }
+      - { Level: 72, Exp: 2805149 }
+      - { Level: 73, Exp: 2895568 }
+      - { Level: 74, Exp: 2987612 }
+      - { Level: 75, Exp: 3081287 }
+      - { Level: 76, Exp: 3176600 }
+      - { Level: 77, Exp: 3273557 }
+      - { Level: 78, Exp: 3372165 }
+      - { Level: 79, Exp: 3472431 }
+      - { Level: 80, Exp: 3574359 }
+      - { Level: 81, Exp: 3677958 }
+      - { Level: 82, Exp: 3783233 }
+      - { Level: 83, Exp: 3890191 }
+      - { Level: 84, Exp: 3998836 }
+      - { Level: 85, Exp: 4109176 }
+      - { Level: 86, Exp: 4221217 }
+      - { Level: 87, Exp: 4334964 }
+      - { Level: 88, Exp: 4450424 }
+      - { Level: 89, Exp: 4567602 }
+      - { Level: 90, Exp: 4686504 }
+      - { Level: 91, Exp: 4807137 }
+      - { Level: 92, Exp: 4929504 }
+      - { Level: 93, Exp: 5053614 }
+      - { Level: 94, Exp: 5179470 }
+      - { Level: 95, Exp: 5307079 }
+      - { Level: 96, Exp: 5436446 }
+      - { Level: 97, Exp: 5567577 }
+      - { Level: 98, Exp: 5700477 }
+      - { Level: 99, Exp: 5835152 }
+      - { Level: 100, Exp: 5971608 }
+      - { Level: 101, Exp: 6109848 }
+      - { Level: 102, Exp: 6249880 }
+      - { Level: 103, Exp: 6391707 }
+      - { Level: 104, Exp: 6535336 }
+      - { Level: 105, Exp: 6680772 }
+      - { Level: 106, Exp: 6828019 }
+      - { Level: 107, Exp: 6977084 }
+      - { Level: 108, Exp: 7127971 }
+      - { Level: 109, Exp: 7280684 }
+      - { Level: 110, Exp: 7435230 }
+      - { Level: 111, Exp: 7591614 }
+      - { Level: 112, Exp: 7749840 }
+      - { Level: 113, Exp: 7909912 }
+      - { Level: 114, Exp: 8071838 }
+      - { Level: 115, Exp: 8235620 }
+      - { Level: 116, Exp: 8401264 }
+      - { Level: 117, Exp: 8568775 }
+      - { Level: 118, Exp: 8738158 }
+      - { Level: 119, Exp: 8909417 }
+      - { Level: 120, Exp: 9082557 }

@@ -48,3 +48,10 @@ Body:
       - { Level: 47, Agi: 1 }
       - { Level: 49, Dex: 1 }
       - { Level: 50, Luk: 1 }
+
+Footer:
+  Imports:
+  # Only db/import/job_stats.yml is auto-loaded by the JOB_STATS chain, so pull
+  # in the split aspd + exp overrides here (load() recurses into this Footer).
+  - Path: db/import/job_aspd.yml
+  - Path: db/import/job_exp.yml

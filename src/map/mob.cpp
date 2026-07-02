@@ -67,6 +67,8 @@ const t_tick MOB_MAX_DELAY = 24 * 3600 * 1000;
 #define MOB_CLONE_START MAX_MOB_DB
 #define MOB_CLONE_END MIN_MOB_DB2
 
+#define MVP_RESPAWN_TABLE "mvp_respawn" // Persistent MVP respawn timers (survive restart/@reloadscript)
+
 // holds Monster Spawn informations
 std::unordered_map<uint16, std::vector<spawn_info>> mob_spawn_data;
 
@@ -1091,10 +1093,83 @@ int32 mob_setdelayspawn(mob_data *md)
 
 	spawntime = u32max(1000, spawntime); //Monsters should never respawn faster than 1 second
 
+	// Persist this MVP's next spawn time so a server restart or @reloadscript cannot reset it.
+	if( battle_config.mvp_respawn_persist && db != nullptr && db->get_bosstype() == BOSSTYPE_MVP ){
+		struct map_data *mapdata = map_getmapdata(md->spawn->m);
+		if( mapdata != nullptr ){
+			uint32 respawn_at = (uint32)time(nullptr) + spawntime / 1000;
+			if( SQL_ERROR == Sql_Query(mmysql_handle,
+				"REPLACE INTO `%s` (`mob_id`,`map`,`x`,`y`,`respawn_time`) VALUES (%d,'%s',%d,%d,%u)",
+				MVP_RESPAWN_TABLE, md->spawn->id, mapdata->name, md->spawn->x, md->spawn->y, respawn_at ) )
+				Sql_ShowDebug(mmysql_handle);
+		}
+	}
+
 	if( md->spawn_timer != INVALID_TIMER )
 		delete_timer(md->spawn_timer, mob_delayspawn);
 	md->spawn_timer = add_timer(gettick()+spawntime, mob_delayspawn, md->id, 0);
 	return 0;
+}
+
+/**
+ * Restore a persisted MVP respawn timer when the mob is (re)created on server boot
+ * or @reloadscript. Keyed by mob id + map + spawn coordinates.
+ * @param md: mob about to be spawned (must already have md->spawn set)
+ * @return true if a future respawn was scheduled (caller must NOT spawn it now)
+ */
+bool mob_load_delayspawn(mob_data *md)
+{
+	if( !battle_config.mvp_respawn_persist || md->spawn == nullptr )
+		return false;
+
+	std::shared_ptr<s_mob_db> db = mob_db.find(md->spawn->id);
+
+	if( db == nullptr || db->get_bosstype() != BOSSTYPE_MVP )
+		return false;
+
+	struct map_data *mapdata = map_getmapdata(md->spawn->m);
+
+	if( mapdata == nullptr )
+		return false;
+
+	if( SQL_ERROR == Sql_Query(mmysql_handle,
+		"SELECT `respawn_time` FROM `%s` WHERE `mob_id`=%d AND `map`='%s' AND `x`=%d AND `y`=%d",
+		MVP_RESPAWN_TABLE, md->spawn->id, mapdata->name, md->spawn->x, md->spawn->y ) ){
+		Sql_ShowDebug(mmysql_handle);
+		return false;
+	}
+
+	bool pending = false;
+
+	if( SQL_SUCCESS == Sql_NextRow(mmysql_handle) ){
+		char *data;
+
+		Sql_GetData(mmysql_handle, 0, &data, nullptr);
+
+		uint32 respawn_at = (uint32)strtoul(data, nullptr, 10);
+		uint32 now = (uint32)time(nullptr);
+
+		if( respawn_at > now ){
+			uint32 remain = respawn_at - now;
+
+			// Sanity cap (30 days) to guard against corrupt values.
+			if( remain > 30 * 24 * 3600 )
+				remain = 30 * 24 * 3600;
+
+			if( md->spawn_timer != INVALID_TIMER )
+				delete_timer(md->spawn_timer, mob_delayspawn);
+			md->spawn_timer = add_timer(gettick() + (t_tick)remain * 1000, mob_delayspawn, md->id, 0);
+			pending = true;
+		}
+	}
+	Sql_FreeResult(mmysql_handle);
+
+	// Timer already elapsed (or no record): drop any stale row and let the caller spawn now.
+	if( !pending )
+		Sql_Query(mmysql_handle, "DELETE FROM `%s` WHERE `mob_id`=%d AND `map`='%s' AND `x`=%d AND `y`=%d",
+			MVP_RESPAWN_TABLE, md->spawn->id, mapdata->name, md->spawn->x, md->spawn->y);
+
+	return pending;
 }
 
 int32 mob_count_sub(block_list *bl, va_list ap) {
@@ -7369,6 +7444,18 @@ void do_init_mob(void){
 	add_timer_func_list(mob_norm_attacked, "mob_norm_attacked");
 	add_timer_interval(gettick()+MIN_MOBTHINKTIME,mob_ai_hard,0,0,MIN_MOBTHINKTIME);
 	add_timer_interval(gettick()+MIN_MOBTHINKTIME*10,mob_ai_lazy,0,0,MIN_MOBTHINKTIME*10);
+
+	// Persistent MVP respawn timers: ensure the storage table exists.
+	if( SQL_ERROR == Sql_Query(mmysql_handle,
+		"CREATE TABLE IF NOT EXISTS `%s` ("
+		"`mob_id` INT UNSIGNED NOT NULL,"
+		"`map` VARCHAR(32) NOT NULL,"
+		"`x` SMALLINT UNSIGNED NOT NULL DEFAULT '0',"
+		"`y` SMALLINT UNSIGNED NOT NULL DEFAULT '0',"
+		"`respawn_time` INT UNSIGNED NOT NULL DEFAULT '0',"
+		"PRIMARY KEY (`mob_id`,`map`,`x`,`y`)"
+		") ENGINE=MyISAM", MVP_RESPAWN_TABLE ) )
+		Sql_ShowDebug(mmysql_handle);
 }
 
 /*==========================================

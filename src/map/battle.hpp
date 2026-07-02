@@ -557,6 +557,7 @@ struct Battle_Config
 	int32 vcast_stat_scale;
 
 	int32 mvp_tomb_enabled;
+	int32 mvp_respawn_persist;
 	int32 mvp_tomb_delay;
 
 	int32 atcommand_suggestions_enabled;

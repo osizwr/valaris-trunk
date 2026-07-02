@@ -533,6 +533,7 @@ mob_data* mob_spawn_dataset(struct spawn_data *data);
 int32 mob_spawn(mob_data *md);
 TIMER_FUNC(mob_delayspawn);
 int32 mob_setdelayspawn(mob_data *md);
+bool mob_load_delayspawn(mob_data *md);
 int32 mob_parse_dataset(struct spawn_data *data);
 void mob_log_damage(mob_data* md, block_list* src, int64 damage, int64 damage_tanked = 0);
 void mob_damage(mob_data *md, block_list *src, int32 damage);
