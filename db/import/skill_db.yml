@@ -1,0 +1,104 @@
+###########################################################################
+# Custom skill definitions (auto-imported after db/<re|pre-re>/skill_db.yml)
+#
+# Kage Bunshin no Jutsu - custom Hokage skill (id 7001, constant HOK_KAGEBUNSHIN).
+# Data only; the summon behavior is implemented in src/map/skill.cpp
+# (skill_castend_nodamage_id -> case HOK_KAGEBUNSHIN) and requires a recompile.
+#
+# Duration1 below is used as the clone lifespan (skill_get_time) in the C++ code.
+###########################################################################
+
+Header:
+  Type: SKILL_DB
+  Version: 4
+
+Body:
+  - Id: 7001
+    Name: HOK_KAGEBUNSHIN
+    Description: "Kage Bunshin no Jutsu"
+    MaxLevel: 10
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    Flags:
+      IsQuest: false
+    CastTime:
+      - Level: 1
+        Time: 1000
+    FixedCastTime:
+      - Level: 1
+        Time: 500
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 30000
+    Duration1:
+      - { Level: 1,  Time: 40000 }
+      - { Level: 2,  Time: 50000 }
+      - { Level: 3,  Time: 60000 }
+      - { Level: 4,  Time: 70000 }
+      - { Level: 5,  Time: 80000 }
+      - { Level: 6,  Time: 90000 }
+      - { Level: 7,  Time: 100000 }
+      - { Level: 8,  Time: 110000 }
+      - { Level: 9,  Time: 120000 }
+      - { Level: 10, Time: 130000 }
+    Requires:
+      SpCost:
+        - { Level: 1,  Amount: 40 }
+        - { Level: 2,  Amount: 44 }
+        - { Level: 3,  Amount: 48 }
+        - { Level: 4,  Amount: 52 }
+        - { Level: 5,  Amount: 56 }
+        - { Level: 6,  Amount: 60 }
+        - { Level: 7,  Amount: 64 }
+        - { Level: 8,  Amount: 68 }
+        - { Level: 9,  Amount: 72 }
+        - { Level: 10, Amount: 76 }
+
+  # Tajuu Kage Bunshin no Jutsu - 20 fragile, non-casting clones (die in 3 hits).
+  # Behavior in src/map/skill.cpp -> case HOK_TAJUU_KAGEBUNSHIN (requires recompile).
+  - Id: 7002
+    Name: HOK_TAJUU_KAGEBUNSHIN
+    Description: "Tajuu Kage Bunshin no Jutsu"
+    MaxLevel: 10
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 60000
+    Duration1:
+      - { Level: 1,  Time: 40000 }
+      - { Level: 2,  Time: 50000 }
+      - { Level: 3,  Time: 60000 }
+      - { Level: 4,  Time: 70000 }
+      - { Level: 5,  Time: 80000 }
+      - { Level: 6,  Time: 90000 }
+      - { Level: 7,  Time: 100000 }
+      - { Level: 8,  Time: 110000 }
+      - { Level: 9,  Time: 120000 }
+      - { Level: 10, Time: 130000 }
+    Requires:
+      SpCost:
+        - { Level: 1,  Amount: 80 }
+        - { Level: 2,  Amount: 90 }
+        - { Level: 3,  Amount: 100 }
+        - { Level: 4,  Amount: 110 }
+        - { Level: 5,  Amount: 120 }
+        - { Level: 6,  Amount: 130 }
+        - { Level: 7,  Amount: 140 }
+        - { Level: 8,  Amount: 150 }
+        - { Level: 9,  Amount: 160 }
+        - { Level: 10, Amount: 170 }

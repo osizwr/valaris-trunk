@@ -1,0 +1,34 @@
+###########################################################################
+# Custom skill tree override (auto-imported after db/<re|pre-re>/skill_tree.yml)
+#
+# Hokage (job 4031 / Death Knight slot).
+# The parser MERGES with the base Death_Knight entry (pc.cpp SkillTreeDatabase),
+# so:
+#   - Novice: false  removes the placeholder inheritance the base file had.
+#   - Ninja / Kagerou: true  pull in the full Ninja + Kagerou skill sets,
+#     making Hokage play as an advanced Ninja.
+#
+# Inheritance only copies skills defined in that job's own Tree (not what it
+# inherits), so we list both Ninja and Kagerou to get the complete kit.
+# Add entries under Tree: below to grant extra/custom skills.
+###########################################################################
+
+Header:
+  Type: SKILL_TREE_DB
+  Version: 1
+
+Body:
+  - Job: Death_Knight
+    Inherit:
+      Novice: false      # remove placeholder from the base vestigial entry
+      Ninja: true        # full Ninja skill set
+      Kagerou: false      # Kagerou/Oboro (KO_*) advanced skills
+    Tree:
+      # Hokage-exclusive custom skills
+      - Name: HOK_KAGEBUNSHIN   # Kage Bunshin no Jutsu (id 7001)
+        MaxLevel: 10
+      - Name: HOK_TAJUU_KAGEBUNSHIN # Tajuu Kage Bunshin no Jutsu (id 7002)
+        MaxLevel: 10
+        Requires:
+          - Name: HOK_KAGEBUNSHIN   # advanced form - master Kage Bunshin first
+            Level: 10

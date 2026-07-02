@@ -1,0 +1,50 @@
+###########################################################################
+# Custom job stats override (auto-imported after db/<re|pre-re>/job_stats.yml)
+#
+# Hokage - custom class occupying job 4031 (the vestigial Death Knight slot).
+# Positioned as the advanced class after Ninja. The base slot had NO job_stats
+# entry, so this adds one from scratch (HP/SP/weight/stat bonuses).
+#
+# Level caps come from job_exp.yml (currently Base 99 / Job 50). To raise them,
+# add a Death_Knight override in db/import/job_exp.yml.
+###########################################################################
+
+Header:
+  Type: JOB_STATS
+  Version: 4
+
+Body:
+  - Jobs:
+      Death_Knight: true          # internal name of slot 4031 (displayed as "Hokage")
+    MaxWeight: 30000
+    HpFactor: 90                   # tankier than Ninja (75)
+    HpIncrease: 500
+    SpIncrease: 600               # slightly more SP than Ninja (540)
+    # NOTE: ASPD is defined in db/import/job_aspd.yml (different value scale).
+    BonusStats:
+      - { Level: 1,  Agi: 1 }
+      - { Level: 3,  Dex: 1 }
+      - { Level: 5,  Int: 1 }
+      - { Level: 7,  Agi: 1 }
+      - { Level: 9,  Dex: 1 }
+      - { Level: 11, Luk: 1 }
+      - { Level: 13, Agi: 1 }
+      - { Level: 15, Int: 1 }
+      - { Level: 17, Dex: 1 }
+      - { Level: 19, Str: 1 }
+      - { Level: 21, Agi: 1 }
+      - { Level: 23, Int: 1 }
+      - { Level: 25, Dex: 1 }
+      - { Level: 27, Luk: 1 }
+      - { Level: 29, Agi: 1 }
+      - { Level: 31, Vit: 1 }
+      - { Level: 33, Dex: 1 }
+      - { Level: 35, Int: 1 }
+      - { Level: 37, Agi: 1 }
+      - { Level: 39, Luk: 1 }
+      - { Level: 41, Dex: 1 }
+      - { Level: 43, Str: 1 }
+      - { Level: 45, Int: 1 }
+      - { Level: 47, Agi: 1 }
+      - { Level: 49, Dex: 1 }
+      - { Level: 50, Luk: 1 }
