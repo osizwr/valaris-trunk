@@ -6570,6 +6570,9 @@ struct Damage battle_calc_misc_attack(block_list *src,block_list *target,uint16 
 		case NPC_WIDESUCK:
 			md.damage = tstatus->max_hp * 15 / 100;
 			break;
+		case HOK_RASENGAN: // Rasengan (Hokage custom) - 10% of the CASTER's max HP per level
+			md.damage = (int64)sstatus->max_hp * (10 * skill_lv) / 100;
+			break;
 		case SU_SV_ROOTTWIST_ATK:
 			md.damage = 100;
 			break;

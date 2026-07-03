@@ -27,3 +27,11 @@ Body:
     CalcFlags:
       Batk: true
       Watk: true
+
+  # SC_FUUJUTSU_KYUUIN - Fuujutsu Kyuuin (Hokage). +100 armor (hard) DEF; the
+  # bonus is applied in src/map/status.cpp (status_calc_def). CalcFlags: Def
+  # tells the engine to recalculate DEF while this status is active.
+  - Status: Fuujutsu_Kyuuin
+    Icon: EFST_STEELBODY      # defensive icon; shows a countdown timer
+    CalcFlags:
+      Def: true

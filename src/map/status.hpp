@@ -1449,6 +1449,7 @@ enum sc_type : int16 {
 	// ===== Custom status changes =====
 	SC_JINTON, // Jinton no Jutsu (Hokage): doubles flee + increases move speed
 	SC_SENNIN_MODE, // Sennin Mode / Sage Mode (Hokage): triples ATK (batk + watk)
+	SC_FUUJUTSU_KYUUIN, // Fuujutsu Kyuuin (Hokage): +100 armor DEF
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };

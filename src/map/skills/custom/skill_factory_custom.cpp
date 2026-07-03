@@ -3,32 +3,29 @@
 
 #include "skill_factory_custom.hpp"
 
-#include "../swordman/bash.hpp"
-
-class SkillCustomBash;
+// Include .cpp files into the TU to optimize compile time
+// For reference see unity builds or amalgamated builds
+#include "rasengan.cpp"
+#include "muonsatsujin.cpp"
+#include "shinratensei.cpp"
+#include "narakumi.cpp"
+#include "sensatsusuishou.cpp"
 
 std::unique_ptr<const SkillImpl> SkillFactoryCustom::create(const e_skill skill_id) const {
-#if 0
 	switch( skill_id ){
-		case SM_BASH:
-			return std::make_unique<SkillCustomBash>();
+		// Hokage custom offensive skills
+		case HOK_RASENGAN:
+			return std::make_unique<SkillRasengan>();
+		case HOK_MUON_SATSUJIN:
+			return std::make_unique<SkillMuonSatsujin>();
+		case HOK_SHINRA_TENSEI:
+			return std::make_unique<SkillShinraTensei>();
+		case HOK_NARAKUMI:
+			return std::make_unique<SkillNarakumi>();
+		case HOK_SENSATSU_SUISHOU:
+			return std::make_unique<SkillSensatsuSuishou>();
 
 		default:
 			return nullptr;
 	}
-#endif
-
-	return nullptr;
 }
-
-class SkillCustomBash : public SkillBash{
-	void calculateSkillRatio(const Damage* wd, const block_list* src, const block_list* target, uint16 skill_lv, int32& base_skillratio, int32 mflag) const override{
-		// Normal Bash:
-		// Base 100% + 30% per level
-		// base_skillratio += 30 * skill_lv;
-
-		// But my custom Bash Skill is stronger:
-		// Base 100% + 300% per level
-		base_skillratio += 300 * skill_lv;
-	}
-};

@@ -2446,6 +2446,12 @@ enum e_skill {
 	HOK_DAICHI_HASAI = 7004, // Daichi Hasai no Jutsu (casts NPC_EARTHQUAKE at self)
 	HOK_JINTON = 7005, // Jinton no Jutsu (double flee + move speed buff)
 	HOK_SENNIN_MODE = 7006, // Sennin Mode / Sage Mode (triples ATK for 5s per level)
+	HOK_RASENGAN = 7007, // Rasengan (Misc: deals 10% of caster max HP per level)
+	HOK_MUON_SATSUJIN = 7008, // Muon Satsujin no Jutsu (Weapon ATK skill that never misses)
+	HOK_SHINRA_TENSEI = 7009, // Shinra Tensei / Almighty Push (self AoE: damage + knockback per level)
+	HOK_FUUJUTSU_KYUUIN = 7010, // Fuujutsu Kyuuin (self buff: +100 armor DEF, 2s per level)
+	HOK_NARAKUMI = 7011, // Narakumi no Jutsu (genjutsu: Confusion + Hallucination on enemy)
+	HOK_SENSATSU_SUISHOU = 7012, // Sensatsu Suishou (self AoE: 1% current HP per level, water)
 
 	HLIF_HEAL = 8001,
 	HLIF_AVOID,

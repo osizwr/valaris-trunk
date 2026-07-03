@@ -4566,6 +4566,13 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 		}
 		break;
 
+	case HOK_FUUJUTSU_KYUUIN: // Fuujutsu Kyuuin - self buff: +100 armor DEF for 2s x level (Duration1)
+		if( sd ){
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			sc_start( src, bl, SC_FUUJUTSU_KYUUIN, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
+		}
+		break;
+
 	// New guild skills [Celest]
 	case GD_BATTLEORDER:
 	case GD_REGENERATION:

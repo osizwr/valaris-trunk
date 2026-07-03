@@ -6,6 +6,12 @@
 # (skill_castend_nodamage_id -> case HOK_KAGEBUNSHIN) and requires a recompile.
 #
 # Duration1 below is used as the clone lifespan (skill_get_time) in the C++ code.
+#
+# NOTE: per-level fields (CastTime/Cooldown/SpCost/...) MUST list EVERY level.
+# The parser only extrapolates BEYOND the highest level given; gaps between two
+# sparse levels (e.g. only Level 1 + Level 10) are left at 0 - which would make
+# the in-between levels cast instantly / cost no SP. Single-level entries are
+# fine (they fill all levels with that one value).
 ###########################################################################
 
 Header:
@@ -137,7 +143,15 @@ Body:
     DamageFlags:
       NoDamage: true
     CastTime:
-      - { Level: 1, Time: 1000 }
+      - { Level: 1,  Time: 1000 }
+      - { Level: 2,  Time: 1200 }
+      - { Level: 3,  Time: 1400 }
+      - { Level: 4,  Time: 1600 }
+      - { Level: 5,  Time: 1800 }
+      - { Level: 6,  Time: 2000 }
+      - { Level: 7,  Time: 2200 }
+      - { Level: 8,  Time: 2400 }
+      - { Level: 9,  Time: 2600 }
       - { Level: 10, Time: 3000 }
     FixedCastTime:
       - Level: 1
@@ -147,6 +161,14 @@ Body:
         Time: 1000
     Cooldown:
       - { Level: 1,  Time: 5000 }
+      - { Level: 2,  Time: 6000 }
+      - { Level: 3,  Time: 7000 }
+      - { Level: 4,  Time: 8000 }
+      - { Level: 5,  Time: 9000 }
+      - { Level: 6,  Time: 10000 }
+      - { Level: 7,  Time: 11000 }
+      - { Level: 8,  Time: 12000 }
+      - { Level: 9,  Time: 13000 }
       - { Level: 10, Time: 15000 }
     Requires:
       SpCost:
@@ -179,6 +201,9 @@ Body:
         Time: 1000
     Cooldown:
       - { Level: 1, Time: 10000 }
+      - { Level: 2, Time: 12500 }
+      - { Level: 3, Time: 15000 }
+      - { Level: 4, Time: 17500 }
       - { Level: 5, Time: 20000 }
     Duration1:
       - { Level: 1, Time: 5000 }
@@ -216,6 +241,9 @@ Body:
         Time: 1000
     Cooldown:
       - { Level: 1, Time: 30000 }
+      - { Level: 2, Time: 35000 }
+      - { Level: 3, Time: 40000 }
+      - { Level: 4, Time: 45000 }
       - { Level: 5, Time: 50000 }
     Duration1:
       - { Level: 1, Time: 5000 }
@@ -230,3 +258,287 @@ Body:
         - { Level: 3, Amount: 80 }
         - { Level: 4, Amount: 90 }
         - { Level: 5, Amount: 100 }
+
+  # Rasengan - offensive Misc skill: deals 10% of the CASTER's max HP per level.
+  # Must be cast near the target (Range 2). Damage formula is in battle.cpp
+  # (battle_calc_misc_attack -> case HOK_RASENGAN); the attack is fired by the
+  # impl in src/map/skills/custom/rasengan.cpp (requires recompile).
+  # IgnoreFlee/IgnoreDefCard/IgnoreElement keep the % clean and always landing.
+  - Id: 7007
+    Name: HOK_RASENGAN
+    Description: "Rasengan"
+    MaxLevel: 5
+    Type: Misc
+    TargetType: Attack
+    DamageFlags:
+      IgnoreDefCard: true
+      IgnoreFlee: true
+      IgnoreElement: true
+    Range: 2
+    Hit: Single
+    HitCount: 1
+    CastTime:
+      - { Level: 1, Time: 700 }
+      - { Level: 2, Time: 900 }
+      - { Level: 3, Time: 1100 }
+      - { Level: 4, Time: 1300 }
+      - { Level: 5, Time: 1500 }
+    FixedCastTime:
+      - Level: 1
+        Time: 300
+    AfterCastActDelay:
+      - Level: 1
+        Time: 500
+    Cooldown:
+      - { Level: 1, Time: 3000 }
+      - { Level: 2, Time: 3500 }
+      - { Level: 3, Time: 4000 }
+      - { Level: 4, Time: 4500 }
+      - { Level: 5, Time: 5000 }
+    Requires:
+      SpCost:
+        - { Level: 1, Amount: 40 }
+        - { Level: 2, Amount: 50 }
+        - { Level: 3, Amount: 60 }
+        - { Level: 4, Amount: 70 }
+        - { Level: 5, Amount: 80 }
+
+  # Muon Satsujin no Jutsu ("Silent Homicide") - melee weapon (ATK) skill that
+  # never misses (IgnoreFlee). Damage ratio (+200% ATK per level) is set by the
+  # impl in src/map/skills/custom/muonsatsujin.cpp (requires recompile).
+  # Range 2: a close-range assassination in the mist (Naruto Shippuden).
+  - Id: 7008
+    Name: HOK_MUON_SATSUJIN
+    Description: "Muon Satsujin no Jutsu"
+    MaxLevel: 5
+    Type: Weapon
+    TargetType: Attack
+    DamageFlags:
+      IgnoreFlee: true
+    Range: 2
+    Hit: Single
+    HitCount: 1
+    Element: Weapon
+    CastTime:
+      - { Level: 1, Time: 500 }
+      - { Level: 2, Time: 625 }
+      - { Level: 3, Time: 750 }
+      - { Level: 4, Time: 875 }
+      - { Level: 5, Time: 1000 }
+    AfterCastActDelay:
+      - Level: 1
+        Time: 500
+    Cooldown:
+      - { Level: 1, Time: 5000 }
+      - { Level: 2, Time: 6000 }
+      - { Level: 3, Time: 7000 }
+      - { Level: 4, Time: 8000 }
+      - { Level: 5, Time: 9000 }
+    Requires:
+      SpCost:
+        - { Level: 1, Amount: 50 }
+        - { Level: 2, Amount: 60 }
+        - { Level: 3, Amount: 70 }
+        - { Level: 4, Amount: 80 }
+        - { Level: 5, Amount: 90 }
+
+  # Shinra Tensei / Almighty Push - self-cast offensive AoE (like Sightrasher).
+  # Damages every enemy around the caster and knocks them radially outward; both
+  # the splash radius and the Knockback distance scale per level. The fan-out +
+  # ratio are in src/map/skills/custom/shinratensei.cpp (requires recompile).
+  # IgnoreFlee makes the push unavoidable. Weapon type -> scales with caster ATK.
+  - Id: 7009
+    Name: HOK_SHINRA_TENSEI
+    Description: "Shinra Tensei"
+    MaxLevel: 5
+    Type: Weapon
+    TargetType: Self
+    DamageFlags:
+      Splash: true
+      IgnoreFlee: true
+    Flags:
+      TargetTrap: true
+    Hit: Single
+    HitCount: 1
+    Element: Neutral
+    SplashArea:
+      - { Level: 1, Area: 3 }
+      - { Level: 2, Area: 4 }
+      - { Level: 3, Area: 5 }
+      - { Level: 4, Area: 6 }
+      - { Level: 5, Area: 7 }
+    Knockback:
+      - { Level: 1, Amount: 2 }
+      - { Level: 2, Amount: 3 }
+      - { Level: 3, Amount: 4 }
+      - { Level: 4, Amount: 5 }
+      - { Level: 5, Amount: 6 }
+    CastTime:
+      - { Level: 1, Time: 800 }
+      - { Level: 2, Time: 1000 }
+      - { Level: 3, Time: 1200 }
+      - { Level: 4, Time: 1400 }
+      - { Level: 5, Time: 1600 }
+    FixedCastTime:
+      - Level: 1
+        Time: 400
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - { Level: 1, Time: 5000 }
+      - { Level: 2, Time: 6250 }
+      - { Level: 3, Time: 7500 }
+      - { Level: 4, Time: 8750 }
+      - { Level: 5, Time: 10000 }
+    Requires:
+      SpCost:
+        - { Level: 1, Amount: 60 }
+        - { Level: 2, Amount: 70 }
+        - { Level: 3, Amount: 80 }
+        - { Level: 4, Amount: 90 }
+        - { Level: 5, Amount: 100 }
+
+  # Fuujutsu Kyuuin - self buff: +100 armor (hard) DEF. Duration is 2s per level
+  # (Duration1). The +100 DEF is applied in src/map/status.cpp (status_calc_def);
+  # SC_FUUJUTSU_KYUUIN is started in skill.cpp (case HOK_FUUJUTSU_KYUUIN).
+  # Requires recompile + the db/import/status.yml entry.
+  - Id: 7010
+    Name: HOK_FUUJUTSU_KYUUIN
+    Description: "Fuujutsu Kyuuin"
+    MaxLevel: 10
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 500
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - { Level: 1,  Time: 5000 }
+      - { Level: 2,  Time: 6000 }
+      - { Level: 3,  Time: 7000 }
+      - { Level: 4,  Time: 8000 }
+      - { Level: 5,  Time: 9000 }
+      - { Level: 6,  Time: 10000 }
+      - { Level: 7,  Time: 11000 }
+      - { Level: 8,  Time: 12000 }
+      - { Level: 9,  Time: 13000 }
+      - { Level: 10, Time: 15000 }
+    Duration1:
+      - { Level: 1,  Time: 2000 }
+      - { Level: 2,  Time: 4000 }
+      - { Level: 3,  Time: 6000 }
+      - { Level: 4,  Time: 8000 }
+      - { Level: 5,  Time: 10000 }
+      - { Level: 6,  Time: 12000 }
+      - { Level: 7,  Time: 14000 }
+      - { Level: 8,  Time: 16000 }
+      - { Level: 9,  Time: 18000 }
+      - { Level: 10, Time: 20000 }
+    Requires:
+      SpCost:
+        - { Level: 1,  Amount: 30 }
+        - { Level: 2,  Amount: 33 }
+        - { Level: 3,  Amount: 36 }
+        - { Level: 4,  Amount: 40 }
+        - { Level: 5,  Amount: 43 }
+        - { Level: 6,  Amount: 46 }
+        - { Level: 7,  Amount: 50 }
+        - { Level: 8,  Amount: 53 }
+        - { Level: 9,  Amount: 56 }
+        - { Level: 10, Amount: 60 }
+
+  # Narakumi no Jutsu - genjutsu debuff: inflicts Confusion (Duration1) and
+  # Hallucination (Duration2) on the target, same as Wink of Charm (DC_WINKCHARM).
+  # Behavior in src/map/skills/custom/narakumi.cpp (requires recompile).
+  - Id: 7011
+    Name: HOK_NARAKUMI
+    Description: "Narakumi no Jutsu"
+    MaxLevel: 1
+    TargetType: Attack
+    DamageFlags:
+      NoDamage: true
+    Range: 9
+    CastTime:
+      - Level: 1
+        Time: 800
+    FixedCastTime:
+      - Level: 1
+        Time: 200
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 10000
+    Duration1:                 # Confusion duration
+      - Level: 1
+        Time: 10000
+    Duration2:                 # Hallucination duration
+      - Level: 1
+        Time: 10000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 40
+
+  # Sensatsu Suishou - self-cast AoE: hits every nearby enemy for 1% of their
+  # CURRENT HP per level (reference: Water Ball). Damage + Water Ball visual are
+  # applied in src/map/skills/custom/sensatsusuishou.cpp (requires recompile).
+  - Id: 7012
+    Name: HOK_SENSATSU_SUISHOU
+    Description: "Sensatsu Suishou"
+    MaxLevel: 10
+    Type: Misc
+    TargetType: Self
+    DamageFlags:
+      Splash: true
+    Flags:
+      TargetTrap: true
+    Hit: Single
+    HitCount: 1
+    Element: Water
+    SplashArea: 5
+    CastTime:
+      - { Level: 1,  Time: 700 }
+      - { Level: 2,  Time: 900 }
+      - { Level: 3,  Time: 1100 }
+      - { Level: 4,  Time: 1300 }
+      - { Level: 5,  Time: 1500 }
+      - { Level: 6,  Time: 1700 }
+      - { Level: 7,  Time: 1900 }
+      - { Level: 8,  Time: 2100 }
+      - { Level: 9,  Time: 2300 }
+      - { Level: 10, Time: 2500 }
+    FixedCastTime:
+      - Level: 1
+        Time: 300
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - { Level: 1,  Time: 4000 }
+      - { Level: 2,  Time: 4700 }
+      - { Level: 3,  Time: 5300 }
+      - { Level: 4,  Time: 6000 }
+      - { Level: 5,  Time: 6700 }
+      - { Level: 6,  Time: 7300 }
+      - { Level: 7,  Time: 8000 }
+      - { Level: 8,  Time: 8700 }
+      - { Level: 9,  Time: 9300 }
+      - { Level: 10, Time: 10000 }
+    Requires:
+      SpCost:
+        - { Level: 1,  Amount: 40 }
+        - { Level: 2,  Amount: 47 }
+        - { Level: 3,  Amount: 53 }
+        - { Level: 4,  Amount: 60 }
+        - { Level: 5,  Amount: 67 }
+        - { Level: 6,  Amount: 73 }
+        - { Level: 7,  Amount: 80 }
+        - { Level: 8,  Amount: 87 }
+        - { Level: 9,  Amount: 93 }
+        - { Level: 10, Amount: 100 }

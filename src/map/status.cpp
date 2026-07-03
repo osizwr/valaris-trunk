@@ -7777,6 +7777,8 @@ static defType status_calc_def(block_list *bl, status_change *sc, int32 def)
 	if(sc->getSCE(SC_DEFSET))
 		return sc->getSCE(SC_DEFSET)->val1;
 
+	if(sc->getSCE(SC_FUUJUTSU_KYUUIN)) // Fuujutsu Kyuuin (Hokage): +100 hard/armor DEF
+		def += 100;
 	if(sc->getSCE(SC_DRUMBATTLE))
 		def += sc->getSCE(SC_DRUMBATTLE)->val3;
 #ifdef RENEWAL

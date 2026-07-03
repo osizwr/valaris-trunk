@@ -40,3 +40,15 @@ Body:
         MaxLevel: 5
       - Name: HOK_SENNIN_MODE      # Sennin Mode / Sage Mode - triple ATK buff (id 7006)
         MaxLevel: 5
+      - Name: HOK_RASENGAN         # Rasengan - 10% max HP dmg/level, Misc (id 7007)
+        MaxLevel: 5
+      - Name: HOK_MUON_SATSUJIN    # Muon Satsujin no Jutsu - never-miss melee ATK (id 7008)
+        MaxLevel: 5
+      - Name: HOK_SHINRA_TENSEI    # Shinra Tensei / Almighty Push - AoE knockback (id 7009)
+        MaxLevel: 5
+      - Name: HOK_FUUJUTSU_KYUUIN   # Fuujutsu Kyuuin - +100 armor DEF self buff (id 7010)
+        MaxLevel: 10
+      - Name: HOK_NARAKUMI          # Narakumi no Jutsu - Confusion + Hallucination (id 7011)
+        MaxLevel: 1
+      - Name: HOK_SENSATSU_SUISHOU  # Sensatsu Suishou - 1% current HP/level AoE (id 7012)
+        MaxLevel: 10
