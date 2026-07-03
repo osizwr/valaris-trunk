@@ -23,7 +23,7 @@ Body:
   # status_calc_watk). CalcFlags below tell the engine to recalculate ATK while
   # this status is active.
   - Status: Sennin_Mode
-    Icon: EFST_PROVOKE       # reuse the Provoke (ATK up) icon
+    Icon: EFST_CONCENTRATION  # distinct ATK-buff icon; shows a countdown timer
     CalcFlags:
       Batk: true
       Watk: true
