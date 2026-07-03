@@ -7325,6 +7325,8 @@ static int32 status_calc_batk(block_list *bl, status_change *sc, int32 batk)
 		batk += batk * sc->getSCE(SC_SUNSTANCE)->val2 / 100;
 	if (sc->getSCE(SC_INTENSIVE_AIM))
 		batk += 150;
+	if (sc->getSCE(SC_SENNIN_MODE)) // Sennin/Sage Mode: triple base ATK (+200%)
+		batk += batk * 2;
 
 	return batk;
 }
@@ -7417,6 +7419,8 @@ static uint16 status_calc_watk(block_list *bl, status_change *sc, int32 watk)
 		watk += sc->getSCE(SC_POWERFUL_FAITH)->val2;
 	if (sc->getSCE(SC_GUARD_STANCE))
 		watk -= sc->getSCE(SC_GUARD_STANCE)->val3;
+	if (sc->getSCE(SC_SENNIN_MODE)) // Sennin/Sage Mode: triple weapon ATK (+200%)
+		watk += watk * 2;
 
 	return (uint16)cap_value(watk,0,USHRT_MAX);
 }
@@ -7710,6 +7714,8 @@ static int16 status_calc_flee(block_list *bl, status_change *sc, int32 flee)
 	//	flee -= (flee * sc->getSCE(SC_C_MARKER)->val3) / 100;
 	if (sc->getSCE(SC_GROOMING))
 		flee += sc->getSCE(SC_GROOMING)->val2;
+	if (sc->getSCE(SC_JINTON)) // Jinton no Jutsu: double flee
+		flee += flee;
 
 	return (int16)cap_value(flee,1,SHRT_MAX);
 }
@@ -8148,6 +8154,8 @@ static uint16 status_calc_speed(block_list *bl, status_change *sc, int32 speed)
 			val = max(val, sc->getSCE(SC_AGIUP)->val1);
 		if( sc->getSCE(SC_INCREASEAGI) )
 			val = max( val, 25 );
+		if( sc->getSCE(SC_JINTON) ) // Jinton no Jutsu: +10% move speed per level
+			val = max( val, 10 * sc->getSCE(SC_JINTON)->val1 );
 		if( sc->getSCE(SC_WINDWALK) )
 			val = max( val, 2 * sc->getSCE(SC_WINDWALK)->val1 );
 		if( sc->getSCE(SC_CARTBOOST) )

@@ -160,3 +160,73 @@ Body:
         - { Level: 8,  Amount: 130 }
         - { Level: 9,  Amount: 140 }
         - { Level: 10, Amount: 150 }
+
+  # Jinton no Jutsu - self buff: doubles flee + move speed +10%/level.
+  # Applies SC_JINTON in src/map/skill.cpp -> case HOK_JINTON (requires recompile).
+  # Duration1 (5s x level) is the buff duration.
+  - Id: 7005
+    Name: HOK_JINTON
+    Description: "Jinton no Jutsu"
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 500
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - { Level: 1, Time: 10000 }
+      - { Level: 5, Time: 20000 }
+    Duration1:
+      - { Level: 1, Time: 5000 }
+      - { Level: 2, Time: 10000 }
+      - { Level: 3, Time: 15000 }
+      - { Level: 4, Time: 20000 }
+      - { Level: 5, Time: 25000 }
+    Requires:
+      SpCost:
+        - { Level: 1, Amount: 30 }
+        - { Level: 2, Amount: 35 }
+        - { Level: 3, Amount: 40 }
+        - { Level: 4, Amount: 45 }
+        - { Level: 5, Amount: 50 }
+
+  # Sennin Mode / Sage Mode - self buff: triples ATK (batk + watk) for 5s x level.
+  # Applies SC_SENNIN_MODE in src/map/skill.cpp -> case HOK_SENNIN_MODE (requires recompile).
+  # The x3 ATK multiplier is applied in src/map/status.cpp (status_calc_batk /
+  # status_calc_watk); Duration1 (5s x level) is the buff duration.
+  - Id: 7006
+    Name: HOK_SENNIN_MODE
+    Description: "Sennin Mode"
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 1000
+    FixedCastTime:
+      - Level: 1
+        Time: 500
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - { Level: 1, Time: 30000 }
+      - { Level: 5, Time: 50000 }
+    Duration1:
+      - { Level: 1, Time: 5000 }
+      - { Level: 2, Time: 10000 }
+      - { Level: 3, Time: 15000 }
+      - { Level: 4, Time: 20000 }
+      - { Level: 5, Time: 25000 }
+    Requires:
+      SpCost:
+        - { Level: 1, Amount: 60 }
+        - { Level: 2, Amount: 70 }
+        - { Level: 3, Amount: 80 }
+        - { Level: 4, Amount: 90 }
+        - { Level: 5, Amount: 100 }

@@ -1446,6 +1446,10 @@ enum sc_type : int16 {
 	SC_WIND_CHARM_POWER,
 	SC_GROUND_CHARM_POWER,
 
+	// ===== Custom status changes =====
+	SC_JINTON, // Jinton no Jutsu (Hokage): doubles flee + increases move speed
+	SC_SENNIN_MODE, // Sennin Mode / Sage Mode (Hokage): triples ATK (batk + watk)
+
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };
 

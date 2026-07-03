@@ -4546,6 +4546,23 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
 			// NPC_EARTHQUAKE is a ground skill unit (UNT_EARTHQUAKE); place it at the caster.
 			skill_unitsetting( src, NPC_EARTHQUAKE, skill_lv, src->x, src->y, 0 );
+			// The quake's screen-shake only plays when it hits an enemy, so show the
+			// effect on the caster too - this way it always plays, even with no targets.
+			clif_skill_damage( *src, *src, tick, status_get_amotion(src), 0, 0, 1, NPC_EARTHQUAKE, -1, DMG_SPLASH );
+		}
+		break;
+
+	case HOK_JINTON: // Jinton no Jutsu - self buff: double flee + move speed (val1 = level)
+		if( sd ){
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			sc_start( src, bl, SC_JINTON, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
+		}
+		break;
+
+	case HOK_SENNIN_MODE: // Sennin Mode / Sage Mode - self buff: triple ATK for 5s x level (val1 = level)
+		if( sd ){
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			sc_start( src, bl, SC_SENNIN_MODE, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
 		}
 		break;
 

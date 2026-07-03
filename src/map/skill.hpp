@@ -2444,6 +2444,8 @@ enum e_skill {
 	HOK_TAJUU_KAGEBUNSHIN = 7002, // Tajuu Kage Bunshin no Jutsu (Hokage custom class)
 	HOK_GYAKU_KUCHIYOSE = 7003, // Gyaku Kuchiyose (dispels the caster's clones)
 	HOK_DAICHI_HASAI = 7004, // Daichi Hasai no Jutsu (casts NPC_EARTHQUAKE at self)
+	HOK_JINTON = 7005, // Jinton no Jutsu (double flee + move speed buff)
+	HOK_SENNIN_MODE = 7006, // Sennin Mode / Sage Mode (triples ATK for 5s per level)
 
 	HLIF_HEAL = 8001,
 	HLIF_AVOID,

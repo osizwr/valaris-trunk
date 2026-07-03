@@ -36,3 +36,7 @@ Body:
         MaxLevel: 1
       - Name: HOK_DAICHI_HASAI     # Daichi Hasai no Jutsu - earthquake (id 7004)
         MaxLevel: 10
+      - Name: HOK_JINTON           # Jinton no Jutsu - flee/speed buff (id 7005)
+        MaxLevel: 5
+      - Name: HOK_SENNIN_MODE      # Sennin Mode / Sage Mode - triple ATK buff (id 7006)
+        MaxLevel: 5

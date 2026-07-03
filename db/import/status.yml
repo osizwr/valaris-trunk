@@ -1,0 +1,29 @@
+###########################################################################
+# Custom status change override (auto-imported after db/<re|pre-re>/status.yml)
+#
+# SC_JINTON - Jinton no Jutsu (Hokage). The effect values (double flee,
+# +10% move speed per level) are applied in src/map/status.cpp
+# (status_calc_flee / status_calc_speed). CalcFlags below tell the engine to
+# recalculate Flee and Speed while this status is active.
+###########################################################################
+
+Header:
+  Type: STATUS_DB
+  Version: 4
+
+Body:
+  - Status: Jinton
+    Icon: EFST_INC_AGI        # reuse the Increase AGI icon
+    CalcFlags:
+      Flee: true
+      Speed: true
+
+  # SC_SENNIN_MODE - Sennin Mode / Sage Mode (Hokage). Triples ATK (batk + watk);
+  # the x3 multiplier is applied in src/map/status.cpp (status_calc_batk /
+  # status_calc_watk). CalcFlags below tell the engine to recalculate ATK while
+  # this status is active.
+  - Status: Sennin_Mode
+    Icon: EFST_PROVOKE       # reuse the Provoke (ATK up) icon
+    CalcFlags:
+      Batk: true
+      Watk: true
