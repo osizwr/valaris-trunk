@@ -568,6 +568,8 @@ int32 mob_removeslaves(block_list* bl);
 int32 mob_is_clone(int32 mob_id);
 
 int32 mob_clone_spawn(map_session_data *sd, int16 m, int16 x, int16 y, const char *event, int32 master_id, enum e_mode mode, int32 flag, uint32 duration);
+// Custom (Hokage): give a spawned clone an aggressive offense-only jutsu loadout.
+void mob_clone_set_kagebunshin_skills(mob_data *md, map_session_data *sd);
 int32 mob_clone_delete(mob_data *md);
 
 void mob_reload_itemmob_data(void);

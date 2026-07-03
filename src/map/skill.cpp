@@ -4483,10 +4483,17 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 					ny = src->y;
 				}
 
-				// Spawn a friendly slave clone that inherits the caster's Max HP/SP,
-				// stats and learned skills (same primitive as @slaveclone).
-				if( mob_clone_spawn( sd, src->m, nx, ny, "", src->id, MD_NONE, 1, duration ) > 0 )
+				// Spawn a friendly slave clone that inherits the caster's Max HP/SP
+				// and stats (same primitive as @slaveclone). flag 1|2 = friendly
+				// slave, skip the stock skill copy - we assign an aggressive,
+				// offense-only jutsu loadout below so the clones reliably cast at
+				// enemies instead of the unreliable default clone behaviour.
+				int32 gid = mob_clone_spawn( sd, src->m, nx, ny, "", src->id, MD_NONE, 1|2, duration );
+				if( gid > 0 ){
 					spawned++;
+					if( mob_data* cmd = map_id2md( gid ) )
+						mob_clone_set_kagebunshin_skills( cmd, sd );
+				}
 			}
 
 			if( spawned > 0 )
@@ -4542,7 +4549,7 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 		break;
 
 	case HOK_DAICHI_HASAI: // Daichi Hasai no Jutsu - cast NPC_EARTHQUAKE beneath the caster
-		if( sd ){
+		if( sd || md ){ // md: allow Kage Bunshin clones (mobs) to cast it too
 			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
 			// NPC_EARTHQUAKE is a ground skill unit (UNT_EARTHQUAKE); place it at the caster.
 			skill_unitsetting( src, NPC_EARTHQUAKE, skill_lv, src->x, src->y, 0 );

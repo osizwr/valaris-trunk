@@ -4903,6 +4903,98 @@ int32 mob_clone_spawn(map_session_data *sd, int16 m, int16 x, int16 y, const cha
 	return md->id;
 }
 
+/**
+ * Custom (Hokage): decides whether a Kage Bunshin clone should cast a given skill.
+ * Clones are OFFENSE ONLY - they cast every damage/debuff jutsu the caster has
+ * learned but never buff, heal or summon.
+ * @param skill_id: Skill to test
+ * @return true if the clone should cast it at enemies
+ */
+static bool mob_clone_skill_is_offensive(uint16 skill_id)
+{
+	switch (skill_id) {
+		// Summon / dispel jutsu: never let a clone spawn or clear clones.
+		case HOK_KAGEBUNSHIN:
+		case HOK_TAJUU_KAGEBUNSHIN:
+		case HOK_GYAKU_KUCHIYOSE:
+		// Self-buffs: clones are offense only (no support).
+		case HOK_JINTON:
+		case HOK_SENNIN_MODE:
+		case HOK_FUUJUTSU_KYUUIN:
+			return false;
+		// Custom offensive jutsu. Some are flagged NoDamage (Daichi Hasai's quake,
+		// Narakumi's genjutsu debuff) or are self-cast AoE (Shinra Tensei, Sensatsu
+		// Suishou fan out from the caster), so they can't be detected generically.
+		case HOK_DAICHI_HASAI:
+		case HOK_RASENGAN:
+		case HOK_MUON_SATSUJIN:
+		case HOK_SHINRA_TENSEI:
+		case HOK_NARAKUMI:
+		case HOK_SENSATSU_SUISHOU:
+			return true;
+	}
+	// Inherited job (e.g. Ninja) skills: keep any active enemy-facing damage skill.
+	int32 inf = skill_get_inf(skill_id);
+	if (inf&INF_ATTACK_SKILL)
+		return true;
+	if ((inf&INF_GROUND_SKILL) && skill_get_unit_target(skill_id) == BCT_ENEMY)
+		return true;
+	return false;
+}
+
+/**
+ * Custom (Hokage): replace a Kage Bunshin clone's skill list with an aggressive,
+ * offense-only jutsu loadout built from the caster's learned skills. The clone
+ * reliably casts at its current target instead of the stock clone behaviour
+ * (5% chance on attack skills, self-buffs gated to HP<90%, SP-gated at spawn).
+ * Each clone owns its own s_mob_db, so this only affects that clone.
+ * @param md: The spawned clone
+ * @param sd: The caster whose learned jutsu are copied
+ */
+void mob_clone_set_kagebunshin_skills(mob_data *md, map_session_data *sd)
+{
+	if (md == nullptr || sd == nullptr || md->db == nullptr)
+		return;
+
+	std::vector<std::shared_ptr<s_mob_skill>> &skills = md->db->skill;
+	skills.clear();
+
+	for (int32 i = 0; i < MAX_SKILL; i++) {
+		uint16 skill_id = sd->status.skill[i].id;
+		uint16 skill_lv = sd->status.skill[i].lv;
+
+		if (skill_id == 0 || skill_lv < 1)
+			continue;
+		if (skills.size() >= MAX_MOBSKILL)
+			break;
+		if (!mob_clone_skill_is_offensive(skill_id))
+			continue;
+
+		int32 inf = skill_get_inf(skill_id);
+
+		std::shared_ptr<s_mob_skill> ms = std::make_shared<s_mob_skill>();
+		ms->skill_id = skill_id;
+		ms->skill_lv = skill_lv;
+		// MSS_ANYTARGET + MSC_ALWAYS: fire whenever the clone has an enemy target,
+		// regardless of movement state, so the jutsu are used aggressively.
+		ms->state = MSS_ANYTARGET;
+		ms->cond1 = MSC_ALWAYS;
+		ms->cond2 = 0;
+		ms->permillage = 10000; // always attempt when off cooldown
+		ms->emotion = -1;
+		ms->cancel = 0;
+		ms->msg_id = 0;
+		ms->casttime = skill_castfix(sd, skill_id, ms->skill_lv);
+		// Short per-skill cooldown so the clone rotates jutsu instead of the stock 5s gap.
+		ms->delay = 2000 + skill_delayfix(sd, skill_id, ms->skill_lv);
+		// Self-cast AoE jutsu (Daichi Hasai / Shinra Tensei / Sensatsu Suishou) fan
+		// out from the clone; everything else is aimed at the enemy target.
+		ms->target = (inf&INF_SELF_SKILL) ? MST_SELF : MST_TARGET;
+
+		skills.push_back(ms);
+	}
+}
+
 int32 mob_clone_delete(mob_data *md){
 	uint32 mob_id = md->mob_id;
 
