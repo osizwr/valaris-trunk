@@ -6,7 +6,7 @@
 # is itself loaded as an import, and a nested import would reset the shared
 # parser state mid-load and crash the map-server.
 #
-#  - Hokage (job 4051 = Death_Knight): stats + ASPD
+#  - Hokage (job 4300 = JOB_HOKAGE, Ninja-lineage): stats + ASPD
 #  - Transcendent line: Base 255 / Job 120 exp tables
 ###########################################################################
 
@@ -15,10 +15,10 @@ Header:
   Version: 4
 
 Body:
-  # Hokage - custom class on job 4051 (Death_Knight). Stats + ASPD together so
+  # Hokage - custom class on job 4300 (JOB_HOKAGE). Stats + ASPD together so
   # the ASPD vector is sized and filled during the job's creation.
   - Jobs:
-      Death_Knight: true
+      Hokage: true
     MaxWeight: 30000
     HpFactor: 90
     HpIncrease: 500

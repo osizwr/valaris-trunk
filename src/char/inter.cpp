@@ -212,6 +212,9 @@ const char* job_name(int32 class_) {
 		case JOB_DARK_COLLECTOR:
 			return msg_txt(72 - JOB_GANGSI+class_);
 
+		case JOB_HOKAGE:
+			return msg_txt(219);
+
 		case JOB_RUNE_KNIGHT:
 		case JOB_WARLOCK:
 		case JOB_RANGER:

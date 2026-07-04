@@ -7553,6 +7553,7 @@ uint64 pc_jobid2mapid(uint16 b_class)
 		case JOB_OBORO:                 return MAPID_KAGEROUOBORO;
 		case JOB_SPIRIT_HANDLER:        return MAPID_SPIRIT_HANDLER;
 		case JOB_DEATH_KNIGHT:          return MAPID_DEATH_KNIGHT;
+		case JOB_HOKAGE:                return MAPID_HOKAGE;
 	//2-2 Jobs
 		case JOB_CRUSADER:              return MAPID_CRUSADER;
 		case JOB_SAGE:                  return MAPID_SAGE;
@@ -7733,6 +7734,7 @@ int32 pc_mapid2jobid(uint64 class_, int32 sex)
 		case MAPID_KAGEROUOBORO:          return sex?JOB_KAGEROU:JOB_OBORO;
 		case MAPID_SPIRIT_HANDLER:        return JOB_SPIRIT_HANDLER;
 		case MAPID_DEATH_KNIGHT:          return JOB_DEATH_KNIGHT;
+		case MAPID_HOKAGE:                return JOB_HOKAGE;
 	//2-2 Jobs
 		case MAPID_CRUSADER:              return JOB_CRUSADER;
 		case MAPID_SAGE:                  return JOB_SAGE;
@@ -8002,6 +8004,9 @@ const char* job_name(int32 class_)
 	case JOB_DEATH_KNIGHT:
 	case JOB_DARK_COLLECTOR:
 		return msg_txt(nullptr,622 - JOB_GANGSI+class_);
+
+	case JOB_HOKAGE:
+		return msg_txt(nullptr,1541);
 
 	case JOB_RUNE_KNIGHT:
 	case JOB_WARLOCK:

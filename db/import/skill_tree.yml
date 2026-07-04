@@ -1,10 +1,9 @@
 ###########################################################################
 # Custom skill tree override (auto-imported after db/<re|pre-re>/skill_tree.yml)
 #
-# Hokage (job 4051 = Death_Knight slot).
-# The parser MERGES with the base Death_Knight entry (pc.cpp SkillTreeDatabase),
-# so:
-#   - Novice: false  removes the placeholder inheritance the base file had.
+# Hokage (job 4300 = JOB_HOKAGE, a fresh Ninja-lineage job).
+# This creates the Hokage skill tree (no base entry exists for it), so:
+#   - Novice: false  is a harmless no-op here.
 #   - Ninja / Kagerou: true  pull in the full Ninja + Kagerou skill sets,
 #     making Hokage play as an advanced Ninja.
 #
@@ -18,9 +17,9 @@ Header:
   Version: 1
 
 Body:
-  - Job: Death_Knight
+  - Job: Hokage
     Inherit:
-      Novice: false      # remove placeholder from the base vestigial entry
+      Novice: false      # no-op for the fresh Hokage job (no base entry to override)
       Ninja: true        # full Ninja skill set
       Kagerou: false      # Kagerou/Oboro (KO_*) advanced skills
     Tree:
