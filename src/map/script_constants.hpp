@@ -131,7 +131,6 @@
 	export_constant(JOB_GANGSI);
 	export_constant(JOB_DEATH_KNIGHT);
 	export_constant(JOB_DARK_COLLECTOR);
-	export_constant(JOB_HOKAGE);
 
 	export_constant(JOB_RUNE_KNIGHT);
 	export_constant(JOB_WARLOCK);
@@ -307,7 +306,6 @@
 	export_constant2("EAJ_SPIRIT_HANDLER",MAPID_SPIRIT_HANDLER);
 	export_constant2("EAJ_DEATH_KNIGHT",MAPID_DEATH_KNIGHT);
 	export_constant2("EAJ_DEATHKNIGHT",MAPID_DEATH_KNIGHT);
-	export_constant2("EAJ_HOKAGE",MAPID_HOKAGE);
 
 	export_constant2("EAJ_CRUSADER",MAPID_CRUSADER);
 	export_constant2("EAJ_SAGE",MAPID_SAGE);

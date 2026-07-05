@@ -1,15 +1,18 @@
 ###########################################################################
 # Custom skill tree override (auto-imported after db/<re|pre-re>/skill_tree.yml)
 #
-# Hokage (job 4300 = JOB_HOKAGE, a fresh Ninja-lineage job).
-# This creates the Hokage skill tree (no base entry exists for it), so:
-#   - Novice: false  is a harmless no-op here.
-#   - Ninja / Kagerou: true  pull in the full Ninja + Kagerou skill sets,
-#     making Hokage play as an advanced Ninja.
+# HOKAGE = the Kagerou (male, 4211) / Oboro (female, 4212) job, repurposed.
+# Both are already Ninja-lineage (MAPID_KAGEROUOBORO = JOBL_2_1|MAPID_NINJA)
+# and already Inherit: Ninja, so the Ninja jutsu come for free.
 #
-# Inheritance only copies skills defined in that job's own Tree (not what it
-# inherits), so we list both Ninja and Kagerou to get the complete kit.
-# Add entries under Tree: below to grant extra/custom skills.
+# This override MERGES into the base Kagerou/Oboro entries and:
+#   1. STRIPS every native Kagerou (KO_*/KG_*) and Oboro (KO_*/OB_*) skill by
+#      setting MaxLevel: 0 (the parser removes MaxLevel-0 skills on merge).
+#   2. ADDS the 12 custom HOK_* jutsu.
+# Net tree per job: full Ninja set (inherited) + HOK_* customs. No KO_/KG_/OB_.
+#
+# Applies in BOTH renewal and pre-re (import has no Mode tag). Zeroing a skill
+# that doesn't exist in a given mode's base tree is a harmless no-op.
 ###########################################################################
 
 Header:
@@ -17,37 +20,126 @@ Header:
   Version: 1
 
 Body:
-  - Job: Hokage
+  #########################################################################
+  # KAGEROU (male) - Hokage
+  #########################################################################
+  - Job: Kagerou
     Inherit:
-      Novice: false      # no-op for the fresh Hokage job (no base entry to override)
-      Ninja: true        # full Ninja skill set
-      Kagerou: false      # Kagerou/Oboro (KO_*) advanced skills
+      Ninja: true          # keep full Ninja skill set
     Tree:
-      # Hokage-exclusive custom skills
-      - Name: HOK_KAGEBUNSHIN   # Kage Bunshin no Jutsu (id 7001)
+      # --- strip native Kagerou skills (KO_* / KG_*) ---
+      - { Name: KO_YAMIKUMO,     MaxLevel: 0 }
+      - { Name: KO_RIGHT,        MaxLevel: 0 }
+      - { Name: KO_LEFT,         MaxLevel: 0 }
+      - { Name: KO_JYUMONJIKIRI, MaxLevel: 0 }
+      - { Name: KO_SETSUDAN,     MaxLevel: 0 }
+      - { Name: KO_BAKURETSU,    MaxLevel: 0 }
+      - { Name: KO_HAPPOKUNAI,   MaxLevel: 0 }
+      - { Name: KO_MUCHANAGE,    MaxLevel: 0 }
+      - { Name: KO_HUUMARANKA,   MaxLevel: 0 }
+      - { Name: KO_MAKIBISHI,    MaxLevel: 0 }
+      - { Name: KO_MEIKYOUSISUI, MaxLevel: 0 }
+      - { Name: KO_ZANZOU,       MaxLevel: 0 }
+      - { Name: KO_KYOUGAKU,     MaxLevel: 0 }
+      - { Name: KO_JYUSATSU,     MaxLevel: 0 }
+      - { Name: KO_KAHU_ENTEN,   MaxLevel: 0 }
+      - { Name: KO_HYOUHU_HUBUKI, MaxLevel: 0 }
+      - { Name: KO_KAZEHU_SEIRAN, MaxLevel: 0 }
+      - { Name: KO_DOHU_KOUKAI,  MaxLevel: 0 }
+      - { Name: KO_KAIHOU,       MaxLevel: 0 }
+      - { Name: KO_ZENKAI,       MaxLevel: 0 }
+      - { Name: KO_GENWAKU,      MaxLevel: 0 }
+      - { Name: KO_IZAYOI,       MaxLevel: 0 }
+      - { Name: KG_KAGEHUMI,     MaxLevel: 0 }
+      - { Name: KG_KYOMU,        MaxLevel: 0 }
+      - { Name: KG_KAGEMUSYA,    MaxLevel: 0 }
+      # --- Hokage custom jutsu ---
+      - Name: HOK_KAGEBUNSHIN       # Kage Bunshin no Jutsu (7001)
         MaxLevel: 10
-      - Name: HOK_TAJUU_KAGEBUNSHIN # Tajuu Kage Bunshin no Jutsu (id 7002)
+      - Name: HOK_TAJUU_KAGEBUNSHIN # Tajuu Kage Bunshin no Jutsu (7002)
         MaxLevel: 10
         Requires:
-          - Name: HOK_KAGEBUNSHIN   # advanced form - master Kage Bunshin first
+          - Name: HOK_KAGEBUNSHIN
             Level: 10
-      - Name: HOK_GYAKU_KUCHIYOSE  # Gyaku Kuchiyose - dispel clones (id 7003)
+      - Name: HOK_GYAKU_KUCHIYOSE   # Gyaku Kuchiyose - dispel clones (7003)
         MaxLevel: 1
-      - Name: HOK_DAICHI_HASAI     # Daichi Hasai no Jutsu - earthquake (id 7004)
+      - Name: HOK_DAICHI_HASAI      # Daichi Hasai no Jutsu - earthquake (7004)
         MaxLevel: 10
-      - Name: HOK_JINTON           # Jinton no Jutsu - flee/speed buff (id 7005)
+      - Name: HOK_JINTON            # Jinton no Jutsu - flee/speed buff (7005)
         MaxLevel: 5
-      - Name: HOK_SENNIN_MODE      # Sennin Mode / Sage Mode - triple ATK buff (id 7006)
+      - Name: HOK_SENNIN_MODE       # Sennin Mode - triple ATK buff (7006)
         MaxLevel: 5
-      - Name: HOK_RASENGAN         # Rasengan - 10% max HP dmg/level, Misc (id 7007)
+      - Name: HOK_RASENGAN          # Rasengan - 10% max HP dmg/level (7007)
         MaxLevel: 5
-      - Name: HOK_MUON_SATSUJIN    # Muon Satsujin no Jutsu - never-miss melee ATK (id 7008)
+      - Name: HOK_MUON_SATSUJIN     # Muon Satsujin - never-miss melee ATK (7008)
         MaxLevel: 5
-      - Name: HOK_SHINRA_TENSEI    # Shinra Tensei / Almighty Push - AoE knockback (id 7009)
+      - Name: HOK_SHINRA_TENSEI     # Shinra Tensei - AoE knockback (7009)
         MaxLevel: 5
-      - Name: HOK_FUUJUTSU_KYUUIN   # Fuujutsu Kyuuin - +100 armor DEF self buff (id 7010)
+      - Name: HOK_FUUJUTSU_KYUUIN   # Fuujutsu Kyuuin - +100 armor DEF buff (7010)
         MaxLevel: 10
-      - Name: HOK_NARAKUMI          # Narakumi no Jutsu - Confusion + Hallucination (id 7011)
+      - Name: HOK_NARAKUMI          # Narakumi - Confusion + Hallucination (7011)
         MaxLevel: 1
-      - Name: HOK_SENSATSU_SUISHOU  # Sensatsu Suishou - 1% current HP/level AoE (id 7012)
+      - Name: HOK_SENSATSU_SUISHOU  # Sensatsu Suishou - 1% current HP/lv AoE (7012)
+        MaxLevel: 10
+
+  #########################################################################
+  # OBORO (female) - Hokage
+  #########################################################################
+  - Job: Oboro
+    Inherit:
+      Ninja: true          # keep full Ninja skill set
+    Tree:
+      # --- strip native Oboro skills (KO_* / OB_*) ---
+      - { Name: KO_YAMIKUMO,     MaxLevel: 0 }
+      - { Name: KO_RIGHT,        MaxLevel: 0 }
+      - { Name: KO_LEFT,         MaxLevel: 0 }
+      - { Name: KO_JYUMONJIKIRI, MaxLevel: 0 }
+      - { Name: KO_SETSUDAN,     MaxLevel: 0 }
+      - { Name: KO_BAKURETSU,    MaxLevel: 0 }
+      - { Name: KO_HAPPOKUNAI,   MaxLevel: 0 }
+      - { Name: KO_MUCHANAGE,    MaxLevel: 0 }
+      - { Name: KO_HUUMARANKA,   MaxLevel: 0 }
+      - { Name: KO_MAKIBISHI,    MaxLevel: 0 }
+      - { Name: KO_MEIKYOUSISUI, MaxLevel: 0 }
+      - { Name: KO_ZANZOU,       MaxLevel: 0 }
+      - { Name: KO_KYOUGAKU,     MaxLevel: 0 }
+      - { Name: KO_JYUSATSU,     MaxLevel: 0 }
+      - { Name: KO_KAHU_ENTEN,   MaxLevel: 0 }
+      - { Name: KO_HYOUHU_HUBUKI, MaxLevel: 0 }
+      - { Name: KO_KAZEHU_SEIRAN, MaxLevel: 0 }
+      - { Name: KO_DOHU_KOUKAI,  MaxLevel: 0 }
+      - { Name: KO_KAIHOU,       MaxLevel: 0 }
+      - { Name: KO_ZENKAI,       MaxLevel: 0 }
+      - { Name: KO_GENWAKU,      MaxLevel: 0 }
+      - { Name: KO_IZAYOI,       MaxLevel: 0 }
+      - { Name: OB_ZANGETSU,     MaxLevel: 0 }
+      - { Name: OB_OBOROGENSOU,  MaxLevel: 0 }
+      - { Name: OB_AKAITSUKI,    MaxLevel: 0 }
+      # --- Hokage custom jutsu ---
+      - Name: HOK_KAGEBUNSHIN       # Kage Bunshin no Jutsu (7001)
+        MaxLevel: 10
+      - Name: HOK_TAJUU_KAGEBUNSHIN # Tajuu Kage Bunshin no Jutsu (7002)
+        MaxLevel: 10
+        Requires:
+          - Name: HOK_KAGEBUNSHIN
+            Level: 10
+      - Name: HOK_GYAKU_KUCHIYOSE   # Gyaku Kuchiyose - dispel clones (7003)
+        MaxLevel: 1
+      - Name: HOK_DAICHI_HASAI      # Daichi Hasai no Jutsu - earthquake (7004)
+        MaxLevel: 10
+      - Name: HOK_JINTON            # Jinton no Jutsu - flee/speed buff (7005)
+        MaxLevel: 5
+      - Name: HOK_SENNIN_MODE       # Sennin Mode - triple ATK buff (7006)
+        MaxLevel: 5
+      - Name: HOK_RASENGAN          # Rasengan - 10% max HP dmg/level (7007)
+        MaxLevel: 5
+      - Name: HOK_MUON_SATSUJIN     # Muon Satsujin - never-miss melee ATK (7008)
+        MaxLevel: 5
+      - Name: HOK_SHINRA_TENSEI     # Shinra Tensei - AoE knockback (7009)
+        MaxLevel: 5
+      - Name: HOK_FUUJUTSU_KYUUIN   # Fuujutsu Kyuuin - +100 armor DEF buff (7010)
+        MaxLevel: 10
+      - Name: HOK_NARAKUMI          # Narakumi - Confusion + Hallucination (7011)
+        MaxLevel: 1
+      - Name: HOK_SENSATSU_SUISHOU  # Sensatsu Suishou - 1% current HP/lv AoE (7012)
         MaxLevel: 10

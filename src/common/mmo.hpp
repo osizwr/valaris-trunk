@@ -1082,8 +1082,6 @@ enum e_job {
 	JOB_DRAGON_KNIGHT2,
 	JOB_IMPERIAL_GUARD2,
 
-	JOB_HOKAGE = 4300,	// Custom Ninja-lineage job (Naruto-themed Hokage)
-
 	JOB_SKY_EMPEROR = 4302,
 	JOB_SOUL_ASCETIC,
 	JOB_SHINKIRO,

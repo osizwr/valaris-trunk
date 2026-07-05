@@ -1,99 +1,36 @@
 =======================================================================
- HOKAGE  -  COMPLETE CLIENT PATCH
- Job: JOB_HOKAGE = 4300  (JT_HOKAGE)
+ HOKAGE  -  CLIENT PATCH  (Kagerou/Oboro reuse approach)
+ The class now RIDES ON the stock Kagerou (male, 4211) / Oboro (female, 4212)
+ job -- which already has sprites, names, job tabs and full registration.
+ => NO new job id, NO npcidentity/jobname edits, NO nil-index errors.
+ Target client: PACKETVER 20220406  (data\luafiles514\lua files\)
  Skills: HOK_KAGEBUNSHIN (7001) .. HOK_SENSATSU_SUISHOU (7012)
- Target client: PACKETVER 20220406  (src/custom/defines_pre.hpp)
-                => modern layout, files live under
-                   data\luafiles514\lua files\
 =======================================================================
 
  WHAT GOES WHERE
  ---------------
-  SECTION 0a  npcidentity.lub    -> data\luafiles514\lua files\datainfo\npcidentity.lub
-  SECTION 0b  jobname.lub        -> data\luafiles514\lua files\datainfo\jobname.lub
-  SECTION 0c  (job display name) -> data\msgstringtable.txt  (+ notes)
-  SECTION 0d  jobinheritlist.lub -> data\luafiles514\lua files\datainfo\jobinheritlist.lub (optional)
-  SECTION 1   skillid.lub        -> data\luafiles514\lua files\skillinfoz\skillid.lub
-  SECTION 2   skillinfolist.lub  -> data\luafiles514\lua files\skillinfoz\skillinfolist.lub
-  SECTION 3   skilldescript.lub  -> data\luafiles514\lua files\skillinfoz\skilldescript.lub
-  SECTION 4   skilltreeview.lub  -> data\luafiles514\lua files\skillinfoz\skilltreeview.lub
-
- GLOBAL CAVEATS
- --------------
-  * SpAmount[] below == db/import/skill_db.yml, level for level. Keep in sync.
-  * Table/global names (jobtbl vs JOBID, SKILL_TREEVIEW_DIC vs the tree
-    container) can differ between lua packs of the same era. Open each target
-    file, find how a STOCK job (e.g. Kagerou / Sky Emperor) is written, and
-    match that exact pattern. Your existing files already reference the job as
-    JOBID.JT_* and skills as SKID.* - so those globals exist in your pack.
-  * Your custom GRF must WIN the load order (data.ini / "Read Data Folder
-    First"), or the official luas/sprites override these edits silently.
-  * All Korean folder names below are EUC-KR (codepage 949), not UTF-8.
+  SECTION 0   CLEANUP     -> undo the old JOB_HOKAGE(4300) client edits
+  SECTION 1   skillid.lub       -> ...\skillinfoz\skillid.lub        (unchanged)
+  SECTION 2   skillinfolist.lub -> ...\skillinfoz\skillinfolist.lub  (unchanged)
+  SECTION 3   skilldescript.lub -> ...\skillinfoz\skilldescript.lub  (unchanged)
+  SECTION 4   skilltreeview.lub -> REPLACE the JT_KAGEROU + JT_OBORO tabs
+  SECTION 5   msgstringtable    -> rename "Kagerou"/"Oboro" -> "Hokage"
+  SECTION 6   sprite swap       -> optional custom body over Kagerou/Oboro
 
 
 =======================================================================
- SECTION 0a  -  npcidentity.lub   (register the numeric job id)
+ SECTION 0  -  CLEANUP (remove the earlier dedicated-job edits)
 =======================================================================
--- Add JT_HOKAGE = 4300 to the job-id table. In a 2022 lua pack this file
--- builds the `jobtbl` table (aliased as JOBID in most packs). Add ONE of the
--- following, matching your file's style:
-
--- style A (table is a growing list of `Name = id,` lines inside jobtbl = {...}):
-    JT_HOKAGE = 4300,
-
--- style B (entries assigned after the table literal):
-jobtbl.JT_HOKAGE = 4300
-
--- If your pack keeps JOBID as a separate global from jobtbl, also add:
-JOBID.JT_HOKAGE = 4300
+-- If you added any of these for the 4300 attempt, DELETE them now:
+--   npcidentity.lub  : the  JT_HOKAGE = 4300   line
+--   jobname.lub      : the  [4300] = "hokage"  line
+--   jobinheritlist   : any  4300 / JT_HOKAGE   line
+--   skilltreeview.lub: the  SKILL_TREEVIEW_DIC[4300] = {...}  block
+-- Kagerou/Oboro already exist, so none of that is needed anymore.
 
 
 =======================================================================
- SECTION 0b  -  jobname.lub   (THE body-sprite redirect - stops the
-                               Novice/Knight fallback look)
-=======================================================================
--- Maps the job id to a sprite FOLDER BASE NAME. The client then loads:
---   male   : data\sprite\ÀÎ°£Á·\¸öÅë\³²\hokage_³².spr / .act
---   female : data\sprite\ÀÎ°£Á·\¸öÅë\¿©\hokage_¿©.spr / .act
---   palette: data\palette\¸ö\hokage_³²_0.pal ... , hokage_¿©_0.pal ...
--- The base name ("hokage") must byte-match your sprite/palette file names.
-
--- Add inside the JobNameTable = { ... } table:
-    [jobtbl.JT_HOKAGE] = "hokage",
-
--- Some 2022 packs also resolve names through a function ReqjobName(); if yours
--- has an explicit switch/if there, add a matching branch returning "hokage".
--- Using a plain ASCII base ("hokage") is fine as long as the sprite folder
--- files are named hokage_³².spr etc. (sex suffix stays Korean).
-
-
-=======================================================================
- SECTION 0c  -  in-client JOB NAME text (char-select / basic info window)
-=======================================================================
--- The DISPLAYED job name in the client comes from the CLIENT's own data, not
--- from the server msg you already set (server msg only affects @commands and
--- server chat). For a 2022 client:
---   1) Put the string "Hokage" in data\msgstringtable.txt at a free line, note
---      that line index N.
---   2) Point the job to it. In most 2022 packs the job-name text is resolved
---      in data\luafiles514\lua files\datainfo\jobidentity.lua (or the client
---      reads msgstringtable directly by a fixed job->msgid map). Match how a
---      stock 4th job maps its name and add a JT_HOKAGE branch returning N.
--- If you skip this, gameplay still works; the class may just show a blank or
--- fallback name in the basic-info window.
-
-
-=======================================================================
- SECTION 0d  -  jobinheritlist.lub   (OPTIONAL sprite fallback)
-=======================================================================
--- Lets Hokage borrow another job's assets for anything you didn't author
--- (headgear anchor fallbacks, robes, etc.). For a full custom body you can
--- skip this. If headgears float or accessories error, inherit from Ninja:
-    [jobtbl.JT_HOKAGE] = jobtbl.JT_NINJA,
-
-
-=======================================================================
- SECTION 1  -  skillid.lub   (SKID: skill name -> id)
+ SECTION 1  -  skillid.lub   (SKID: skill name -> id)  [KEEP - unchanged]
 =======================================================================
 SKID.HOK_KAGEBUNSHIN       = 7001
 SKID.HOK_TAJUU_KAGEBUNSHIN = 7002
@@ -110,235 +47,150 @@ SKID.HOK_SENSATSU_SUISHOU  = 7012
 
 
 =======================================================================
- SECTION 2  -  skillinfolist.lub   (SP / range / prerequisites)
- 1st string = RESOURCE name -> needs an icon at
-   data\texture\À¯ÀúÀÎÅÍÆäÀÌ½º\item\<resource>.bmp
- (or change it to an existing skill's resource to reuse that icon).
+ SECTION 2  -  skillinfolist.lub   [KEEP - unchanged]
+ SpAmount[] matches db/import/skill_db.yml level for level.
+ 1st string = icon resource -> needs data\texture\...\item\<name>.bmp
+ (or swap it to an existing skill's resource to reuse that icon).
 =======================================================================
 SKILL_INFO_LIST[SKID.HOK_KAGEBUNSHIN] = {
-	"HOK_KAGEBUNSHIN",
-	SkillName = "Kage Bunshin no Jutsu",
-	MaxLv = 10,
+	"HOK_KAGEBUNSHIN", SkillName = "Kage Bunshin no Jutsu", MaxLv = 10,
 	SpAmount = { 40, 44, 48, 52, 56, 60, 64, 68, 72, 76 },
-	bSeperateLv = true,
-	AttackRange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 0,0,0,0,0,0,0,0,0,0 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_TAJUU_KAGEBUNSHIN] = {
-	"HOK_TAJUU_KAGEBUNSHIN",
-	SkillName = "Tajuu Kage Bunshin no Jutsu",
-	MaxLv = 10,
+	"HOK_TAJUU_KAGEBUNSHIN", SkillName = "Tajuu Kage Bunshin no Jutsu", MaxLv = 10,
 	SpAmount = { 80, 90, 100, 110, 120, 130, 140, 150, 160, 170 },
-	bSeperateLv = true,
-	AttackRange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	_NeedSkillList = { { SKID.HOK_KAGEBUNSHIN, 10 } }
-}
+	bSeperateLv = true, AttackRange = { 0,0,0,0,0,0,0,0,0,0 },
+	_NeedSkillList = { { SKID.HOK_KAGEBUNSHIN, 10 } } }
 SKILL_INFO_LIST[SKID.HOK_GYAKU_KUCHIYOSE] = {
-	"HOK_GYAKU_KUCHIYOSE",
-	SkillName = "Gyaku Kuchiyose",
-	MaxLv = 1,
-	SpAmount = { 20 },
-	bSeperateLv = true,
-	AttackRange = { 0 },
-	_NeedSkillList = {}
-}
+	"HOK_GYAKU_KUCHIYOSE", SkillName = "Gyaku Kuchiyose", MaxLv = 1,
+	SpAmount = { 20 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_DAICHI_HASAI] = {
-	"HOK_DAICHI_HASAI",
-	SkillName = "Daichi Hasai no Jutsu",
-	MaxLv = 10,
+	"HOK_DAICHI_HASAI", SkillName = "Daichi Hasai no Jutsu", MaxLv = 10,
 	SpAmount = { 60, 70, 80, 90, 100, 110, 120, 130, 140, 150 },
-	bSeperateLv = true,
-	AttackRange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 0,0,0,0,0,0,0,0,0,0 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_JINTON] = {
-	"HOK_JINTON",
-	SkillName = "Jinton no Jutsu",
-	MaxLv = 5,
+	"HOK_JINTON", SkillName = "Jinton no Jutsu", MaxLv = 5,
 	SpAmount = { 30, 35, 40, 45, 50 },
-	bSeperateLv = true,
-	AttackRange = { 0, 0, 0, 0, 0 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 0,0,0,0,0 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_SENNIN_MODE] = {
-	"HOK_SENNIN_MODE",
-	SkillName = "Sennin Mode",
-	MaxLv = 5,
+	"HOK_SENNIN_MODE", SkillName = "Sennin Mode", MaxLv = 5,
 	SpAmount = { 60, 70, 80, 90, 100 },
-	bSeperateLv = true,
-	AttackRange = { 0, 0, 0, 0, 0 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 0,0,0,0,0 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_RASENGAN] = {
-	"HOK_RASENGAN",
-	SkillName = "Rasengan",
-	MaxLv = 5,
+	"HOK_RASENGAN", SkillName = "Rasengan", MaxLv = 5,
 	SpAmount = { 40, 50, 60, 70, 80 },
-	bSeperateLv = true,
-	AttackRange = { 2, 2, 2, 2, 2 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 2,2,2,2,2 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_MUON_SATSUJIN] = {
-	"HOK_MUON_SATSUJIN",
-	SkillName = "Muon Satsujin no Jutsu",
-	MaxLv = 5,
+	"HOK_MUON_SATSUJIN", SkillName = "Muon Satsujin no Jutsu", MaxLv = 5,
 	SpAmount = { 50, 60, 70, 80, 90 },
-	bSeperateLv = true,
-	AttackRange = { 2, 2, 2, 2, 2 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 2,2,2,2,2 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_SHINRA_TENSEI] = {
-	"HOK_SHINRA_TENSEI",
-	SkillName = "Shinra Tensei",
-	MaxLv = 5,
+	"HOK_SHINRA_TENSEI", SkillName = "Shinra Tensei", MaxLv = 5,
 	SpAmount = { 60, 70, 80, 90, 100 },
-	bSeperateLv = true,
-	AttackRange = { 0, 0, 0, 0, 0 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 0,0,0,0,0 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_FUUJUTSU_KYUUIN] = {
-	"HOK_FUUJUTSU_KYUUIN",
-	SkillName = "Fuujutsu Kyuuin",
-	MaxLv = 10,
+	"HOK_FUUJUTSU_KYUUIN", SkillName = "Fuujutsu Kyuuin", MaxLv = 10,
 	SpAmount = { 30, 33, 36, 40, 43, 46, 50, 53, 56, 60 },
-	bSeperateLv = true,
-	AttackRange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 0,0,0,0,0,0,0,0,0,0 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_NARAKUMI] = {
-	"HOK_NARAKUMI",
-	SkillName = "Narakumi no Jutsu",
-	MaxLv = 1,
-	SpAmount = { 40 },
-	bSeperateLv = true,
-	AttackRange = { 9 },
-	_NeedSkillList = {}
-}
+	"HOK_NARAKUMI", SkillName = "Narakumi no Jutsu", MaxLv = 1,
+	SpAmount = { 40 }, bSeperateLv = true, AttackRange = { 9 }, _NeedSkillList = {} }
 SKILL_INFO_LIST[SKID.HOK_SENSATSU_SUISHOU] = {
-	"HOK_SENSATSU_SUISHOU",
-	SkillName = "Sensatsu Suishou",
-	MaxLv = 10,
+	"HOK_SENSATSU_SUISHOU", SkillName = "Sensatsu Suishou", MaxLv = 10,
 	SpAmount = { 40, 47, 53, 60, 67, 73, 80, 87, 93, 100 },
-	bSeperateLv = true,
-	AttackRange = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 },
-	_NeedSkillList = {}
-}
+	bSeperateLv = true, AttackRange = { 0,0,0,0,0,0,0,0,0,0 }, _NeedSkillList = {} }
 
 
 =======================================================================
- SECTION 3  -  skilldescript.lub   (tooltips)
+ SECTION 3  -  skilldescript.lub   [KEEP - unchanged]  (tooltips)
 =======================================================================
 SKILL_DESCRIPT[SKID.HOK_KAGEBUNSHIN] = {
 	"Kage Bunshin no Jutsu",
 	"^777777Shadow Clone Technique.^000000",
 	"Summons shadow clones that fight beside you and",
-	"cast the jutsu you have learned. Clone lifespan",
-	"grows with skill level.",
-	"^0000FFType:^000000 Active / Self",
-	"^0000FFMax Level:^000000 10"
-}
+	"cast the jutsu you have learned.",
+	"^0000FFMax Level:^000000 10" }
 SKILL_DESCRIPT[SKID.HOK_TAJUU_KAGEBUNSHIN] = {
 	"Tajuu Kage Bunshin no Jutsu",
 	"^777777Multi Shadow Clone Technique.^000000",
-	"Summons a swarm of 20 fragile clones that die in",
-	"3 hits, overwhelming enemies with numbers.",
-	"^0000FFRequires:^000000 Kage Bunshin no Jutsu Lv 10",
-	"^0000FFType:^000000 Active / Self",
-	"^0000FFMax Level:^000000 10"
-}
+	"Summons 20 fragile clones that die in 3 hits.",
+	"^0000FFRequires:^000000 Kage Bunshin Lv 10",
+	"^0000FFMax Level:^000000 10" }
 SKILL_DESCRIPT[SKID.HOK_GYAKU_KUCHIYOSE] = {
 	"Gyaku Kuchiyose",
 	"^777777Reverse Summoning.^000000",
 	"Instantly dispels all of your active clones.",
-	"^0000FFType:^000000 Active / Self",
-	"^0000FFMax Level:^000000 1"
-}
+	"^0000FFMax Level:^000000 1" }
 SKILL_DESCRIPT[SKID.HOK_DAICHI_HASAI] = {
 	"Daichi Hasai no Jutsu",
 	"^777777Earth Crushing Technique.^000000",
-	"Slams the ground, triggering an earthquake that",
-	"damages enemies around you. Damage scales with level.",
-	"^0000FFType:^000000 Magic / Self (AoE)",
-	"^0000FFMax Level:^000000 10"
-}
+	"An earthquake that damages enemies around you.",
+	"^0000FFMax Level:^000000 10" }
 SKILL_DESCRIPT[SKID.HOK_JINTON] = {
 	"Jinton no Jutsu",
 	"^777777Swift Release.^000000",
-	"Doubles Flee and increases movement speed.",
-	"Duration scales with level.",
-	"^0000FFType:^000000 Buff / Self",
-	"^0000FFMax Level:^000000 5"
-}
+	"Doubles Flee and boosts movement speed.",
+	"^0000FFMax Level:^000000 5" }
 SKILL_DESCRIPT[SKID.HOK_SENNIN_MODE] = {
 	"Sennin Mode",
 	"^777777Sage Mode.^000000",
-	"Channels natural energy to TRIPLE your ATK",
-	"for a short time. Duration scales with level.",
-	"^0000FFType:^000000 Buff / Self",
-	"^0000FFMax Level:^000000 5"
-}
+	"Triples your ATK for a short time.",
+	"^0000FFMax Level:^000000 5" }
 SKILL_DESCRIPT[SKID.HOK_RASENGAN] = {
 	"Rasengan",
 	"^777777Spiraling Sphere.^000000",
-	"A dense sphere of chakra dealing damage equal to",
-	"10% of your Max HP per level. Ignores Flee/DEF.",
-	"^0000FFType:^000000 Attack (Misc) / Range 2",
-	"^0000FFMax Level:^000000 5"
-}
+	"Deals 10% of your Max HP per level. Ignores Flee/DEF.",
+	"^0000FFMax Level:^000000 5" }
 SKILL_DESCRIPT[SKID.HOK_MUON_SATSUJIN] = {
 	"Muon Satsujin no Jutsu",
 	"^777777Silent Homicide.^000000",
-	"A never-miss melee strike dealing heavy weapon",
-	"damage (+200% ATK per level).",
-	"^0000FFType:^000000 Attack (Weapon) / Range 2",
-	"^0000FFMax Level:^000000 5"
-}
+	"A never-miss melee strike (+200% ATK per level).",
+	"^0000FFMax Level:^000000 5" }
 SKILL_DESCRIPT[SKID.HOK_SHINRA_TENSEI] = {
 	"Shinra Tensei",
 	"^777777Almighty Push.^000000",
-	"A gravitational blast that damages all nearby",
-	"enemies and knocks them radially outward.",
-	"Radius and knockback grow with level.",
-	"^0000FFType:^000000 Attack / Self (AoE)",
-	"^0000FFMax Level:^000000 5"
-}
+	"Damages nearby enemies and knocks them outward.",
+	"^0000FFMax Level:^000000 5" }
 SKILL_DESCRIPT[SKID.HOK_FUUJUTSU_KYUUIN] = {
 	"Fuujutsu Kyuuin",
 	"^777777Wind Absorption Barrier.^000000",
-	"Raises a wind barrier granting +100 hard DEF.",
-	"Duration scales with level.",
-	"^0000FFType:^000000 Buff / Self",
-	"^0000FFMax Level:^000000 10"
-}
+	"Grants +100 hard DEF.",
+	"^0000FFMax Level:^000000 10" }
 SKILL_DESCRIPT[SKID.HOK_NARAKUMI] = {
 	"Narakumi no Jutsu",
 	"^777777Hell Viewing Technique.^000000",
-	"A genjutsu that inflicts Confusion and",
-	"Hallucination on the target.",
-	"^0000FFType:^000000 Debuff / Range 9",
-	"^0000FFMax Level:^000000 1"
-}
+	"Inflicts Confusion and Hallucination on the target.",
+	"^0000FFMax Level:^000000 1" }
 SKILL_DESCRIPT[SKID.HOK_SENSATSU_SUISHOU] = {
 	"Sensatsu Suishou",
 	"^7777771000 Flying Water Needles of Death.^000000",
-	"Rains water needles on all nearby enemies for",
-	"1% of their CURRENT HP per level.",
-	"^0000FFType:^000000 Attack (Misc) / Self (AoE)",
-	"^0000FFMax Level:^000000 10"
+	"Hits nearby enemies for 1% of their current HP per level.",
+	"^0000FFMax Level:^000000 10" }
+
+
+=======================================================================
+ SECTION 4  -  skilltreeview.lub   (REPLACE the Kagerou + Oboro tabs)
+ Find the existing SKILL_TREEVIEW_DIC[JOBID.JT_KAGEROU] = {...} block and the
+ JT_OBORO one, and REPLACE their bodies with the HOK_ layout below. JOBID.JT_*
+ is already defined for these stock jobs, so no nil-index issue.
+ (If your file uses a different container name, match the stock entries.)
+ 7-col grid, index = row*7 + col. Tajuu at [7] sits under Kagebunshin at [0].
+=======================================================================
+SKILL_TREEVIEW_DIC[JOBID.JT_KAGEROU] = {
+	[0]  = SKID.HOK_KAGEBUNSHIN,
+	[1]  = SKID.HOK_GYAKU_KUCHIYOSE,
+	[2]  = SKID.HOK_DAICHI_HASAI,
+	[3]  = SKID.HOK_JINTON,
+	[4]  = SKID.HOK_SENNIN_MODE,
+	[5]  = SKID.HOK_RASENGAN,
+	[6]  = SKID.HOK_MUON_SATSUJIN,
+	[7]  = SKID.HOK_TAJUU_KAGEBUNSHIN,
+	[8]  = SKID.HOK_SHINRA_TENSEI,
+	[9]  = SKID.HOK_FUUJUTSU_KYUUIN,
+	[10] = SKID.HOK_NARAKUMI,
+	[11] = SKID.HOK_SENSATSU_SUISHOU,
 }
-
-
-=======================================================================
- SECTION 4  -  skilltreeview.lub   (the Hokage skill-window tab)
- 7-column grid: index = row*7 + column (0-based).
-   row0 (0-6):  Kagebunshin  Gyaku  Daichi  Jinton  Sennin  Rasengan  Muon
-   row1 (7-13): TajuuBunshin ShinraTensei Fuujutsu Narakumi Sensatsu
- Tajuu is at index 7 (directly under Kagebunshin at 0) so the prerequisite
- arrow draws straight down.
-=======================================================================
--- Match the container name your file uses for stock jobs (commonly
--- SKILL_TREEVIEW_DIC). Ensure JOBID.JT_HOKAGE = 4300 resolves (Section 0a).
-SKILL_TREEVIEW_DIC[JOBID.JT_HOKAGE] = {
+SKILL_TREEVIEW_DIC[JOBID.JT_OBORO] = {
 	[0]  = SKID.HOK_KAGEBUNSHIN,
 	[1]  = SKID.HOK_GYAKU_KUCHIYOSE,
 	[2]  = SKID.HOK_DAICHI_HASAI,
@@ -355,12 +207,42 @@ SKILL_TREEVIEW_DIC[JOBID.JT_HOKAGE] = {
 
 
 =======================================================================
+ SECTION 5  -  rename to "Hokage" in the client UI
+ The in-client job name (char-select, basic info) comes from the client's own
+ data\msgstringtable.txt, NOT the server. Open it and find the two lines that
+ read exactly "Kagerou" and "Oboro" (the job-name entries, not skill names) and
+ change both to "Hokage":
+     ...^Kagerou#   -> ...^Hokage#
+     ...^Oboro#     -> ...^Hokage#
+ (msgstringtable is tab/# delimited: "<id>#<text>#". Only edit the job-name
+  rows; leave KO_/OB_ skill-name rows alone.)
+ The server side is already renamed (map msg 653/654 + char msg 103/104).
+=======================================================================
+
+
+=======================================================================
+ SECTION 6  -  custom sprite swap (OPTIONAL - gives it a unique body)
+ Kagerou/Oboro already have working ninja bodies, so the class renders fine
+ with NO sprite work. To give it a custom look, just OVERWRITE the existing
+ Kagerou/Oboro body files in your GRF (same names => zero lua changes):
+   male   (Kagerou): data\sprite\ÀÎ°£Á·\¸öÅë\³²\kagerou_³².spr  + .act
+   female (Oboro)  : data\sprite\ÀÎ°£Á·\¸öÅë\¿©\oboro_¿©.spr    + .act
+   palettes        : data\palette\¸ö\kagerou_³²_0.pal .. , oboro_¿©_0.pal ..
+ Confirm the exact base name ("kagerou"/"oboro") by checking your jobname.lub
+ JobNameTable entries for JT_KAGEROU / JT_OBORO. The .act must keep the full
+ player action set (idle/walk/sit/attack/cast/hurt/dead x8 dir) or the client
+ crashes on a missing animation. EUC-KR (codepage 949) folder names.
+ Your custom GRF must win the data.ini load order to override the official one.
+
+
+=======================================================================
  POST-INSTALL TEST
 =======================================================================
-  1. Pack edited .lub + new sprites/palettes into your custom GRF (load first).
-  2. In-game: @job 4300  (or use the Hokage Master NPC).
-  3. Male AND female body render; walk/sit/attack/cast don't crash.
-  4. Open skill window -> Hokage tab shows 12 jutsu with correct SP,
-     Tajuu locked until Kage Bunshin Lv 10.
-  5. Clothes-color dropdown works (palettes) and headgears sit correctly.
+  1. Server: @reloadskilldb + @reloaddb (or restart) after the YAML changes.
+  2. Client: pack edited .lub (+ any custom sprites) into your GRF, load first.
+  3. In-game: become the job (Hokage Master NPC, or @job 24 male / @job 25... )
+     -- @job KAGEROU/OBORO by name, or the NPC handles gender for you.
+  4. Skill window -> the tab shows ONLY the 12 HOK_ jutsu (no KO_/KG_/OB_),
+     Ninja skills still learnable, Tajuu locked until Kage Bunshin Lv 10.
+  5. Job name shows "Hokage"; body renders (stock or your custom sprite).
 =======================================================================

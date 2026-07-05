@@ -1,0 +1,1772 @@
+diff --git a/conf/msg_conf/char_msg.conf b/conf/msg_conf/char_msg.conf
+index a3255b358..40dad6ec0 100644
+--- a/conf/msg_conf/char_msg.conf
++++ b/conf/msg_conf/char_msg.conf
+@@ -110,8 +110,8 @@
+ 100: Baby Shadow Chaser
+ 101: Expanded Super Novice
+ 102: Expanded Super Baby
+-103: Kagerou
+-104: Oboro
++103: Hokage
++104: Hokage
+ 105: Hanbok
+ 106: Rebellion
+ 107: Oktoberfest
+diff --git a/conf/msg_conf/import/map_msg_eng_conf.txt b/conf/msg_conf/import/map_msg_eng_conf.txt
+new file mode 100644
+index 000000000..a4ecd04bb
+--- /dev/null
++++ b/conf/msg_conf/import/map_msg_eng_conf.txt
+@@ -0,0 +1,10 @@
++// ============================================================
++//  Custom message overrides (English)
++//  This file is auto-imported by conf/msg_conf/map_msg.conf
++// ============================================================
++
++// HOKAGE = the Kagerou (653) / Oboro (654) job, renamed.
++// Read by pc.cpp job_name() -> shown in @job list, server messages, etc.
++// (The client's own msgstringtable must also be renamed for the in-game UI.)
++653: Hokage
++654: Hokage
+diff --git a/db/import/skill_db.yml b/db/import/skill_db.yml
+new file mode 100644
+index 000000000..aae58b413
+--- /dev/null
++++ b/db/import/skill_db.yml
+@@ -0,0 +1,544 @@
++###########################################################################
++# Custom skill definitions (auto-imported after db/<re|pre-re>/skill_db.yml)
++#
++# Kage Bunshin no Jutsu - custom Hokage skill (id 7001, constant HOK_KAGEBUNSHIN).
++# Data only; the summon behavior is implemented in src/map/skill.cpp
++# (skill_castend_nodamage_id -> case HOK_KAGEBUNSHIN) and requires a recompile.
++#
++# Duration1 below is used as the clone lifespan (skill_get_time) in the C++ code.
++#
++# NOTE: per-level fields (CastTime/Cooldown/SpCost/...) MUST list EVERY level.
++# The parser only extrapolates BEYOND the highest level given; gaps between two
++# sparse levels (e.g. only Level 1 + Level 10) are left at 0 - which would make
++# the in-between levels cast instantly / cost no SP. Single-level entries are
++# fine (they fill all levels with that one value).
++###########################################################################
++
++Header:
++  Type: SKILL_DB
++  Version: 4
++
++Body:
++  - Id: 7001
++    Name: HOK_KAGEBUNSHIN
++    Description: "Kage Bunshin no Jutsu"
++    MaxLevel: 10
++    TargetType: Self
++    DamageFlags:
++      NoDamage: true
++    Flags:
++      IsQuest: false
++    CastTime:
++      - Level: 1
++        Time: 1000
++    FixedCastTime:
++      - Level: 1
++        Time: 500
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - Level: 1
++        Time: 30000
++    Duration1:
++      - { Level: 1,  Time: 40000 }
++      - { Level: 2,  Time: 50000 }
++      - { Level: 3,  Time: 60000 }
++      - { Level: 4,  Time: 70000 }
++      - { Level: 5,  Time: 80000 }
++      - { Level: 6,  Time: 90000 }
++      - { Level: 7,  Time: 100000 }
++      - { Level: 8,  Time: 110000 }
++      - { Level: 9,  Time: 120000 }
++      - { Level: 10, Time: 130000 }
++    Requires:
++      SpCost:
++        - { Level: 1,  Amount: 40 }
++        - { Level: 2,  Amount: 44 }
++        - { Level: 3,  Amount: 48 }
++        - { Level: 4,  Amount: 52 }
++        - { Level: 5,  Amount: 56 }
++        - { Level: 6,  Amount: 60 }
++        - { Level: 7,  Amount: 64 }
++        - { Level: 8,  Amount: 68 }
++        - { Level: 9,  Amount: 72 }
++        - { Level: 10, Amount: 76 }
++
++  # Tajuu Kage Bunshin no Jutsu - 20 fragile, non-casting clones (die in 3 hits).
++  # Behavior in src/map/skill.cpp -> case HOK_TAJUU_KAGEBUNSHIN (requires recompile).
++  - Id: 7002
++    Name: HOK_TAJUU_KAGEBUNSHIN
++    Description: "Tajuu Kage Bunshin no Jutsu"
++    MaxLevel: 10
++    TargetType: Self
++    DamageFlags:
++      NoDamage: true
++    CastTime:
++      - Level: 1
++        Time: 2000
++    FixedCastTime:
++      - Level: 1
++        Time: 1000
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - Level: 1
++        Time: 60000
++    Duration1:
++      - { Level: 1,  Time: 40000 }
++      - { Level: 2,  Time: 50000 }
++      - { Level: 3,  Time: 60000 }
++      - { Level: 4,  Time: 70000 }
++      - { Level: 5,  Time: 80000 }
++      - { Level: 6,  Time: 90000 }
++      - { Level: 7,  Time: 100000 }
++      - { Level: 8,  Time: 110000 }
++      - { Level: 9,  Time: 120000 }
++      - { Level: 10, Time: 130000 }
++    Requires:
++      SpCost:
++        - { Level: 1,  Amount: 80 }
++        - { Level: 2,  Amount: 90 }
++        - { Level: 3,  Amount: 100 }
++        - { Level: 4,  Amount: 110 }
++        - { Level: 5,  Amount: 120 }
++        - { Level: 6,  Amount: 130 }
++        - { Level: 7,  Amount: 140 }
++        - { Level: 8,  Amount: 150 }
++        - { Level: 9,  Amount: 160 }
++        - { Level: 10, Amount: 170 }
++
++  # Gyaku Kuchiyose - dispels the caster's summoned clones on cast.
++  # Behavior in src/map/skill.cpp -> case HOK_GYAKU_KUCHIYOSE (requires recompile).
++  - Id: 7003
++    Name: HOK_GYAKU_KUCHIYOSE
++    Description: "Gyaku Kuchiyose"
++    MaxLevel: 1
++    TargetType: Self
++    DamageFlags:
++      NoDamage: true
++    CastTime:
++      - Level: 1
++        Time: 0
++    AfterCastActDelay:
++      - Level: 1
++        Time: 500
++    Cooldown:
++      - Level: 1
++        Time: 1000
++    Requires:
++      SpCost:
++        - Level: 1
++          Amount: 20
++
++  # Daichi Hasai no Jutsu - casts NPC_EARTHQUAKE at the caster's level beneath them.
++  # Behavior in src/map/skill.cpp -> case HOK_DAICHI_HASAI (requires recompile).
++  - Id: 7004
++    Name: HOK_DAICHI_HASAI
++    Description: "Daichi Hasai no Jutsu"
++    MaxLevel: 10
++    Type: Magic
++    TargetType: Self
++    DamageFlags:
++      NoDamage: true
++    CastTime:
++      - { Level: 1,  Time: 1000 }
++      - { Level: 2,  Time: 1200 }
++      - { Level: 3,  Time: 1400 }
++      - { Level: 4,  Time: 1600 }
++      - { Level: 5,  Time: 1800 }
++      - { Level: 6,  Time: 2000 }
++      - { Level: 7,  Time: 2200 }
++      - { Level: 8,  Time: 2400 }
++      - { Level: 9,  Time: 2600 }
++      - { Level: 10, Time: 3000 }
++    FixedCastTime:
++      - Level: 1
++        Time: 500
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - { Level: 1,  Time: 5000 }
++      - { Level: 2,  Time: 6000 }
++      - { Level: 3,  Time: 7000 }
++      - { Level: 4,  Time: 8000 }
++      - { Level: 5,  Time: 9000 }
++      - { Level: 6,  Time: 10000 }
++      - { Level: 7,  Time: 11000 }
++      - { Level: 8,  Time: 12000 }
++      - { Level: 9,  Time: 13000 }
++      - { Level: 10, Time: 15000 }
++    Requires:
++      SpCost:
++        - { Level: 1,  Amount: 60 }
++        - { Level: 2,  Amount: 70 }
++        - { Level: 3,  Amount: 80 }
++        - { Level: 4,  Amount: 90 }
++        - { Level: 5,  Amount: 100 }
++        - { Level: 6,  Amount: 110 }
++        - { Level: 7,  Amount: 120 }
++        - { Level: 8,  Amount: 130 }
++        - { Level: 9,  Amount: 140 }
++        - { Level: 10, Amount: 150 }
++
++  # Jinton no Jutsu - self buff: doubles flee + move speed +10%/level.
++  # Applies SC_JINTON in src/map/skill.cpp -> case HOK_JINTON (requires recompile).
++  # Duration1 (5s x level) is the buff duration.
++  - Id: 7005
++    Name: HOK_JINTON
++    Description: "Jinton no Jutsu"
++    MaxLevel: 5
++    TargetType: Self
++    DamageFlags:
++      NoDamage: true
++    CastTime:
++      - Level: 1
++        Time: 500
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - { Level: 1, Time: 10000 }
++      - { Level: 2, Time: 12500 }
++      - { Level: 3, Time: 15000 }
++      - { Level: 4, Time: 17500 }
++      - { Level: 5, Time: 20000 }
++    Duration1:
++      - { Level: 1, Time: 5000 }
++      - { Level: 2, Time: 10000 }
++      - { Level: 3, Time: 15000 }
++      - { Level: 4, Time: 20000 }
++      - { Level: 5, Time: 25000 }
++    Requires:
++      SpCost:
++        - { Level: 1, Amount: 30 }
++        - { Level: 2, Amount: 35 }
++        - { Level: 3, Amount: 40 }
++        - { Level: 4, Amount: 45 }
++        - { Level: 5, Amount: 50 }
++
++  # Sennin Mode / Sage Mode - self buff: triples ATK (batk + watk) for 5s x level.
++  # Applies SC_SENNIN_MODE in src/map/skill.cpp -> case HOK_SENNIN_MODE (requires recompile).
++  # The x3 ATK multiplier is applied in src/map/status.cpp (status_calc_batk /
++  # status_calc_watk); Duration1 (5s x level) is the buff duration.
++  - Id: 7006
++    Name: HOK_SENNIN_MODE
++    Description: "Sennin Mode"
++    MaxLevel: 5
++    TargetType: Self
++    DamageFlags:
++      NoDamage: true
++    CastTime:
++      - Level: 1
++        Time: 1000
++    FixedCastTime:
++      - Level: 1
++        Time: 500
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - { Level: 1, Time: 30000 }
++      - { Level: 2, Time: 35000 }
++      - { Level: 3, Time: 40000 }
++      - { Level: 4, Time: 45000 }
++      - { Level: 5, Time: 50000 }
++    Duration1:
++      - { Level: 1, Time: 5000 }
++      - { Level: 2, Time: 10000 }
++      - { Level: 3, Time: 15000 }
++      - { Level: 4, Time: 20000 }
++      - { Level: 5, Time: 25000 }
++    Requires:
++      SpCost:
++        - { Level: 1, Amount: 60 }
++        - { Level: 2, Amount: 70 }
++        - { Level: 3, Amount: 80 }
++        - { Level: 4, Amount: 90 }
++        - { Level: 5, Amount: 100 }
++
++  # Rasengan - offensive Misc skill: deals 10% of the CASTER's max HP per level.
++  # Must be cast near the target (Range 2). Damage formula is in battle.cpp
++  # (battle_calc_misc_attack -> case HOK_RASENGAN); the attack is fired by the
++  # impl in src/map/skills/custom/rasengan.cpp (requires recompile).
++  # IgnoreFlee/IgnoreDefCard/IgnoreElement keep the % clean and always landing.
++  - Id: 7007
++    Name: HOK_RASENGAN
++    Description: "Rasengan"
++    MaxLevel: 5
++    Type: Misc
++    TargetType: Attack
++    DamageFlags:
++      IgnoreDefCard: true
++      IgnoreFlee: true
++      IgnoreElement: true
++    Range: 2
++    Hit: Single
++    HitCount: 1
++    CastTime:
++      - { Level: 1, Time: 700 }
++      - { Level: 2, Time: 900 }
++      - { Level: 3, Time: 1100 }
++      - { Level: 4, Time: 1300 }
++      - { Level: 5, Time: 1500 }
++    FixedCastTime:
++      - Level: 1
++        Time: 300
++    AfterCastActDelay:
++      - Level: 1
++        Time: 500
++    Cooldown:
++      - { Level: 1, Time: 3000 }
++      - { Level: 2, Time: 3500 }
++      - { Level: 3, Time: 4000 }
++      - { Level: 4, Time: 4500 }
++      - { Level: 5, Time: 5000 }
++    Requires:
++      SpCost:
++        - { Level: 1, Amount: 40 }
++        - { Level: 2, Amount: 50 }
++        - { Level: 3, Amount: 60 }
++        - { Level: 4, Amount: 70 }
++        - { Level: 5, Amount: 80 }
++
++  # Muon Satsujin no Jutsu ("Silent Homicide") - melee weapon (ATK) skill that
++  # never misses (IgnoreFlee). Damage ratio (+200% ATK per level) is set by the
++  # impl in src/map/skills/custom/muonsatsujin.cpp (requires recompile).
++  # Range 2: a close-range assassination in the mist (Naruto Shippuden).
++  - Id: 7008
++    Name: HOK_MUON_SATSUJIN
++    Description: "Muon Satsujin no Jutsu"
++    MaxLevel: 5
++    Type: Weapon
++    TargetType: Attack
++    DamageFlags:
++      IgnoreFlee: true
++    Range: 2
++    Hit: Single
++    HitCount: 1
++    Element: Weapon
++    CastTime:
++      - { Level: 1, Time: 500 }
++      - { Level: 2, Time: 625 }
++      - { Level: 3, Time: 750 }
++      - { Level: 4, Time: 875 }
++      - { Level: 5, Time: 1000 }
++    AfterCastActDelay:
++      - Level: 1
++        Time: 500
++    Cooldown:
++      - { Level: 1, Time: 5000 }
++      - { Level: 2, Time: 6000 }
++      - { Level: 3, Time: 7000 }
++      - { Level: 4, Time: 8000 }
++      - { Level: 5, Time: 9000 }
++    Requires:
++      SpCost:
++        - { Level: 1, Amount: 50 }
++        - { Level: 2, Amount: 60 }
++        - { Level: 3, Amount: 70 }
++        - { Level: 4, Amount: 80 }
++        - { Level: 5, Amount: 90 }
++
++  # Shinra Tensei / Almighty Push - self-cast offensive AoE (like Sightrasher).
++  # Damages every enemy around the caster and knocks them radially outward; both
++  # the splash radius and the Knockback distance scale per level. The fan-out +
++  # ratio are in src/map/skills/custom/shinratensei.cpp (requires recompile).
++  # IgnoreFlee makes the push unavoidable. Weapon type -> scales with caster ATK.
++  - Id: 7009
++    Name: HOK_SHINRA_TENSEI
++    Description: "Shinra Tensei"
++    MaxLevel: 5
++    Type: Weapon
++    TargetType: Self
++    DamageFlags:
++      Splash: true
++      IgnoreFlee: true
++    Flags:
++      TargetTrap: true
++    Hit: Single
++    HitCount: 1
++    Element: Neutral
++    SplashArea:
++      - { Level: 1, Area: 3 }
++      - { Level: 2, Area: 4 }
++      - { Level: 3, Area: 5 }
++      - { Level: 4, Area: 6 }
++      - { Level: 5, Area: 7 }
++    Knockback:
++      - { Level: 1, Amount: 2 }
++      - { Level: 2, Amount: 3 }
++      - { Level: 3, Amount: 4 }
++      - { Level: 4, Amount: 5 }
++      - { Level: 5, Amount: 6 }
++    CastTime:
++      - { Level: 1, Time: 800 }
++      - { Level: 2, Time: 1000 }
++      - { Level: 3, Time: 1200 }
++      - { Level: 4, Time: 1400 }
++      - { Level: 5, Time: 1600 }
++    FixedCastTime:
++      - Level: 1
++        Time: 400
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - { Level: 1, Time: 5000 }
++      - { Level: 2, Time: 6250 }
++      - { Level: 3, Time: 7500 }
++      - { Level: 4, Time: 8750 }
++      - { Level: 5, Time: 10000 }
++    Requires:
++      SpCost:
++        - { Level: 1, Amount: 60 }
++        - { Level: 2, Amount: 70 }
++        - { Level: 3, Amount: 80 }
++        - { Level: 4, Amount: 90 }
++        - { Level: 5, Amount: 100 }
++
++  # Fuujutsu Kyuuin - self buff: +100 armor (hard) DEF. Duration is 2s per level
++  # (Duration1). The +100 DEF is applied in src/map/status.cpp (status_calc_def);
++  # SC_FUUJUTSU_KYUUIN is started in skill.cpp (case HOK_FUUJUTSU_KYUUIN).
++  # Requires recompile + the db/import/status.yml entry.
++  - Id: 7010
++    Name: HOK_FUUJUTSU_KYUUIN
++    Description: "Fuujutsu Kyuuin"
++    MaxLevel: 10
++    TargetType: Self
++    DamageFlags:
++      NoDamage: true
++    CastTime:
++      - Level: 1
++        Time: 500
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - { Level: 1,  Time: 5000 }
++      - { Level: 2,  Time: 6000 }
++      - { Level: 3,  Time: 7000 }
++      - { Level: 4,  Time: 8000 }
++      - { Level: 5,  Time: 9000 }
++      - { Level: 6,  Time: 10000 }
++      - { Level: 7,  Time: 11000 }
++      - { Level: 8,  Time: 12000 }
++      - { Level: 9,  Time: 13000 }
++      - { Level: 10, Time: 15000 }
++    Duration1:
++      - { Level: 1,  Time: 2000 }
++      - { Level: 2,  Time: 4000 }
++      - { Level: 3,  Time: 6000 }
++      - { Level: 4,  Time: 8000 }
++      - { Level: 5,  Time: 10000 }
++      - { Level: 6,  Time: 12000 }
++      - { Level: 7,  Time: 14000 }
++      - { Level: 8,  Time: 16000 }
++      - { Level: 9,  Time: 18000 }
++      - { Level: 10, Time: 20000 }
++    Requires:
++      SpCost:
++        - { Level: 1,  Amount: 30 }
++        - { Level: 2,  Amount: 33 }
++        - { Level: 3,  Amount: 36 }
++        - { Level: 4,  Amount: 40 }
++        - { Level: 5,  Amount: 43 }
++        - { Level: 6,  Amount: 46 }
++        - { Level: 7,  Amount: 50 }
++        - { Level: 8,  Amount: 53 }
++        - { Level: 9,  Amount: 56 }
++        - { Level: 10, Amount: 60 }
++
++  # Narakumi no Jutsu - genjutsu debuff: inflicts Confusion (Duration1) and
++  # Hallucination (Duration2) on the target, same as Wink of Charm (DC_WINKCHARM).
++  # Behavior in src/map/skills/custom/narakumi.cpp (requires recompile).
++  - Id: 7011
++    Name: HOK_NARAKUMI
++    Description: "Narakumi no Jutsu"
++    MaxLevel: 1
++    TargetType: Attack
++    DamageFlags:
++      NoDamage: true
++    Range: 9
++    CastTime:
++      - Level: 1
++        Time: 800
++    FixedCastTime:
++      - Level: 1
++        Time: 200
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - Level: 1
++        Time: 10000
++    Duration1:                 # Confusion duration
++      - Level: 1
++        Time: 10000
++    Duration2:                 # Hallucination duration
++      - Level: 1
++        Time: 10000
++    Requires:
++      SpCost:
++        - Level: 1
++          Amount: 40
++
++  # Sensatsu Suishou - self-cast AoE: hits every nearby enemy for 1% of their
++  # CURRENT HP per level (reference: Water Ball). Damage + Water Ball visual are
++  # applied in src/map/skills/custom/sensatsusuishou.cpp (requires recompile).
++  - Id: 7012
++    Name: HOK_SENSATSU_SUISHOU
++    Description: "Sensatsu Suishou"
++    MaxLevel: 10
++    Type: Misc
++    TargetType: Self
++    DamageFlags:
++      Splash: true
++    Flags:
++      TargetTrap: true
++    Hit: Single
++    HitCount: 1
++    Element: Water
++    SplashArea: 5
++    CastTime:
++      - { Level: 1,  Time: 700 }
++      - { Level: 2,  Time: 900 }
++      - { Level: 3,  Time: 1100 }
++      - { Level: 4,  Time: 1300 }
++      - { Level: 5,  Time: 1500 }
++      - { Level: 6,  Time: 1700 }
++      - { Level: 7,  Time: 1900 }
++      - { Level: 8,  Time: 2100 }
++      - { Level: 9,  Time: 2300 }
++      - { Level: 10, Time: 2500 }
++    FixedCastTime:
++      - Level: 1
++        Time: 300
++    AfterCastActDelay:
++      - Level: 1
++        Time: 1000
++    Cooldown:
++      - { Level: 1,  Time: 4000 }
++      - { Level: 2,  Time: 4700 }
++      - { Level: 3,  Time: 5300 }
++      - { Level: 4,  Time: 6000 }
++      - { Level: 5,  Time: 6700 }
++      - { Level: 6,  Time: 7300 }
++      - { Level: 7,  Time: 8000 }
++      - { Level: 8,  Time: 8700 }
++      - { Level: 9,  Time: 9300 }
++      - { Level: 10, Time: 10000 }
++    Requires:
++      SpCost:
++        - { Level: 1,  Amount: 40 }
++        - { Level: 2,  Amount: 47 }
++        - { Level: 3,  Amount: 53 }
++        - { Level: 4,  Amount: 60 }
++        - { Level: 5,  Amount: 67 }
++        - { Level: 6,  Amount: 73 }
++        - { Level: 7,  Amount: 80 }
++        - { Level: 8,  Amount: 87 }
++        - { Level: 9,  Amount: 93 }
++        - { Level: 10, Amount: 100 }
+diff --git a/db/import/skill_tree.yml b/db/import/skill_tree.yml
+new file mode 100644
+index 000000000..ec0e7edb5
+--- /dev/null
++++ b/db/import/skill_tree.yml
+@@ -0,0 +1,145 @@
++###########################################################################
++# Custom skill tree override (auto-imported after db/<re|pre-re>/skill_tree.yml)
++#
++# HOKAGE = the Kagerou (male, 4211) / Oboro (female, 4212) job, repurposed.
++# Both are already Ninja-lineage (MAPID_KAGEROUOBORO = JOBL_2_1|MAPID_NINJA)
++# and already Inherit: Ninja, so the Ninja jutsu come for free.
++#
++# This override MERGES into the base Kagerou/Oboro entries and:
++#   1. STRIPS every native Kagerou (KO_*/KG_*) and Oboro (KO_*/OB_*) skill by
++#      setting MaxLevel: 0 (the parser removes MaxLevel-0 skills on merge).
++#   2. ADDS the 12 custom HOK_* jutsu.
++# Net tree per job: full Ninja set (inherited) + HOK_* customs. No KO_/KG_/OB_.
++#
++# Applies in BOTH renewal and pre-re (import has no Mode tag). Zeroing a skill
++# that doesn't exist in a given mode's base tree is a harmless no-op.
++###########################################################################
++
++Header:
++  Type: SKILL_TREE_DB
++  Version: 1
++
++Body:
++  #########################################################################
++  # KAGEROU (male) - Hokage
++  #########################################################################
++  - Job: Kagerou
++    Inherit:
++      Ninja: true          # keep full Ninja skill set
++    Tree:
++      # --- strip native Kagerou skills (KO_* / KG_*) ---
++      - { Name: KO_YAMIKUMO,     MaxLevel: 0 }
++      - { Name: KO_RIGHT,        MaxLevel: 0 }
++      - { Name: KO_LEFT,         MaxLevel: 0 }
++      - { Name: KO_JYUMONJIKIRI, MaxLevel: 0 }
++      - { Name: KO_SETSUDAN,     MaxLevel: 0 }
++      - { Name: KO_BAKURETSU,    MaxLevel: 0 }
++      - { Name: KO_HAPPOKUNAI,   MaxLevel: 0 }
++      - { Name: KO_MUCHANAGE,    MaxLevel: 0 }
++      - { Name: KO_HUUMARANKA,   MaxLevel: 0 }
++      - { Name: KO_MAKIBISHI,    MaxLevel: 0 }
++      - { Name: KO_MEIKYOUSISUI, MaxLevel: 0 }
++      - { Name: KO_ZANZOU,       MaxLevel: 0 }
++      - { Name: KO_KYOUGAKU,     MaxLevel: 0 }
++      - { Name: KO_JYUSATSU,     MaxLevel: 0 }
++      - { Name: KO_KAHU_ENTEN,   MaxLevel: 0 }
++      - { Name: KO_HYOUHU_HUBUKI, MaxLevel: 0 }
++      - { Name: KO_KAZEHU_SEIRAN, MaxLevel: 0 }
++      - { Name: KO_DOHU_KOUKAI,  MaxLevel: 0 }
++      - { Name: KO_KAIHOU,       MaxLevel: 0 }
++      - { Name: KO_ZENKAI,       MaxLevel: 0 }
++      - { Name: KO_GENWAKU,      MaxLevel: 0 }
++      - { Name: KO_IZAYOI,       MaxLevel: 0 }
++      - { Name: KG_KAGEHUMI,     MaxLevel: 0 }
++      - { Name: KG_KYOMU,        MaxLevel: 0 }
++      - { Name: KG_KAGEMUSYA,    MaxLevel: 0 }
++      # --- Hokage custom jutsu ---
++      - Name: HOK_KAGEBUNSHIN       # Kage Bunshin no Jutsu (7001)
++        MaxLevel: 10
++      - Name: HOK_TAJUU_KAGEBUNSHIN # Tajuu Kage Bunshin no Jutsu (7002)
++        MaxLevel: 10
++        Requires:
++          - Name: HOK_KAGEBUNSHIN
++            Level: 10
++      - Name: HOK_GYAKU_KUCHIYOSE   # Gyaku Kuchiyose - dispel clones (7003)
++        MaxLevel: 1
++      - Name: HOK_DAICHI_HASAI      # Daichi Hasai no Jutsu - earthquake (7004)
++        MaxLevel: 10
++      - Name: HOK_JINTON            # Jinton no Jutsu - flee/speed buff (7005)
++        MaxLevel: 5
++      - Name: HOK_SENNIN_MODE       # Sennin Mode - triple ATK buff (7006)
++        MaxLevel: 5
++      - Name: HOK_RASENGAN          # Rasengan - 10% max HP dmg/level (7007)
++        MaxLevel: 5
++      - Name: HOK_MUON_SATSUJIN     # Muon Satsujin - never-miss melee ATK (7008)
++        MaxLevel: 5
++      - Name: HOK_SHINRA_TENSEI     # Shinra Tensei - AoE knockback (7009)
++        MaxLevel: 5
++      - Name: HOK_FUUJUTSU_KYUUIN   # Fuujutsu Kyuuin - +100 armor DEF buff (7010)
++        MaxLevel: 10
++      - Name: HOK_NARAKUMI          # Narakumi - Confusion + Hallucination (7011)
++        MaxLevel: 1
++      - Name: HOK_SENSATSU_SUISHOU  # Sensatsu Suishou - 1% current HP/lv AoE (7012)
++        MaxLevel: 10
++
++  #########################################################################
++  # OBORO (female) - Hokage
++  #########################################################################
++  - Job: Oboro
++    Inherit:
++      Ninja: true          # keep full Ninja skill set
++    Tree:
++      # --- strip native Oboro skills (KO_* / OB_*) ---
++      - { Name: KO_YAMIKUMO,     MaxLevel: 0 }
++      - { Name: KO_RIGHT,        MaxLevel: 0 }
++      - { Name: KO_LEFT,         MaxLevel: 0 }
++      - { Name: KO_JYUMONJIKIRI, MaxLevel: 0 }
++      - { Name: KO_SETSUDAN,     MaxLevel: 0 }
++      - { Name: KO_BAKURETSU,    MaxLevel: 0 }
++      - { Name: KO_HAPPOKUNAI,   MaxLevel: 0 }
++      - { Name: KO_MUCHANAGE,    MaxLevel: 0 }
++      - { Name: KO_HUUMARANKA,   MaxLevel: 0 }
++      - { Name: KO_MAKIBISHI,    MaxLevel: 0 }
++      - { Name: KO_MEIKYOUSISUI, MaxLevel: 0 }
++      - { Name: KO_ZANZOU,       MaxLevel: 0 }
++      - { Name: KO_KYOUGAKU,     MaxLevel: 0 }
++      - { Name: KO_JYUSATSU,     MaxLevel: 0 }
++      - { Name: KO_KAHU_ENTEN,   MaxLevel: 0 }
++      - { Name: KO_HYOUHU_HUBUKI, MaxLevel: 0 }
++      - { Name: KO_KAZEHU_SEIRAN, MaxLevel: 0 }
++      - { Name: KO_DOHU_KOUKAI,  MaxLevel: 0 }
++      - { Name: KO_KAIHOU,       MaxLevel: 0 }
++      - { Name: KO_ZENKAI,       MaxLevel: 0 }
++      - { Name: KO_GENWAKU,      MaxLevel: 0 }
++      - { Name: KO_IZAYOI,       MaxLevel: 0 }
++      - { Name: OB_ZANGETSU,     MaxLevel: 0 }
++      - { Name: OB_OBOROGENSOU,  MaxLevel: 0 }
++      - { Name: OB_AKAITSUKI,    MaxLevel: 0 }
++      # --- Hokage custom jutsu ---
++      - Name: HOK_KAGEBUNSHIN       # Kage Bunshin no Jutsu (7001)
++        MaxLevel: 10
++      - Name: HOK_TAJUU_KAGEBUNSHIN # Tajuu Kage Bunshin no Jutsu (7002)
++        MaxLevel: 10
++        Requires:
++          - Name: HOK_KAGEBUNSHIN
++            Level: 10
++      - Name: HOK_GYAKU_KUCHIYOSE   # Gyaku Kuchiyose - dispel clones (7003)
++        MaxLevel: 1
++      - Name: HOK_DAICHI_HASAI      # Daichi Hasai no Jutsu - earthquake (7004)
++        MaxLevel: 10
++      - Name: HOK_JINTON            # Jinton no Jutsu - flee/speed buff (7005)
++        MaxLevel: 5
++      - Name: HOK_SENNIN_MODE       # Sennin Mode - triple ATK buff (7006)
++        MaxLevel: 5
++      - Name: HOK_RASENGAN          # Rasengan - 10% max HP dmg/level (7007)
++        MaxLevel: 5
++      - Name: HOK_MUON_SATSUJIN     # Muon Satsujin - never-miss melee ATK (7008)
++        MaxLevel: 5
++      - Name: HOK_SHINRA_TENSEI     # Shinra Tensei - AoE knockback (7009)
++        MaxLevel: 5
++      - Name: HOK_FUUJUTSU_KYUUIN   # Fuujutsu Kyuuin - +100 armor DEF buff (7010)
++        MaxLevel: 10
++      - Name: HOK_NARAKUMI          # Narakumi - Confusion + Hallucination (7011)
++        MaxLevel: 1
++      - Name: HOK_SENSATSU_SUISHOU  # Sensatsu Suishou - 1% current HP/lv AoE (7012)
++        MaxLevel: 10
+diff --git a/db/import/status.yml b/db/import/status.yml
+new file mode 100644
+index 000000000..37b8eb24a
+--- /dev/null
++++ b/db/import/status.yml
+@@ -0,0 +1,37 @@
++###########################################################################
++# Custom status change override (auto-imported after db/<re|pre-re>/status.yml)
++#
++# SC_JINTON - Jinton no Jutsu (Hokage). The effect values (double flee,
++# +10% move speed per level) are applied in src/map/status.cpp
++# (status_calc_flee / status_calc_speed). CalcFlags below tell the engine to
++# recalculate Flee and Speed while this status is active.
++###########################################################################
++
++Header:
++  Type: STATUS_DB
++  Version: 4
++
++Body:
++  - Status: Jinton
++    Icon: EFST_INC_AGI        # reuse the Increase AGI icon
++    CalcFlags:
++      Flee: true
++      Speed: true
++
++  # SC_SENNIN_MODE - Sennin Mode / Sage Mode (Hokage). Triples ATK (batk + watk);
++  # the x3 multiplier is applied in src/map/status.cpp (status_calc_batk /
++  # status_calc_watk). CalcFlags below tell the engine to recalculate ATK while
++  # this status is active.
++  - Status: Sennin_Mode
++    Icon: EFST_CONCENTRATION  # distinct ATK-buff icon; shows a countdown timer
++    CalcFlags:
++      Batk: true
++      Watk: true
++
++  # SC_FUUJUTSU_KYUUIN - Fuujutsu Kyuuin (Hokage). +100 armor (hard) DEF; the
++  # bonus is applied in src/map/status.cpp (status_calc_def). CalcFlags: Def
++  # tells the engine to recalculate DEF while this status is active.
++  - Status: Fuujutsu_Kyuuin
++    Icon: EFST_STEELBODY      # defensive icon; shows a countdown timer
++    CalcFlags:
++      Def: true
+diff --git a/npc/custom/hokage.txt b/npc/custom/hokage.txt
+new file mode 100644
+index 000000000..63289194d
+--- /dev/null
++++ b/npc/custom/hokage.txt
+@@ -0,0 +1,73 @@
++//===== rAthena Script =======================================
++//= Hokage Job Change NPC (custom)
++//===== By: ==================================================
++//= Custom
++//===== Description: =========================================
++//= Advances a Ninja into the custom Hokage class.
++//= Hokage reuses the Kagerou (male, 4211) / Oboro (female, 4212) job, which is
++//= already Ninja-lineage and fully client-registered. Display name is renamed
++//= to "Hokage" in conf/msg_conf/import/map_msg_eng_conf.txt (map 653/654) and
++//= char_msg.conf (103/104); the client msgstringtable must be renamed too.
++//===== Additional Comments: =================================
++//= Requirements below (level/zeny) are examples - tune freely.
++//= Move the NPC by editing the map/coordinates on the header line.
++//============================================================
++
++prontera,155,181,5	script	Hokage Master	4_M_NINJA_RED,{
++	mes "[Hokage Master]";
++	mes "The path of the shadow does not end at the Ninja.";
++	next;
++
++	// Already a Hokage? (Kagerou = male, Oboro = female)
++	if (Class == Job_Kagerou || Class == Job_Oboro) {
++		mes "[Hokage Master]";
++		mes "You already walk the path of the Hokage. Make your village proud.";
++		close;
++	}
++
++	// Must currently be a Ninja
++	if (Class != Job_Ninja) {
++		mes "[Hokage Master]";
++		mes "Only a true ^0000FFNinja^000000 may seek the title of Hokage.";
++		close;
++	}
++
++	// Level / cost requirements (tune to taste)
++	.@req_base = 99;
++	.@req_job = 50;
++	.@cost = 1000000;	// 1,000,000 zeny
++
++	if (BaseLevel < .@req_base || JobLevel < .@req_job) {
++		mes "[Hokage Master]";
++		mes "You are not yet ready.";
++		mes "Return at ^0000FFBase Level "+.@req_base+"^000000 and ^0000FFJob Level "+.@req_job+"^000000.";
++		close;
++	}
++
++	mes "[Hokage Master]";
++	mes "You have mastered the ninja arts.";
++	mes "Ascending to ^FF0000Hokage^000000 requires ^0000FF"+F_InsertComma(.@cost)+"^000000 zeny.";
++	mes "Do you accept?";
++	next;
++	if (select("Yes, make me a Hokage.:Not yet.") == 2) {
++		mes "[Hokage Master]";
++		mes "Return when your resolve is strong.";
++		close;
++	}
++
++	if (Zeny < .@cost) {
++		mes "[Hokage Master]";
++		mes "You do not have enough zeny.";
++		close;
++	}
++
++	Zeny -= .@cost;
++	// Gendered job: Kagerou (male) / Oboro (female), both shown as "Hokage".
++	if (Sex == SEX_MALE)
++		jobchange Job_Kagerou;
++	else
++		jobchange Job_Oboro;
++	mes "[Hokage Master]";
++	mes "Rise, ^FF0000Hokage^000000. Wield your new power with honor.";
++	close;
++}
+diff --git a/npc/scripts_custom.conf b/npc/scripts_custom.conf
+index fb46627e4..3b3be58d0 100644
+--- a/npc/scripts_custom.conf
++++ b/npc/scripts_custom.conf
+@@ -6,9 +6,12 @@
+ 
+ //npc: npc/location/to/script.txt
+ 
++// -- Hokage custom job change (Ninja -> Hokage, job 4031)
++npc: npc/custom/hokage.txt
++
+ // ----------------------- Basic Scripts -----------------------
+ //npc: npc/custom/warper.txt
+-//npc: npc/custom/jobmaster.txt
++npc: npc/custom/jobmaster.txt
+ //npc: npc/custom/platinum_skills.txt
+ //npc: npc/custom/healer.txt
+ //npc: npc/custom/breeder.txt
+diff --git a/src/map/battle.cpp b/src/map/battle.cpp
+index 5420fbde0..a6eb53144 100644
+--- a/src/map/battle.cpp
++++ b/src/map/battle.cpp
+@@ -6570,6 +6570,9 @@ struct Damage battle_calc_misc_attack(block_list *src,block_list *target,uint16
+ 		case NPC_WIDESUCK:
+ 			md.damage = tstatus->max_hp * 15 / 100;
+ 			break;
++		case HOK_RASENGAN: // Rasengan (Hokage custom) - 10% of the CASTER's max HP per level
++			md.damage = (int64)sstatus->max_hp * (10 * skill_lv) / 100;
++			break;
+ 		case SU_SV_ROOTTWIST_ATK:
+ 			md.damage = 100;
+ 			break;
+@@ -8670,6 +8673,7 @@ static const struct _battle_data {
+ 	{ "max_fourth_parameter",				&battle_config.max_fourth_parameter,			135,	10,		SHRT_MAX,		},
+ 	{ "skill_amotion_leniency",             &battle_config.skill_amotion_leniency,          0,      0,      300             },
+ 	{ "mvp_tomb_enabled",                   &battle_config.mvp_tomb_enabled,                1,      0,      1               },
++	{ "mvp_respawn_persist",                &battle_config.mvp_respawn_persist,             1,      0,      1               },
+ 	{ "mvp_tomb_delay",                     &battle_config.mvp_tomb_delay,                  9000,   0,      INT_MAX,        },
+ 	{ "feature.atcommand_suggestions",      &battle_config.atcommand_suggestions_enabled,   0,      0,      1               },
+ 	{ "min_npc_vendchat_distance",          &battle_config.min_npc_vendchat_distance,       3,      0,      100             },
+diff --git a/src/map/battle.hpp b/src/map/battle.hpp
+index 14cdc658f..ef26d12dc 100644
+--- a/src/map/battle.hpp
++++ b/src/map/battle.hpp
+@@ -557,6 +557,7 @@ struct Battle_Config
+ 	int32 vcast_stat_scale;
+ 
+ 	int32 mvp_tomb_enabled;
++	int32 mvp_respawn_persist;
+ 	int32 mvp_tomb_delay;
+ 
+ 	int32 atcommand_suggestions_enabled;
+diff --git a/src/map/mob.cpp b/src/map/mob.cpp
+index c53890961..63cece5ef 100644
+--- a/src/map/mob.cpp
++++ b/src/map/mob.cpp
+@@ -67,6 +67,8 @@ const t_tick MOB_MAX_DELAY = 24 * 3600 * 1000;
+ #define MOB_CLONE_START MAX_MOB_DB
+ #define MOB_CLONE_END MIN_MOB_DB2
+ 
++#define MVP_RESPAWN_TABLE "mvp_respawn" // Persistent MVP respawn timers (survive restart/@reloadscript)
++
+ // holds Monster Spawn informations
+ std::unordered_map<uint16, std::vector<spawn_info>> mob_spawn_data;
+ 
+@@ -1091,12 +1093,85 @@ int32 mob_setdelayspawn(mob_data *md)
+ 
+ 	spawntime = u32max(1000, spawntime); //Monsters should never respawn faster than 1 second
+ 
++	// Persist this MVP's next spawn time so a server restart or @reloadscript cannot reset it.
++	if( battle_config.mvp_respawn_persist && db != nullptr && db->get_bosstype() == BOSSTYPE_MVP ){
++		struct map_data *mapdata = map_getmapdata(md->spawn->m);
++		if( mapdata != nullptr ){
++			uint32 respawn_at = (uint32)time(nullptr) + spawntime / 1000;
++			if( SQL_ERROR == Sql_Query(mmysql_handle,
++				"REPLACE INTO `%s` (`mob_id`,`map`,`x`,`y`,`respawn_time`) VALUES (%d,'%s',%d,%d,%u)",
++				MVP_RESPAWN_TABLE, md->spawn->id, mapdata->name, md->spawn->x, md->spawn->y, respawn_at ) )
++				Sql_ShowDebug(mmysql_handle);
++		}
++	}
++
+ 	if( md->spawn_timer != INVALID_TIMER )
+ 		delete_timer(md->spawn_timer, mob_delayspawn);
+ 	md->spawn_timer = add_timer(gettick()+spawntime, mob_delayspawn, md->id, 0);
+ 	return 0;
+ }
+ 
++/**
++ * Restore a persisted MVP respawn timer when the mob is (re)created on server boot
++ * or @reloadscript. Keyed by mob id + map + spawn coordinates.
++ * @param md: mob about to be spawned (must already have md->spawn set)
++ * @return true if a future respawn was scheduled (caller must NOT spawn it now)
++ */
++bool mob_load_delayspawn(mob_data *md)
++{
++	if( !battle_config.mvp_respawn_persist || md->spawn == nullptr )
++		return false;
++
++	std::shared_ptr<s_mob_db> db = mob_db.find(md->spawn->id);
++
++	if( db == nullptr || db->get_bosstype() != BOSSTYPE_MVP )
++		return false;
++
++	struct map_data *mapdata = map_getmapdata(md->spawn->m);
++
++	if( mapdata == nullptr )
++		return false;
++
++	if( SQL_ERROR == Sql_Query(mmysql_handle,
++		"SELECT `respawn_time` FROM `%s` WHERE `mob_id`=%d AND `map`='%s' AND `x`=%d AND `y`=%d",
++		MVP_RESPAWN_TABLE, md->spawn->id, mapdata->name, md->spawn->x, md->spawn->y ) ){
++		Sql_ShowDebug(mmysql_handle);
++		return false;
++	}
++
++	bool pending = false;
++
++	if( SQL_SUCCESS == Sql_NextRow(mmysql_handle) ){
++		char *data;
++
++		Sql_GetData(mmysql_handle, 0, &data, nullptr);
++
++		uint32 respawn_at = (uint32)strtoul(data, nullptr, 10);
++		uint32 now = (uint32)time(nullptr);
++
++		if( respawn_at > now ){
++			uint32 remain = respawn_at - now;
++
++			// Sanity cap (30 days) to guard against corrupt values.
++			if( remain > 30 * 24 * 3600 )
++				remain = 30 * 24 * 3600;
++
++			if( md->spawn_timer != INVALID_TIMER )
++				delete_timer(md->spawn_timer, mob_delayspawn);
++			md->spawn_timer = add_timer(gettick() + (t_tick)remain * 1000, mob_delayspawn, md->id, 0);
++			pending = true;
++		}
++	}
++	Sql_FreeResult(mmysql_handle);
++
++	// Timer already elapsed (or no record): drop any stale row and let the caller spawn now.
++	if( !pending )
++		Sql_Query(mmysql_handle, "DELETE FROM `%s` WHERE `mob_id`=%d AND `map`='%s' AND `x`=%d AND `y`=%d",
++			MVP_RESPAWN_TABLE, md->spawn->id, mapdata->name, md->spawn->x, md->spawn->y);
++
++	return pending;
++}
++
+ int32 mob_count_sub(block_list *bl, va_list ap) {
+     int32 mobid[10], i;
+     ARR_FIND(0, 10, i, (mobid[i] = va_arg(ap, int32)) == 0); //fetch till 0
+@@ -2773,6 +2848,12 @@ void mob_log_damage(mob_data* md, block_list* src, int64 damage, int64 damage_ta
+ //Call when a mob has received damage.
+ void mob_damage(mob_data *md, block_list *src, int32 damage)
+ {
++	// Custom: fragile clones (e.g. Tajuu Kage Bunshin) die after a set number of hits,
++	// regardless of remaining HP. Zeroing HP here lets status_damage()'s death handling
++	// (which runs right after this call) finish the mob off cleanly.
++	if (md->hits_to_die > 0 && damage > 0 && --md->hits_to_die <= 0)
++		md->status.hp = 0;
++
+ 	if (src != nullptr) { //Store total damage...
+ 		//Log damage
+ 		mob_log_damage(md, src, static_cast<int64>(damage));
+@@ -3948,6 +4029,36 @@ int32 mob_countslave(block_list *bl)
+ 	return map_foreachinmap(mob_countslave_sub, bl->m, BL_MOB,bl->id);
+ }
+ 
++/*==========================================
++ * Removes (kills) every clone-slave owned by the given master.
++ * Used by the Hokage bunshin skills so recasting either skill replaces the
++ * caster's previous clones instead of stacking them.
++ *------------------------------------------*/
++static int32 mob_clear_clones_sub(block_list *bl, va_list ap)
++{
++	mob_data *md = BL_CAST(BL_MOB, bl);
++	int32 master_id = va_arg(ap, int32);
++
++	if( md != nullptr && md->special_state.clone && md->master_id == master_id ){
++		// Cancel the pending auto-delete (duration) timer before freeing.
++		if( md->deletetimer != INVALID_TIMER ){
++			delete_timer(md->deletetimer, mob_timer_delete);
++			md->deletetimer = INVALID_TIMER;
++		}
++		// CLR_OUTSIGHT removes the sprite cleanly on all clients (CLR_DEAD can
++		// leave the clone's body lingering as a visual bug).
++		unit_free(bl, CLR_OUTSIGHT);
++	}
++	return 0;
++}
++
++int32 mob_clear_clones(block_list *master)
++{
++	if( master == nullptr )
++		return 0;
++	return map_foreachinmap(mob_clear_clones_sub, master->m, BL_MOB, master->id);
++}
++
+ /**
+  * Remove slaves if master logs off.
+  * @param bl: Mob data
+@@ -4636,7 +4747,8 @@ int32 mob_clone_spawn(map_session_data *sd, int16 m, int16 x, int16 y, const cha
+ 	//Go Backwards to give better priority to advanced skills.
+ 	std::shared_ptr<s_skill_tree> tree = skill_tree_db.find(sd->status.class_);
+ 
+-	if( tree != nullptr && !tree->skills.empty() ){
++	// flag&2: clone cannot cast skills (skip copying the source's skill tree).
++	if( !(flag&2) && tree != nullptr && !tree->skills.empty() ){
+ 		std::vector<uint16> skill_list;
+ 
+ 		for (const auto &it : tree->skills)
+@@ -4791,6 +4903,98 @@ int32 mob_clone_spawn(map_session_data *sd, int16 m, int16 x, int16 y, const cha
+ 	return md->id;
+ }
+ 
++/**
++ * Custom (Hokage): decides whether a Kage Bunshin clone should cast a given skill.
++ * Clones are OFFENSE ONLY - they cast every damage/debuff jutsu the caster has
++ * learned but never buff, heal or summon.
++ * @param skill_id: Skill to test
++ * @return true if the clone should cast it at enemies
++ */
++static bool mob_clone_skill_is_offensive(uint16 skill_id)
++{
++	switch (skill_id) {
++		// Summon / dispel jutsu: never let a clone spawn or clear clones.
++		case HOK_KAGEBUNSHIN:
++		case HOK_TAJUU_KAGEBUNSHIN:
++		case HOK_GYAKU_KUCHIYOSE:
++		// Self-buffs: clones are offense only (no support).
++		case HOK_JINTON:
++		case HOK_SENNIN_MODE:
++		case HOK_FUUJUTSU_KYUUIN:
++			return false;
++		// Custom offensive jutsu. Some are flagged NoDamage (Daichi Hasai's quake,
++		// Narakumi's genjutsu debuff) or are self-cast AoE (Shinra Tensei, Sensatsu
++		// Suishou fan out from the caster), so they can't be detected generically.
++		case HOK_DAICHI_HASAI:
++		case HOK_RASENGAN:
++		case HOK_MUON_SATSUJIN:
++		case HOK_SHINRA_TENSEI:
++		case HOK_NARAKUMI:
++		case HOK_SENSATSU_SUISHOU:
++			return true;
++	}
++	// Inherited job (e.g. Ninja) skills: keep any active enemy-facing damage skill.
++	int32 inf = skill_get_inf(skill_id);
++	if (inf&INF_ATTACK_SKILL)
++		return true;
++	if ((inf&INF_GROUND_SKILL) && skill_get_unit_target(skill_id) == BCT_ENEMY)
++		return true;
++	return false;
++}
++
++/**
++ * Custom (Hokage): replace a Kage Bunshin clone's skill list with an aggressive,
++ * offense-only jutsu loadout built from the caster's learned skills. The clone
++ * reliably casts at its current target instead of the stock clone behaviour
++ * (5% chance on attack skills, self-buffs gated to HP<90%, SP-gated at spawn).
++ * Each clone owns its own s_mob_db, so this only affects that clone.
++ * @param md: The spawned clone
++ * @param sd: The caster whose learned jutsu are copied
++ */
++void mob_clone_set_kagebunshin_skills(mob_data *md, map_session_data *sd)
++{
++	if (md == nullptr || sd == nullptr || md->db == nullptr)
++		return;
++
++	std::vector<std::shared_ptr<s_mob_skill>> &skills = md->db->skill;
++	skills.clear();
++
++	for (int32 i = 0; i < MAX_SKILL; i++) {
++		uint16 skill_id = sd->status.skill[i].id;
++		uint16 skill_lv = sd->status.skill[i].lv;
++
++		if (skill_id == 0 || skill_lv < 1)
++			continue;
++		if (skills.size() >= MAX_MOBSKILL)
++			break;
++		if (!mob_clone_skill_is_offensive(skill_id))
++			continue;
++
++		int32 inf = skill_get_inf(skill_id);
++
++		std::shared_ptr<s_mob_skill> ms = std::make_shared<s_mob_skill>();
++		ms->skill_id = skill_id;
++		ms->skill_lv = skill_lv;
++		// MSS_ANYTARGET + MSC_ALWAYS: fire whenever the clone has an enemy target,
++		// regardless of movement state, so the jutsu are used aggressively.
++		ms->state = MSS_ANYTARGET;
++		ms->cond1 = MSC_ALWAYS;
++		ms->cond2 = 0;
++		ms->permillage = 10000; // always attempt when off cooldown
++		ms->emotion = -1;
++		ms->cancel = 0;
++		ms->msg_id = 0;
++		ms->casttime = skill_castfix(sd, skill_id, ms->skill_lv);
++		// Short per-skill cooldown so the clone rotates jutsu instead of the stock 5s gap.
++		ms->delay = 2000 + skill_delayfix(sd, skill_id, ms->skill_lv);
++		// Self-cast AoE jutsu (Daichi Hasai / Shinra Tensei / Sensatsu Suishou) fan
++		// out from the clone; everything else is aimed at the enemy target.
++		ms->target = (inf&INF_SELF_SKILL) ? MST_SELF : MST_TARGET;
++
++		skills.push_back(ms);
++	}
++}
++
+ int32 mob_clone_delete(mob_data *md){
+ 	uint32 mob_id = md->mob_id;
+ 
+@@ -7362,6 +7566,18 @@ void do_init_mob(void){
+ 	add_timer_func_list(mob_norm_attacked, "mob_norm_attacked");
+ 	add_timer_interval(gettick()+MIN_MOBTHINKTIME,mob_ai_hard,0,0,MIN_MOBTHINKTIME);
+ 	add_timer_interval(gettick()+MIN_MOBTHINKTIME*10,mob_ai_lazy,0,0,MIN_MOBTHINKTIME*10);
++
++	// Persistent MVP respawn timers: ensure the storage table exists.
++	if( SQL_ERROR == Sql_Query(mmysql_handle,
++		"CREATE TABLE IF NOT EXISTS `%s` ("
++		"`mob_id` INT UNSIGNED NOT NULL,"
++		"`map` VARCHAR(32) NOT NULL,"
++		"`x` SMALLINT UNSIGNED NOT NULL DEFAULT '0',"
++		"`y` SMALLINT UNSIGNED NOT NULL DEFAULT '0',"
++		"`respawn_time` INT UNSIGNED NOT NULL DEFAULT '0',"
++		"PRIMARY KEY (`mob_id`,`map`,`x`,`y`)"
++		") ENGINE=MyISAM", MVP_RESPAWN_TABLE ) )
++		Sql_ShowDebug(mmysql_handle);
+ }
+ 
+ /*==========================================
+diff --git a/src/map/mob.hpp b/src/map/mob.hpp
+index 47e1a32e3..39499bd03 100644
+--- a/src/map/mob.hpp
++++ b/src/map/mob.hpp
+@@ -383,6 +383,8 @@ struct mob_data : public block_list {
+ 	int32 deletetimer;
+ 	int32 master_id,master_dist;
+ 
++	int16 hits_to_die; // Custom: if >0, this mob (e.g. a fragile clone) dies after this many hits. 0 = normal.
++
+ 	int8 skill_idx; // Index of last used skill from db->skill[]
+ 	t_tick skilldelay[MAX_MOBSKILL];
+ 	char npc_event[EVENT_NAME_LENGTH];
+@@ -531,6 +533,8 @@ mob_data* mob_spawn_dataset(struct spawn_data *data);
+ int32 mob_spawn(mob_data *md);
+ TIMER_FUNC(mob_delayspawn);
+ int32 mob_setdelayspawn(mob_data *md);
++bool mob_load_delayspawn(mob_data *md);
++int32 mob_clear_clones(block_list *master);
+ int32 mob_parse_dataset(struct spawn_data *data);
+ void mob_log_damage(mob_data* md, block_list* src, int64 damage, int64 damage_tanked = 0);
+ void mob_damage(mob_data *md, block_list *src, int32 damage);
+@@ -564,6 +568,8 @@ int32 mob_removeslaves(block_list* bl);
+ int32 mob_is_clone(int32 mob_id);
+ 
+ int32 mob_clone_spawn(map_session_data *sd, int16 m, int16 x, int16 y, const char *event, int32 master_id, enum e_mode mode, int32 flag, uint32 duration);
++// Custom (Hokage): give a spawned clone an aggressive offense-only jutsu loadout.
++void mob_clone_set_kagebunshin_skills(mob_data *md, map_session_data *sd);
+ int32 mob_clone_delete(mob_data *md);
+ 
+ void mob_reload_itemmob_data(void);
+diff --git a/src/map/npc.cpp b/src/map/npc.cpp
+index 2e83d777b..4bd048e05 100644
+--- a/src/map/npc.cpp
++++ b/src/map/npc.cpp
+@@ -5211,7 +5211,9 @@ void npc_parse_mob2(struct spawn_data* mob)
+ 				md->centerY = rnd_value(mob->y - mob->ys + 1, mob->y + mob->ys - 1);
+ 		}
+ 		md->spawn->active++;
+-		mob_spawn(md);
++		// Restore a persisted MVP respawn timer instead of spawning now, if one is still pending.
++		if( !mob_load_delayspawn(md) )
++			mob_spawn(md);
+ 	}
+ }
+ 
+diff --git a/src/map/script_constants.hpp b/src/map/script_constants.hpp
+index 93524a11d..836252b95 100644
+--- a/src/map/script_constants.hpp
++++ b/src/map/script_constants.hpp
+@@ -2005,6 +2005,11 @@
+ 	export_constant(SC_WIND_CHARM_POWER);
+ 	export_constant(SC_GROUND_CHARM_POWER);
+ 
++	// ===== Custom status changes (Hokage) =====
++	export_constant(SC_JINTON);
++	export_constant(SC_SENNIN_MODE);
++	export_constant(SC_FUUJUTSU_KYUUIN);
++
+ /// Do not modify code below this, until the end of the API hook, since it will be automatically generated again
+ /// @APIHOOK_START(EFST_CONST)
+ 	export_constant(EFST_BLANK);
+diff --git a/src/map/skill.cpp b/src/map/skill.cpp
+index 0e5e8172e..e1a463d6f 100755
+--- a/src/map/skill.cpp
++++ b/src/map/skill.cpp
+@@ -4460,6 +4460,126 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
+ 	FreeBlockLock freeLock;
+ 	switch(skill_id)
+ 	{
++	// ===== Custom Hokage Skills =====
++	case HOK_KAGEBUNSHIN: // Kage Bunshin no Jutsu - summon 2 clones of the caster
++		if( sd ){
++			int32 spawned = 0;
++			// Recasting either bunshin skill replaces the caster's existing clones.
++			mob_clear_clones( src );
++			// Clone lifespan is taken from the skill's Duration1 (per level) in skill_db.
++			uint32 duration = skill_get_time( skill_id, skill_lv );
++
++			for( int32 c = 0; c < 2; c++ ){ // always exactly 2 clones
++				int16 nx = 0, ny = 0;
++				int32 tries = 0;
++
++				// Find a passable cell near the caster for the clone.
++				do {
++					nx = src->x + rnd_value( -2, 2 );
++					ny = src->y + rnd_value( -2, 2 );
++				} while( map_getcell( src->m, nx, ny, CELL_CHKNOPASS ) && tries++ < 10 );
++				if( tries >= 10 ){
++					nx = src->x;
++					ny = src->y;
++				}
++
++				// Spawn a friendly slave clone that inherits the caster's Max HP/SP
++				// and stats (same primitive as @slaveclone). flag 1|2 = friendly
++				// slave, skip the stock skill copy - we assign an aggressive,
++				// offense-only jutsu loadout below so the clones reliably cast at
++				// enemies instead of the unreliable default clone behaviour.
++				int32 gid = mob_clone_spawn( sd, src->m, nx, ny, "", src->id, MD_NONE, 1|2, duration );
++				if( gid > 0 ){
++					spawned++;
++					if( mob_data* cmd = map_id2md( gid ) )
++						mob_clone_set_kagebunshin_skills( cmd, sd );
++				}
++			}
++
++			if( spawned > 0 )
++				clif_skill_nodamage( src, *bl, skill_id, skill_lv );
++			else
++				clif_skill_fail( *sd, skill_id );
++		}
++		break;
++
++	case HOK_TAJUU_KAGEBUNSHIN: // Tajuu Kage Bunshin no Jutsu - 20 fragile, non-casting clones
++		if( sd ){
++			int32 spawned = 0;
++			// Recasting either bunshin skill replaces the caster's existing clones.
++			mob_clear_clones( src );
++			uint32 duration = skill_get_time( skill_id, skill_lv );
++
++			for( int32 c = 0; c < 20; c++ ){ // 20 clones
++				int16 nx = 0, ny = 0;
++				int32 tries = 0;
++
++				// Scatter the clones a bit wider than Kage Bunshin.
++				do {
++					nx = src->x + rnd_value( -4, 4 );
++					ny = src->y + rnd_value( -4, 4 );
++				} while( map_getcell( src->m, nx, ny, CELL_CHKNOPASS ) && tries++ < 10 );
++				if( tries >= 10 ){
++					nx = src->x;
++					ny = src->y;
++				}
++
++				// flag 1 = friendly slave, flag 2 = no skill copy (clones cannot cast).
++				int32 gid = mob_clone_spawn( sd, src->m, nx, ny, "", src->id, MD_NONE, 1|2, duration );
++				if( gid > 0 ){
++					spawned++;
++					// Fragile clones: die after 3 hits.
++					if( mob_data* cmd = map_id2md( gid ) )
++						cmd->hits_to_die = 3;
++				}
++			}
++
++			if( spawned > 0 )
++				clif_skill_nodamage( src, *bl, skill_id, skill_lv );
++			else
++				clif_skill_fail( *sd, skill_id );
++		}
++		break;
++
++	case HOK_GYAKU_KUCHIYOSE: // Gyaku Kuchiyose - dispels all of the caster's clones
++		if( sd ){
++			mob_clear_clones( src );
++			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
++		}
++		break;
++
++	case HOK_DAICHI_HASAI: // Daichi Hasai no Jutsu - cast NPC_EARTHQUAKE beneath the caster
++		if( sd || md ){ // md: allow Kage Bunshin clones (mobs) to cast it too
++			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
++			// NPC_EARTHQUAKE is a ground skill unit (UNT_EARTHQUAKE); place it at the caster.
++			skill_unitsetting( src, NPC_EARTHQUAKE, skill_lv, src->x, src->y, 0 );
++			// The quake's screen-shake only plays when it hits an enemy, so show the
++			// effect on the caster too - this way it always plays, even with no targets.
++			clif_skill_damage( *src, *src, tick, status_get_amotion(src), 0, 0, 1, NPC_EARTHQUAKE, -1, DMG_SPLASH );
++		}
++		break;
++
++	case HOK_JINTON: // Jinton no Jutsu - self buff: double flee + move speed (val1 = level)
++		if( sd ){
++			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
++			sc_start( src, bl, SC_JINTON, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
++		}
++		break;
++
++	case HOK_SENNIN_MODE: // Sennin Mode / Sage Mode - self buff: triple ATK for 5s x level (val1 = level)
++		if( sd ){
++			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
++			sc_start( src, bl, SC_SENNIN_MODE, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
++		}
++		break;
++
++	case HOK_FUUJUTSU_KYUUIN: // Fuujutsu Kyuuin - self buff: +100 armor DEF for 2s x level (Duration1)
++		if( sd ){
++			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
++			sc_start( src, bl, SC_FUUJUTSU_KYUUIN, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
++		}
++		break;
++
+ 	// New guild skills [Celest]
+ 	case GD_BATTLEORDER:
+ 	case GD_REGENERATION:
+diff --git a/src/map/skill.hpp b/src/map/skill.hpp
+index 73143bd27..30394d332 100644
+--- a/src/map/skill.hpp
++++ b/src/map/skill.hpp
+@@ -2439,6 +2439,20 @@ enum e_skill {
+ 	TR_RHYTHMICAL_WAVE,
+ 	ABC_ABYSS_FLAME_ATK,
+ 
++	// ===== Custom Skills (7001+ is a free ID range, safe from official skills) =====
++	HOK_KAGEBUNSHIN = 7001, // Kage Bunshin no Jutsu (Hokage custom class)
++	HOK_TAJUU_KAGEBUNSHIN = 7002, // Tajuu Kage Bunshin no Jutsu (Hokage custom class)
++	HOK_GYAKU_KUCHIYOSE = 7003, // Gyaku Kuchiyose (dispels the caster's clones)
++	HOK_DAICHI_HASAI = 7004, // Daichi Hasai no Jutsu (casts NPC_EARTHQUAKE at self)
++	HOK_JINTON = 7005, // Jinton no Jutsu (double flee + move speed buff)
++	HOK_SENNIN_MODE = 7006, // Sennin Mode / Sage Mode (triples ATK for 5s per level)
++	HOK_RASENGAN = 7007, // Rasengan (Misc: deals 10% of caster max HP per level)
++	HOK_MUON_SATSUJIN = 7008, // Muon Satsujin no Jutsu (Weapon ATK skill that never misses)
++	HOK_SHINRA_TENSEI = 7009, // Shinra Tensei / Almighty Push (self AoE: damage + knockback per level)
++	HOK_FUUJUTSU_KYUUIN = 7010, // Fuujutsu Kyuuin (self buff: +100 armor DEF, 2s per level)
++	HOK_NARAKUMI = 7011, // Narakumi no Jutsu (genjutsu: Confusion + Hallucination on enemy)
++	HOK_SENSATSU_SUISHOU = 7012, // Sensatsu Suishou (self AoE: 1% current HP per level, water)
++
+ 	HLIF_HEAL = 8001,
+ 	HLIF_AVOID,
+ 	HLIF_BRAIN,
+diff --git a/src/map/skills/custom/muonsatsujin.cpp b/src/map/skills/custom/muonsatsujin.cpp
+new file mode 100644
+index 000000000..1e7faf730
+--- /dev/null
++++ b/src/map/skills/custom/muonsatsujin.cpp
+@@ -0,0 +1,12 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#include "muonsatsujin.hpp"
++
++SkillMuonSatsujin::SkillMuonSatsujin() : WeaponSkillImpl(HOK_MUON_SATSUJIN) {
++}
++
++void SkillMuonSatsujin::calculateSkillRatio(const Damage* wd, const block_list* src, const block_list* target, uint16 skill_lv, int32& base_skillratio, int32 mflag) const {
++	// Base 100% + 200% ATK per level (300% at Lv1 -> 1100% at Lv5). Tune here.
++	base_skillratio += 200 * skill_lv;
++}
+diff --git a/src/map/skills/custom/muonsatsujin.hpp b/src/map/skills/custom/muonsatsujin.hpp
+new file mode 100644
+index 000000000..3bf21494d
+--- /dev/null
++++ b/src/map/skills/custom/muonsatsujin.hpp
+@@ -0,0 +1,16 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#pragma once
++
++#include "../skill_impl.hpp"
++
++// Muon Satsujin no Jutsu (Hokage custom, id HOK_MUON_SATSUJIN) - "Silent Homicide".
++// A weapon (ATK) skill that never misses (IgnoreFlee in skill_db). WeaponSkillImpl
++// already fires the BF_WEAPON attack on castend; we only scale the damage ratio.
++class SkillMuonSatsujin : public WeaponSkillImpl {
++public:
++	SkillMuonSatsujin();
++
++	void calculateSkillRatio(const Damage* wd, const block_list* src, const block_list* target, uint16 skill_lv, int32& base_skillratio, int32 mflag) const override;
++};
+diff --git a/src/map/skills/custom/narakumi.cpp b/src/map/skills/custom/narakumi.cpp
+new file mode 100644
+index 000000000..813aa0245
+--- /dev/null
++++ b/src/map/skills/custom/narakumi.cpp
+@@ -0,0 +1,17 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#include "narakumi.hpp"
++
++#include "../../clif.hpp"
++#include "../../status.hpp"
++
++SkillNarakumi::SkillNarakumi() : SkillImpl(HOK_NARAKUMI) {
++}
++
++void SkillNarakumi::castendNoDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const {
++	// Genjutsu: horrifying + confusing illusions -> Hallucination + Confusion.
++	sc_start(src, target, SC_CONFUSION, 100, skill_lv, skill_get_time(getSkillId(), skill_lv));
++	sc_start(src, target, SC_HALLUCINATION, 100, skill_lv, skill_get_time2(getSkillId(), skill_lv));
++	clif_skill_nodamage(src, *target, getSkillId(), skill_lv);
++}
+diff --git a/src/map/skills/custom/narakumi.hpp b/src/map/skills/custom/narakumi.hpp
+new file mode 100644
+index 000000000..c2bebcb64
+--- /dev/null
++++ b/src/map/skills/custom/narakumi.hpp
+@@ -0,0 +1,17 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#pragma once
++
++#include "../skill_impl.hpp"
++
++// Narakumi no Jutsu (Hokage custom, id HOK_NARAKUMI) - "Hell Viewing Technique".
++// A genjutsu that makes the target see horrifying, confusing illusions: inflicts
++// Confusion + Hallucination (same effect as Wink of Charm / DC_WINKCHARM).
++// Duration1 = Confusion, Duration2 = Hallucination (skill_db).
++class SkillNarakumi : public SkillImpl {
++public:
++	SkillNarakumi();
++
++	void castendNoDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const override;
++};
+diff --git a/src/map/skills/custom/rasengan.cpp b/src/map/skills/custom/rasengan.cpp
+new file mode 100644
+index 000000000..490bb8b13
+--- /dev/null
++++ b/src/map/skills/custom/rasengan.cpp
+@@ -0,0 +1,14 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#include "rasengan.hpp"
++
++#include "../../status.hpp"
++
++SkillRasengan::SkillRasengan() : SkillImpl(HOK_RASENGAN) {
++}
++
++void SkillRasengan::castendDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const {
++	// Damage (10% of target max HP per level) is calculated in battle_calc_misc_attack().
++	skill_attack(BF_MISC, src, src, target, getSkillId(), skill_lv, tick, flag);
++}
+diff --git a/src/map/skills/custom/rasengan.hpp b/src/map/skills/custom/rasengan.hpp
+new file mode 100644
+index 000000000..b9477536d
+--- /dev/null
++++ b/src/map/skills/custom/rasengan.hpp
+@@ -0,0 +1,16 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#pragma once
++
++#include "../skill_impl.hpp"
++
++// Rasengan (Hokage custom, id HOK_RASENGAN) - offensive Misc skill.
++// The damage formula (10% of the target's max HP per level) lives in
++// battle_calc_misc_attack(); here we only fire the Misc attack on castend.
++class SkillRasengan : public SkillImpl {
++public:
++	SkillRasengan();
++
++	void castendDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const override;
++};
+diff --git a/src/map/skills/custom/sensatsusuishou.cpp b/src/map/skills/custom/sensatsusuishou.cpp
+new file mode 100644
+index 000000000..88c5f33d1
+--- /dev/null
++++ b/src/map/skills/custom/sensatsusuishou.cpp
+@@ -0,0 +1,35 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#include "sensatsusuishou.hpp"
++
++#include "../../battle.hpp"
++#include "../../clif.hpp"
++#include "../../status.hpp"
++
++SkillSensatsuSuishou::SkillSensatsuSuishou() : SkillImpl(HOK_SENSATSU_SUISHOU) {
++}
++
++void SkillSensatsuSuishou::castendNoDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const {
++	// Self-cast side: unleash the needles at every enemy in the splash radius.
++	// Each enemy re-enters castendDamageId (below) for the actual water hit.
++	clif_skill_nodamage(src, *src, getSkillId(), skill_lv);
++	map_foreachinshootrange(skill_area_sub, src,
++		skill_get_splash(getSkillId(), skill_lv), BL_CHAR | BL_SKILL,
++		src, getSkillId(), skill_lv, tick, flag | BCT_ENEMY | SD_ANIMATION | 1,
++		skill_castend_damage_id);
++}
++
++void SkillSensatsuSuishou::castendDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const {
++	status_data* tstatus = status_get_status_data(*target);
++
++	// 1% of the target's CURRENT HP per skill level (reference: Water Ball).
++	int64 damage = (int64)tstatus->hp * skill_lv / 100;
++
++	if (damage < 1)
++		damage = 1;
++
++	// Display the hit with Water Ball's animation, then apply the damage.
++	clif_skill_damage(*src, *target, tick, status_get_amotion(src), tstatus->dmotion, damage, 1, WZ_WATERBALL, skill_lv, DMG_SPLASH);
++	battle_fix_damage(src, target, damage, 1, getSkillId());
++}
+diff --git a/src/map/skills/custom/sensatsusuishou.hpp b/src/map/skills/custom/sensatsusuishou.hpp
+new file mode 100644
+index 000000000..47156177d
+--- /dev/null
++++ b/src/map/skills/custom/sensatsusuishou.hpp
+@@ -0,0 +1,19 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#pragma once
++
++#include "../skill_impl.hpp"
++
++// Sensatsu Suishou (Hokage custom, id HOK_SENSATSU_SUISHOU) - "Thousand Flying
++// Water Needles of Death". Self-cast AoE that hits every nearby enemy for 1% of
++// their CURRENT HP per level (reference: Water Ball). Each hit is applied
++// manually and displayed with Water Ball's own animation (WZ_WATERBALL) so it
++// looks like a water attack without any client-side effect edit.
++class SkillSensatsuSuishou : public SkillImpl {
++public:
++	SkillSensatsuSuishou();
++
++	void castendNoDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const override;
++	void castendDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const override;
++};
+diff --git a/src/map/skills/custom/shinratensei.cpp b/src/map/skills/custom/shinratensei.cpp
+new file mode 100644
+index 000000000..34e6d1a7c
+--- /dev/null
++++ b/src/map/skills/custom/shinratensei.cpp
+@@ -0,0 +1,25 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#include "shinratensei.hpp"
++
++#include "../../clif.hpp"
++
++SkillShinraTensei::SkillShinraTensei() : WeaponSkillImpl(HOK_SHINRA_TENSEI) {
++}
++
++void SkillShinraTensei::castendNoDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const {
++	// Self-cast side: show the effect on the caster, then strike every enemy in
++	// the splash radius. Each hit runs through castendDamageId (BF_WEAPON) and the
++	// per-level Knockback field pushes them away from the caster (skill_get_blewcount).
++	clif_skill_nodamage(src, *src, getSkillId(), skill_lv);
++	map_foreachinshootrange(skill_area_sub, src,
++		skill_get_splash(getSkillId(), skill_lv), BL_CHAR | BL_SKILL,
++		src, getSkillId(), skill_lv, tick, flag | BCT_ENEMY | SD_ANIMATION | 1,
++		skill_castend_damage_id);
++}
++
++void SkillShinraTensei::calculateSkillRatio(const Damage* wd, const block_list* src, const block_list* target, uint16 skill_lv, int32& base_skillratio, int32 mflag) const {
++	// Base 100% + 100% ATK per level (200% at Lv1 -> 600% at Lv5). Tune here.
++	base_skillratio += 100 * skill_lv;
++}
+diff --git a/src/map/skills/custom/shinratensei.hpp b/src/map/skills/custom/shinratensei.hpp
+new file mode 100644
+index 000000000..3bb912cfb
+--- /dev/null
++++ b/src/map/skills/custom/shinratensei.hpp
+@@ -0,0 +1,20 @@
++// Copyright (c) rAthena Dev Teams - Licensed under GNU GPL
++// For more information, see LICENCE in the main folder
++
++#pragma once
++
++#include "../skill_impl.hpp"
++
++// Shinra Tensei / Almighty Push (Hokage custom, id HOK_SHINRA_TENSEI).
++// Self-cast offensive AoE (like Sightrasher / Magnum Break): damages every enemy
++// around the caster and knocks them radially outward. Knockback distance and
++// splash radius scale with level (Knockback/SplashArea per-level in skill_db).
++// Extends WeaponSkillImpl so the per-enemy hit is a BF_WEAPON attack (scales with
++// the caster's ATK); we only add the self-cast fan-out and the damage ratio.
++class SkillShinraTensei : public WeaponSkillImpl {
++public:
++	SkillShinraTensei();
++
++	void castendNoDamageId(block_list* src, block_list* target, uint16 skill_lv, t_tick tick, int32& flag) const override;
++	void calculateSkillRatio(const Damage* wd, const block_list* src, const block_list* target, uint16 skill_lv, int32& base_skillratio, int32 mflag) const override;
++};
+diff --git a/src/map/skills/custom/skill_factory_custom.cpp b/src/map/skills/custom/skill_factory_custom.cpp
+index 729779c5a..28e591ba4 100644
+--- a/src/map/skills/custom/skill_factory_custom.cpp
++++ b/src/map/skills/custom/skill_factory_custom.cpp
+@@ -3,32 +3,29 @@
+ 
+ #include "skill_factory_custom.hpp"
+ 
+-#include "../swordman/bash.hpp"
+-
+-class SkillCustomBash;
++// Include .cpp files into the TU to optimize compile time
++// For reference see unity builds or amalgamated builds
++#include "rasengan.cpp"
++#include "muonsatsujin.cpp"
++#include "shinratensei.cpp"
++#include "narakumi.cpp"
++#include "sensatsusuishou.cpp"
+ 
+ std::unique_ptr<const SkillImpl> SkillFactoryCustom::create(const e_skill skill_id) const {
+-#if 0
+ 	switch( skill_id ){
+-		case SM_BASH:
+-			return std::make_unique<SkillCustomBash>();
++		// Hokage custom offensive skills
++		case HOK_RASENGAN:
++			return std::make_unique<SkillRasengan>();
++		case HOK_MUON_SATSUJIN:
++			return std::make_unique<SkillMuonSatsujin>();
++		case HOK_SHINRA_TENSEI:
++			return std::make_unique<SkillShinraTensei>();
++		case HOK_NARAKUMI:
++			return std::make_unique<SkillNarakumi>();
++		case HOK_SENSATSU_SUISHOU:
++			return std::make_unique<SkillSensatsuSuishou>();
+ 
+ 		default:
+ 			return nullptr;
+ 	}
+-#endif
+-
+-	return nullptr;
+ }
+-
+-class SkillCustomBash : public SkillBash{
+-	void calculateSkillRatio(const Damage* wd, const block_list* src, const block_list* target, uint16 skill_lv, int32& base_skillratio, int32 mflag) const override{
+-		// Normal Bash:
+-		// Base 100% + 30% per level
+-		// base_skillratio += 30 * skill_lv;
+-
+-		// But my custom Bash Skill is stronger:
+-		// Base 100% + 300% per level
+-		base_skillratio += 300 * skill_lv;
+-	}
+-};
+diff --git a/src/map/status.cpp b/src/map/status.cpp
+index e112d7481..7e66423bc 100644
+--- a/src/map/status.cpp
++++ b/src/map/status.cpp
+@@ -7325,6 +7325,8 @@ static int32 status_calc_batk(block_list *bl, status_change *sc, int32 batk)
+ 		batk += batk * sc->getSCE(SC_SUNSTANCE)->val2 / 100;
+ 	if (sc->getSCE(SC_INTENSIVE_AIM))
+ 		batk += 150;
++	if (sc->getSCE(SC_SENNIN_MODE)) // Sennin/Sage Mode: triple base ATK (+200%)
++		batk += batk * 2;
+ 
+ 	return batk;
+ }
+@@ -7417,6 +7419,8 @@ static uint16 status_calc_watk(block_list *bl, status_change *sc, int32 watk)
+ 		watk += sc->getSCE(SC_POWERFUL_FAITH)->val2;
+ 	if (sc->getSCE(SC_GUARD_STANCE))
+ 		watk -= sc->getSCE(SC_GUARD_STANCE)->val3;
++	if (sc->getSCE(SC_SENNIN_MODE)) // Sennin/Sage Mode: triple weapon ATK (+200%)
++		watk += watk * 2;
+ 
+ 	return (uint16)cap_value(watk,0,USHRT_MAX);
+ }
+@@ -7710,6 +7714,8 @@ static int16 status_calc_flee(block_list *bl, status_change *sc, int32 flee)
+ 	//	flee -= (flee * sc->getSCE(SC_C_MARKER)->val3) / 100;
+ 	if (sc->getSCE(SC_GROOMING))
+ 		flee += sc->getSCE(SC_GROOMING)->val2;
++	if (sc->getSCE(SC_JINTON)) // Jinton no Jutsu: double flee
++		flee += flee;
+ 
+ 	return (int16)cap_value(flee,1,SHRT_MAX);
+ }
+@@ -7771,6 +7777,8 @@ static defType status_calc_def(block_list *bl, status_change *sc, int32 def)
+ 	if(sc->getSCE(SC_DEFSET))
+ 		return sc->getSCE(SC_DEFSET)->val1;
+ 
++	if(sc->getSCE(SC_FUUJUTSU_KYUUIN)) // Fuujutsu Kyuuin (Hokage): +100 hard/armor DEF
++		def += 100;
+ 	if(sc->getSCE(SC_DRUMBATTLE))
+ 		def += sc->getSCE(SC_DRUMBATTLE)->val3;
+ #ifdef RENEWAL
+@@ -8148,6 +8156,8 @@ static uint16 status_calc_speed(block_list *bl, status_change *sc, int32 speed)
+ 			val = max(val, sc->getSCE(SC_AGIUP)->val1);
+ 		if( sc->getSCE(SC_INCREASEAGI) )
+ 			val = max( val, 25 );
++		if( sc->getSCE(SC_JINTON) ) // Jinton no Jutsu: +10% move speed per level
++			val = max( val, 10 * sc->getSCE(SC_JINTON)->val1 );
+ 		if( sc->getSCE(SC_WINDWALK) )
+ 			val = max( val, 2 * sc->getSCE(SC_WINDWALK)->val1 );
+ 		if( sc->getSCE(SC_CARTBOOST) )
+diff --git a/src/map/status.hpp b/src/map/status.hpp
+index ced87d11f..261e52ac5 100644
+--- a/src/map/status.hpp
++++ b/src/map/status.hpp
+@@ -1446,6 +1446,11 @@ enum sc_type : int16 {
+ 	SC_WIND_CHARM_POWER,
+ 	SC_GROUND_CHARM_POWER,
+ 
++	// ===== Custom status changes =====
++	SC_JINTON, // Jinton no Jutsu (Hokage): doubles flee + increases move speed
++	SC_SENNIN_MODE, // Sennin Mode / Sage Mode (Hokage): triples ATK (batk + watk)
++	SC_FUUJUTSU_KYUUIN, // Fuujutsu Kyuuin (Hokage): +100 armor DEF
++
+ 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
+ };
+ 

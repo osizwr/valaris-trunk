@@ -3,7 +3,8 @@
 //  This file is auto-imported by conf/msg_conf/map_msg.conf
 // ============================================================
 
-// Custom job JOB_HOKAGE (id 4300) display name.
+// HOKAGE = the Kagerou (653) / Oboro (654) job, renamed.
 // Read by pc.cpp job_name() -> shown in @job list, server messages, etc.
-// (Death_Knight slot 623 now reverts to its stock "Death Knight" name.)
-1541: Hokage
+// (The client's own msgstringtable must also be renamed for the in-game UI.)
+653: Hokage
+654: Hokage

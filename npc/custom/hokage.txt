@@ -4,9 +4,10 @@
 //= Custom
 //===== Description: =========================================
 //= Advances a Ninja into the custom Hokage class.
-//= Hokage is a dedicated custom job: JOB_HOKAGE (id 4300), Ninja-lineage.
-//= display name is set to "Hokage" in
-//= conf/msg_conf/import/map_msg_eng_conf.txt (map) and char_msg.conf (char).
+//= Hokage reuses the Kagerou (male, 4211) / Oboro (female, 4212) job, which is
+//= already Ninja-lineage and fully client-registered. Display name is renamed
+//= to "Hokage" in conf/msg_conf/import/map_msg_eng_conf.txt (map 653/654) and
+//= char_msg.conf (103/104); the client msgstringtable must be renamed too.
 //===== Additional Comments: =================================
 //= Requirements below (level/zeny) are examples - tune freely.
 //= Move the NPC by editing the map/coordinates on the header line.
@@ -17,8 +18,8 @@ prontera,155,181,5	script	Hokage Master	4_M_NINJA_RED,{
 	mes "The path of the shadow does not end at the Ninja.";
 	next;
 
-	// Already a Hokage?
-	if (Class == Job_Hokage) {
+	// Already a Hokage? (Kagerou = male, Oboro = female)
+	if (Class == Job_Kagerou || Class == Job_Oboro) {
 		mes "[Hokage Master]";
 		mes "You already walk the path of the Hokage. Make your village proud.";
 		close;
@@ -61,7 +62,11 @@ prontera,155,181,5	script	Hokage Master	4_M_NINJA_RED,{
 	}
 
 	Zeny -= .@cost;
-	jobchange Job_Hokage;		// job 4300, displayed as Hokage
+	// Gendered job: Kagerou (male) / Oboro (female), both shown as "Hokage".
+	if (Sex == SEX_MALE)
+		jobchange Job_Kagerou;
+	else
+		jobchange Job_Oboro;
 	mes "[Hokage Master]";
 	mes "Rise, ^FF0000Hokage^000000. Wield your new power with honor.";
 	close;

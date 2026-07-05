@@ -140,7 +140,6 @@ Body:
       Soul_Linker: true
       Gangsi: true
       Death_Knight: true
-      Hokage: true
       Dark_Collector: true
       Baby_Ninja: true
       Baby_Taekwon: true
@@ -2331,7 +2330,6 @@ Body:
       Baby_Crusader2: true
       Soul_Linker: true
       Death_Knight: true
-      Hokage: true
       Dark_Collector: true
       Baby_Soul_Linker: true
     MaxJobLevel: 50

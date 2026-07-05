@@ -145,7 +145,6 @@ enum e_mapid : uint64{
 	MAPID_ROGUE,
 	MAPID_SOUL_LINKER,
 	MAPID_DARK_COLLECTOR = JOBL_2_2|MAPID_GANGSI,
-	MAPID_HOKAGE = JOBL_2_2|MAPID_NINJA,	//Custom Ninja-lineage 2-2 (Hokage) - FIRSTMASK==NINJA inherits ninja HP/SP/Suiton/skill-tree normalization
 //Trans Novice And Trans 1-1 Jobs
 	MAPID_NOVICE_HIGH = JOBL_UPPER|MAPID_NOVICE,
 	MAPID_SWORDMAN_HIGH,
