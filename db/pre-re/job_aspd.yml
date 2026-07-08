@@ -342,3 +342,11 @@ Body:
       Dagger: 575
       Staff: 625
       2hStaff: 625
+  - Jobs:
+      Kagerou: true
+      Oboro: true
+    BaseASPD:
+      Fist: 40
+      Dagger: 45
+      Huuma: 50
+      Shield: 3
