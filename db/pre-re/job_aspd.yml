@@ -346,7 +346,6 @@ Body:
       Kagerou: true
       Oboro: true
     BaseASPD:
-      Fist: 40
-      Dagger: 45
-      Huuma: 50
-      Shield: 3
+      Fist: 400
+      Dagger: 500
+      Huuma: 750
