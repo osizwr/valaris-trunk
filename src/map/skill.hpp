@@ -2453,6 +2453,15 @@ enum e_skill {
 	HOK_NARAKUMI = 7011, // Narakumi no Jutsu (genjutsu: Confusion + Hallucination on enemy)
 	HOK_SENSATSU_SUISHOU = 7012, // Sensatsu Suishou (self AoE: 1% current HP per level, water)
 
+	// ----- Necromancer custom class: summon a single MVP companion (self target) -----
+	NEC_RAISE_INFERNO = 7013,      // Raise Inferno (summons Ifrit)
+	NEC_BLIZZARD_WRATH = 7014,     // Blizzard's Wrath (summons Ktullanux)
+	NEC_VORTEX_GRASP = 7015,       // Vortex Grasp (summons Gryphon)
+	NEC_DEMON_AGONY = 7016,        // Demon's Agony (summons Thanatos)
+	NEC_SACRED_SOUL_VOODOO = 7017, // Sacred Soul Voodoo (summons Valkyrie Randgris)
+	NEC_CHAOS_BONDS = 7018,        // Chaos Bonds (summons Orc Lord)
+	NEC_REVERSE_CONTRACT = 7019,   // Reverse Contract (unsummons the Necromancer's companion)
+
 	HLIF_HEAL = 8001,
 	HLIF_AVOID,
 	HLIF_BRAIN,

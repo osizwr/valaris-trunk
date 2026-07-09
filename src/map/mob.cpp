@@ -4059,6 +4059,141 @@ int32 mob_clear_clones(block_list *master)
 	return map_foreachinmap(mob_clear_clones_sub, master->m, BL_MOB, master->id);
 }
 
+/*==========================================
+ * Custom (Hokage): warps every clone-slave owned by the given master onto a new
+ * map/position, so the Kage Bunshin / Tajuu Kage Bunshin clones follow their
+ * caster when the caster changes maps (the stock slave AI only re-warps slaves
+ * across maps for AI_ABR/AI_BIONIC or when slave_stick_with_master is enabled,
+ * and it cannot fire once the master has already left the clones' map).
+ *------------------------------------------*/
+static int32 mob_warp_clones_sub(block_list *bl, va_list ap)
+{
+	mob_data *md = BL_CAST(BL_MOB, bl);
+	int32 master_id = va_arg(ap, int32);
+	int16 m = (int16)va_arg(ap, int32);
+	int16 x = (int16)va_arg(ap, int32);
+	int16 y = (int16)va_arg(ap, int32);
+
+	if( md != nullptr && md->special_state.clone && md->master_id == master_id ){
+		// Scatter a little around the master's destination cell so the clones
+		// don't all stack on the same tile; unit_warp resolves the final cell
+		// (and finds a nearby free one if this is blocked).
+		int16 nx = x + rnd_value( -MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE );
+		int16 ny = y + rnd_value( -MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE );
+		unit_warp(md, m, nx, ny, CLR_TELEPORT);
+	}
+	return 0;
+}
+
+int32 mob_warp_clones(int16 from_m, int32 master_id, int16 to_m, int16 x, int16 y)
+{
+	if( from_m < 0 )
+		return 0;
+	return map_foreachinmap(mob_warp_clones_sub, from_m, BL_MOB, master_id, (int32)to_m, (int32)x, (int32)y);
+}
+
+/*==========================================
+ * Custom (Necromancer): dispels the caster's active summoned MVP companion.
+ * Enforces the "you can't summon more than 1 companion" rule - called before
+ * every new summon and can be reused as a standalone dispel. Companions always
+ * travel with their master (mob_warp_necro_companion), so a scan of the
+ * master's current map finds them.
+ *------------------------------------------*/
+static int32 mob_clear_necro_companion_sub(block_list *bl, va_list ap)
+{
+	mob_data *md = BL_CAST(BL_MOB, bl);
+	int32 master_id = va_arg(ap, int32);
+
+	if( md != nullptr && md->special_state.ai == AI_NECRO_COMPANION && md->master_id == master_id ){
+		// Cancel any pending lifespan timer before freeing.
+		if( md->deletetimer != INVALID_TIMER ){
+			delete_timer(md->deletetimer, mob_timer_delete);
+			md->deletetimer = INVALID_TIMER;
+		}
+		// CLR_OUTSIGHT removes the sprite cleanly on all clients.
+		unit_free(bl, CLR_OUTSIGHT);
+	}
+	return 0;
+}
+
+int32 mob_clear_necro_companion(map_session_data *sd)
+{
+	if( sd == nullptr )
+		return 0;
+	sd->necro_companion_id = 0;
+	return map_foreachinmap(mob_clear_necro_companion_sub, sd->m, BL_MOB, sd->id);
+}
+
+/*==========================================
+ * Custom (Necromancer): summons a single MVP monster (Ifrit, Ktullanux, ...) as
+ * a friendly companion that fights alongside the caster. Any existing companion
+ * is dispelled first (only 1 allowed). The companion's ability to attack is
+ * gated to PvP/GvG maps in status_calc_slave_mode - on spawn its combat mode is
+ * set from the caster's current map. If the skill defines a Duration1 it is used
+ * as a lifespan, otherwise the companion is permanent (until resummon/logout).
+ * Returns the spawned mob's game id, or 0 on failure.
+ *------------------------------------------*/
+int32 mob_summon_necro_companion(map_session_data *sd, int32 mob_id, uint16 skill_id, uint16 skill_lv)
+{
+	nullpo_ret(sd);
+
+	if( !mob_db.exists(mob_id) )
+		return 0;
+
+	// Only 1 companion at a time.
+	mob_clear_necro_companion(sd);
+
+	// x/y = -1 -> mob_once_spawn_sub picks a free cell next to the caster.
+	mob_data *md = mob_once_spawn_sub(sd, sd->m, -1, -1, sd->status.name, mob_id, "", SZ_SMALL, AI_NONE);
+	if( md == nullptr )
+		return 0;
+
+	md->master_id = sd->id;
+	md->special_state.ai = AI_NECRO_COMPANION;
+
+	// Optional lifespan (Duration1). 0 = permanent companion.
+	uint32 duration = skill_get_time(skill_id, skill_lv);
+	if( duration > 0 ){
+		if( md->deletetimer != INVALID_TIMER )
+			delete_timer(md->deletetimer, mob_timer_delete);
+		md->deletetimer = add_timer(gettick() + duration, mob_timer_delete, md->id, 0);
+	}
+
+	mob_spawn(md);
+	// Apply the map-gated combat mode (attacks only on PvP/GvG maps). Called
+	// explicitly rather than relying on the slaves_inherit_mode path so it works
+	// even on servers that disable slave-mode inheritance.
+	status_calc_slave_mode(*md);
+	sd->necro_companion_id = md->id;
+	return md->id;
+}
+
+/*==========================================
+ * Custom (Necromancer): drags the caster's summoned companion onto a new map so
+ * it follows across portals/warps (called from pc_setpos, like the Hokage
+ * clones). The companion's combat mode is map-independent (it always fights;
+ * whether it may hit players is decided per-map by battle_check_target), so no
+ * mode refresh is needed here.
+ *------------------------------------------*/
+void mob_warp_necro_companion(map_session_data *sd, int16 to_m, int16 x, int16 y)
+{
+	if( sd == nullptr || sd->necro_companion_id <= 0 )
+		return;
+
+	mob_data *md = map_id2md(sd->necro_companion_id);
+	if( md == nullptr || md->master_id != sd->id || md->special_state.ai != AI_NECRO_COMPANION ){
+		// Companion is gone (died / expired) - forget the stale id.
+		sd->necro_companion_id = 0;
+		return;
+	}
+
+	// Scatter slightly around the master's destination so it doesn't stack on
+	// the same tile; unit_warp resolves a nearby free cell if blocked.
+	int16 nx = x + rnd_value( -MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE );
+	int16 ny = y + rnd_value( -MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE );
+	unit_warp(md, to_m, nx, ny, CLR_TELEPORT);
+}
+
 /**
  * Remove slaves if master logs off.
  * @param bl: Mob data

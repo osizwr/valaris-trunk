@@ -542,3 +542,212 @@ Body:
         - { Level: 8,  Amount: 87 }
         - { Level: 9,  Amount: 93 }
         - { Level: 10, Amount: 100 }
+
+  #########################################################################
+  # Necromancer summon skills (7013-7018)
+  #
+  # Each summons ONE specific MVP as a companion that fights alongside the
+  # caster. Only 1 companion may exist at a time; casting any of these (or
+  # recasting) dispels the previous companion. Companions follow the caster
+  # across maps but may only ATTACK on PvP/GvG maps (safe in town).
+  #
+  # Supportive / Self target, MaxLevel 1. Behavior lives in:
+  #   src/map/skill.cpp  -> case NEC_* (skill_castend_nodamage_id)
+  #   src/map/mob.cpp    -> mob_summon_necro_companion / mob_warp_necro_companion
+  #   src/map/status.cpp -> status_calc_slave_mode (aggressive combat mode)
+  # Requires a recompile. Duration1 is the companion lifespan (mob_summon_necro_
+  # companion sets a delete timer from skill_get_time); it also despawns early on
+  # resummon, caster death, Reverse Contract, or logout.
+  #########################################################################
+
+  # Raise Inferno - summons Ifrit (mob 1832).
+  - Id: 7013
+    Name: NEC_RAISE_INFERNO
+    Description: "Raise Inferno"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 30000
+    Duration1:                 # companion lifespan (120s)
+      - Level: 1
+        Time: 120000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 100
+
+  # Blizzard's Wrath - summons Ktullanux (mob 1779).
+  - Id: 7014
+    Name: NEC_BLIZZARD_WRATH
+    Description: "Blizzard's Wrath"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 30000
+    Duration1:                 # companion lifespan (120s)
+      - Level: 1
+        Time: 120000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 100
+
+  # Vortex Grasp - summons Gryphon (mob 1259).
+  - Id: 7015
+    Name: NEC_VORTEX_GRASP
+    Description: "Vortex Grasp"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 30000
+    Duration1:                 # companion lifespan (120s)
+      - Level: 1
+        Time: 120000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 100
+
+  # Demon's Agony - summons Thanatos Phantom (mob 1708).
+  - Id: 7016
+    Name: NEC_DEMON_AGONY
+    Description: "Demon's Agony"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 30000
+    Duration1:                 # companion lifespan (120s)
+      - Level: 1
+        Time: 120000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 100
+
+  # Sacred Soul Voodoo - summons Valkyrie Randgris (mob 1751).
+  - Id: 7017
+    Name: NEC_SACRED_SOUL_VOODOO
+    Description: "Sacred Soul Voodoo"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 30000
+    Duration1:                 # companion lifespan (120s)
+      - Level: 1
+        Time: 120000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 100
+
+  # Chaos Bonds - summons Orc Lord (mob 1190).
+  - Id: 7018
+    Name: NEC_CHAOS_BONDS
+    Description: "Chaos Bonds"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 30000
+    Duration1:                 # companion lifespan (120s)
+      - Level: 1
+        Time: 120000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 100
+
+  # Reverse Contract - dispels the Necromancer's active summoned companion.
+  # Behavior in src/map/skill.cpp -> case NEC_REVERSE_CONTRACT (mob_clear_necro_
+  # companion). Instant, no summon, so no Duration1.
+  - Id: 7019
+    Name: NEC_REVERSE_CONTRACT
+    Description: "Reverse Contract"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 0
+    AfterCastActDelay:
+      - Level: 1
+        Time: 500
+    Cooldown:
+      - Level: 1
+        Time: 1000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 20

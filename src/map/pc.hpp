@@ -860,6 +860,11 @@ public:
 
 	int32 shadowform_id;
 
+	// Custom (Necromancer): game id of the caster's active summoned MVP companion
+	// (Raise Inferno / Blizzard's Wrath / ...). 0 = none. Used to enforce the
+	// "only 1 companion" rule and to drag it across maps in pc_setpos.
+	int32 necro_companion_id;
+
 	/* Channel System [Ind] */
 	struct Channel **channels;
 	unsigned char channel_count;

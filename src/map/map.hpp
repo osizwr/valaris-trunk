@@ -445,6 +445,7 @@ enum mob_ai {
 	AI_WAVEMODE,
 	AI_ABR,
 	AI_BIONIC,
+	AI_NECRO_COMPANION, // Custom: Necromancer summoned MVP companion (Raise Inferno, etc.)
 	AI_MAX
 };
 

@@ -8902,6 +8902,18 @@ static int32 status_calc_mode(block_list *bl, status_change *sc, int32 mode)
  */
 void status_calc_slave_mode(mob_data& md)
 {
+	// Custom (Necromancer): summoned MVP companions (Raise Inferno, Blizzard's
+	// Wrath, ...) are always full combat slaves that actively seek and attack
+	// MONSTERS on any map. Whether they may attack other PLAYERS is NOT decided
+	// here - battle_check_target resolves the companion to its player master and
+	// only treats rival players as enemies on PvP/GvG maps, so on normal maps the
+	// companion fights monsters only (and is safe in town: no monsters, players
+	// unhittable). This overrides the generic slaves_inherit_mode config below.
+	if (md.special_state.ai == AI_NECRO_COMPANION) {
+		sc_start4(nullptr, &md, SC_MODECHANGE, 100, 1, MD_CANMOVE|MD_NORANDOMWALK|MD_CANATTACK|MD_AGGRESSIVE|MD_CHANGETARGETMELEE|MD_CHANGETARGETCHASE, 0, 0, 0);
+		return;
+	}
+
 	switch (battle_config.slaves_inherit_mode) {
 		case 1: //Always aggressive
 			if (!status_has_mode(&md.status,MD_AGGRESSIVE))

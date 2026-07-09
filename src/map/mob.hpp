@@ -535,6 +535,11 @@ TIMER_FUNC(mob_delayspawn);
 int32 mob_setdelayspawn(mob_data *md);
 bool mob_load_delayspawn(mob_data *md);
 int32 mob_clear_clones(block_list *master);
+int32 mob_warp_clones(int16 from_m, int32 master_id, int16 to_m, int16 x, int16 y);
+// Custom (Necromancer): single summoned-MVP-companion helpers.
+int32 mob_summon_necro_companion(map_session_data *sd, int32 mob_id, uint16 skill_id, uint16 skill_lv);
+int32 mob_clear_necro_companion(map_session_data *sd);
+void mob_warp_necro_companion(map_session_data *sd, int16 to_m, int16 x, int16 y);
 int32 mob_parse_dataset(struct spawn_data *data);
 void mob_log_damage(mob_data* md, block_list* src, int64 damage, int64 damage_tanked = 0);
 void mob_damage(mob_data *md, block_list *src, int32 damage);

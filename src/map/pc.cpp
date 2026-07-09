@@ -7113,6 +7113,10 @@ enum e_setpos pc_setpos(map_session_data* sd, uint16 mapindex, int32 x, int32 y,
 		buyingstore_close(sd);
 	}
 
+	// Custom (Hokage): remember the map the player is leaving so their Kage Bunshin
+	// clones (still standing on it) can be dragged along to the destination below.
+	int16 clone_oldmap = ( sd->prev != nullptr ) ? sd->m : -1;
+
 	if(sd->prev != nullptr){
 		unit_remove_map_pc(sd,clrtype);
 		clif_changemap( *sd, m, x, y );
@@ -7123,6 +7127,19 @@ enum e_setpos pc_setpos(map_session_data* sd, uint16 mapindex, int32 x, int32 y,
 	sd->m = m;
 	sd->x = sd->ud.to_x = x;
 	sd->y = sd->ud.to_y = y;
+
+	// Custom (Hokage): on an actual map change, warp a Kagerou/Oboro's Kage Bunshin
+	// clones so they follow the caster. Gated to the clone-spawning class so this is
+	// a no-op scan for everyone else.
+	if( clone_oldmap >= 0 && clone_oldmap != m && ( sd->class_&MAPID_SECONDMASK ) == MAPID_KAGEROUOBORO )
+		mob_warp_clones( clone_oldmap, sd->id, m, x, y );
+
+	// Custom (Necromancer): on an actual map change, drag the caster's summoned MVP
+	// companion (Ifrit, etc.) along so it follows through portals, and refresh its
+	// attack permission for the destination map. Gated to players who actually have
+	// a companion out, so it's a no-op for everyone else.
+	if( clone_oldmap >= 0 && clone_oldmap != m && sd->necro_companion_id > 0 )
+		mob_warp_necro_companion( sd, m, x, y );
 
 	if( sd->status.guild_id > 0 && mapdata->getMapFlag(MF_GVG_CASTLE) )
 	{	// Increased guild castle regen [Valaris]
@@ -9854,6 +9871,10 @@ int32 pc_dead(map_session_data *sd,block_list *src)
 
 	if( sd->ed )
 		elemental_delete(sd->ed);
+
+	// Custom (Necromancer): the summoned MVP companion dies with its master.
+	if( sd->necro_companion_id > 0 )
+		mob_clear_necro_companion(sd);
 
 	// Leave duel if you die [LuzZza]
 	if(battle_config.duel_autoleave_when_die) {

@@ -2326,7 +2326,7 @@ static int32 skill_magic_reflect(block_list* src, block_list* bl, int32 type)
  * @param skill_id: Target skill
  * @return	0: Skill is not a combo
  *			1: Skill is a normal combo
- *			2: Skill is combo that prioritizes auto-target even if val2 is set 
+ *			2: Skill is combo that prioritizes auto-target even if val2 is set
  * @author Panikon
  */
 int32 skill_is_combo(uint16 skill_id) {
@@ -2584,7 +2584,7 @@ static void skill_do_copy(block_list* src,block_list *bl, uint16 skill_id, uint1
 				}
 
 				//Cap level depending on the src type
-				if (src->type == BL_PC) 
+				if (src->type == BL_PC)
 					lv = min(lv, skill_get_max(skill_id)); //If player, max skill level is skill_get_max(skill_id)
 				else
 					lv = min(lv, skill_lv); //Monster might used skill level > allowed player max skill lv. Ex. Drake with Waterball lv. 10
@@ -2594,7 +2594,7 @@ static void skill_do_copy(block_list* src,block_list *bl, uint16 skill_id, uint1
 				pc_setglobalreg(tsd, add_str(SKILL_VAR_REPRODUCE_LV), lv);
 				break;
 
-			default: 
+			default:
 				return;
 		}
 		tsd->status.skill[idx].id = skill_id;
@@ -2695,7 +2695,7 @@ void skill_attack_blow(block_list *src, block_list *dsrc, block_list *target, ui
  *
  *        flag&0xF000 - Values from enum e_skill_display
  *        flag&0x3F0000 - Values from enum e_battle_check_target
- * 
+ *
  *        flag&0x1000000 - Return 0 if damage was reflected
  *-------------------------------------------------------------------------*/
 int64 skill_attack (int32 attack_type, block_list* src, block_list *dsrc, block_list *bl, uint16 skill_id, uint16 skill_lv, t_tick tick, int32 flag)
@@ -2769,7 +2769,7 @@ int64 skill_attack (int32 attack_type, block_list* src, block_list *dsrc, block_
 					dmg.damage = battle_attr_fix(src, bl, pd->a_skill->damage, element, tstatus->def_ele, tstatus->ele_lv);
 				else
 					dmg.damage = pd->a_skill->damage; // Fixed damage
-				
+
 			}
 			else
 				dmg.damage = 1*pd->a_skill->div_;
@@ -2863,7 +2863,7 @@ int64 skill_attack (int32 attack_type, block_list* src, block_list *dsrc, block_
 
 		if(tsc && tsc->getSCE(SC_MAGICROD) && src == dsrc) {
 			int32 sp = skill_get_sp(skill_id,skill_lv);
-#ifndef RENEWAL 
+#ifndef RENEWAL
 			clif_skill_nodamage(bl,*bl,SA_MAGICROD,skill_lv);
 #endif
 			dmg.damage = dmg.damage2 = 0;
@@ -4488,7 +4488,11 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 				// slave, skip the stock skill copy - we assign an aggressive,
 				// offense-only jutsu loadout below so the clones reliably cast at
 				// enemies instead of the unreliable default clone behaviour.
-				int32 gid = mob_clone_spawn( sd, src->m, nx, ny, "", src->id, MD_NONE, 1|2, duration );
+				// AGGRESSIVE mode makes the clone actively seek and engage nearby
+				// enemies on its own, which is what drives it into the skill-cast
+				// path (a target must exist for the MSS_ANYTARGET jutsu to fire).
+				e_mode clone_mode = static_cast<e_mode>( MD_CANMOVE|MD_CANATTACK|MD_AGGRESSIVE|MD_CHANGETARGETMELEE|MD_CHANGETARGETCHASE );
+				int32 gid = mob_clone_spawn( sd, src->m, nx, ny, "", src->id, clone_mode, 1|2, duration );
 				if( gid > 0 ){
 					spawned++;
 					if( mob_data* cmd = map_id2md( gid ) )
@@ -4503,7 +4507,7 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 		}
 		break;
 
-	case HOK_TAJUU_KAGEBUNSHIN: // Tajuu Kage Bunshin no Jutsu - 20 fragile, non-casting clones
+	case HOK_TAJUU_KAGEBUNSHIN: // Tajuu Kage Bunshin no Jutsu - 20 fragile, melee-only (non-casting) clones
 		if( sd ){
 			int32 spawned = 0;
 			// Recasting either bunshin skill replaces the caster's existing clones.
@@ -4525,7 +4529,12 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 				}
 
 				// flag 1 = friendly slave, flag 2 = no skill copy (clones cannot cast).
-				int32 gid = mob_clone_spawn( sd, src->m, nx, ny, "", src->id, MD_NONE, 1|2, duration );
+				// AGGRESSIVE mode so the 20 decoys actively rush and NORMAL-attack
+				// (melee) enemies, but they get NO skill loadout (no
+				// mob_clone_set_kagebunshin_skills call), so they never cast jutsu -
+				// only Kage Bunshin's clones cast.
+				e_mode clone_mode = static_cast<e_mode>( MD_CANMOVE|MD_CANATTACK|MD_AGGRESSIVE|MD_CHANGETARGETMELEE|MD_CHANGETARGETCHASE );
+				int32 gid = mob_clone_spawn( sd, src->m, nx, ny, "", src->id, clone_mode, 1|2, duration );
 				if( gid > 0 ){
 					spawned++;
 					// Fragile clones: die after 3 hits.
@@ -4544,6 +4553,44 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 	case HOK_GYAKU_KUCHIYOSE: // Gyaku Kuchiyose - dispels all of the caster's clones
 		if( sd ){
 			mob_clear_clones( src );
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+		}
+		break;
+
+	// ===== Custom Necromancer summon skills =====
+	// Each summons ONE specific MVP to fight alongside the caster. Only one
+	// companion may exist at a time (mob_summon_necro_companion dispels the old
+	// one first). Companions follow the caster across maps (mob_warp_necro_companion,
+	// called from pc_setpos). They attack MONSTERS on any map, but only attack
+	// other PLAYERS on PvP/GvG maps (battle_check_target gates player-vs-player to
+	// vs maps) - so they are safe in town.
+	case NEC_RAISE_INFERNO:       // Ifrit
+	case NEC_BLIZZARD_WRATH:      // Ktullanux
+	case NEC_VORTEX_GRASP:        // Gryphon
+	case NEC_DEMON_AGONY:         // Thanatos Phantom
+	case NEC_SACRED_SOUL_VOODOO:  // Valkyrie Randgris
+	case NEC_CHAOS_BONDS:         // Orc Lord
+		if( sd ){
+			int32 companion_id = 0;
+			switch( skill_id ){
+				case NEC_RAISE_INFERNO:      companion_id = 1832; break; // IFRIT
+				case NEC_BLIZZARD_WRATH:     companion_id = 1779; break; // KTULLANUX
+				case NEC_VORTEX_GRASP:       companion_id = 1259; break; // GRYPHON
+				case NEC_DEMON_AGONY:        companion_id = 1708; break; // THANATOS
+				case NEC_SACRED_SOUL_VOODOO: companion_id = 1751; break; // RANDGRIS (Valkyrie)
+				case NEC_CHAOS_BONDS:        companion_id = 1190; break; // ORC_LORD
+			}
+
+			if( companion_id > 0 && mob_summon_necro_companion( sd, companion_id, skill_id, skill_lv ) > 0 )
+				clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			else
+				clif_skill_fail( *sd, skill_id );
+		}
+		break;
+
+	case NEC_REVERSE_CONTRACT: // Reverse Contract - unsummons the Necromancer's companion
+		if( sd ){
+			mob_clear_necro_companion( sd );
 			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
 		}
 		break;
@@ -4586,7 +4633,7 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 	case GD_RESTORE:
 	case GD_EMERGENCY_MOVE:
 		if(flag&1) {
-			if (status_get_guild_id(src) == status_get_guild_id(bl)) {				
+			if (status_get_guild_id(src) == status_get_guild_id(bl)) {
 				if( skill_id == GD_RESTORE )
 					clif_skill_nodamage(src,*bl,AL_HEAL,status_percent_heal(bl,90,90));
 				else
@@ -4840,7 +4887,7 @@ static int8 skill_castend_id_check(block_list *src, block_list *target, uint16 s
 			if (target->type == BL_SKILL) {
 				TBL_SKILL *su = (TBL_SKILL*)target;
 				if (!su || !su->group)
-					return USESKILL_FAIL_MAX;				
+					return USESKILL_FAIL_MAX;
 				if (skill_get_inf2(su->group->skill_id, INF2_ISTRAP))
 					return USESKILL_FAIL_MAX;
 			}
@@ -6056,7 +6103,7 @@ std::shared_ptr<s_skill_unit_group> skill_unitsetting(block_list *src, uint16 sk
 #else
 		val1 = 5 + 3 * skill_lv + status->dex / 10; // ASPD decrease
 		val2 = 5 + 3 * skill_lv + status->agi / 10; // Movement speed adjustment.
-#endif		
+#endif
 		if (sd) {
 			val1 += pc_checkskill(sd, DC_DANCINGLESSON);
 #ifdef RENEWAL
@@ -6274,7 +6321,7 @@ std::shared_ptr<s_skill_unit_group> skill_unitsetting(block_list *src, uint16 sk
 	case WH_FLAMETRAP:
 		limit += 3000 * (sd ? pc_checkskill(sd, WH_ADVANCED_TRAP) : 5);
 		break;
-		
+
 	case NW_GRENADES_DROPPING:
 		limit = skill_get_time2(skill_id,skill_lv);
 		break;
@@ -6377,7 +6424,7 @@ std::shared_ptr<s_skill_unit_group> skill_unitsetting(block_list *src, uint16 sk
 				break;
 			case WZ_WATERBALL:
 				//Check if there are cells that can be turned into waterball units
-				if (!sd || map_getcell(src->m, ux, uy, CELL_CHKWATER) 
+				if (!sd || map_getcell(src->m, ux, uy, CELL_CHKWATER)
 					|| (map_find_skill_unit_oncell(src, ux, uy, SA_DELUGE, nullptr, 1)) != nullptr || (map_find_skill_unit_oncell(src, ux, uy, NJ_SUITON, nullptr, 1)) != nullptr)
 					break; //Turn water, deluge or suiton into waterball cell
 				continue;
@@ -6480,7 +6527,7 @@ void ext_skill_unit_onplace(skill_unit *unit, block_list *bl, t_tick tick)
  */
 static int32 skill_unit_onplace(skill_unit *unit, block_list *bl, t_tick tick)
 {
-	
+
 	block_list *ss; // Actual source that cast the skill unit
 	status_change *sc;
 	struct status_change_entry *sce;
@@ -7241,7 +7288,7 @@ int32 skill_unit_onplace_timer(skill_unit *unit, block_list *bl, t_tick tick)
 
 			if (battle_config.multi_trigger_trap == 1)
 				unit->range = -1; // Trap will still process all units on it and will then be disabled in the calling function
-			else 
+			else
 				sg->unit_id = UNT_USED_TRAPS; // Change ID so it does not invoke for each in area again
 		}
 			break;
@@ -7714,7 +7761,7 @@ int32 skill_unit_onplace_timer(skill_unit *unit, block_list *bl, t_tick tick)
 				status_heal( bl, hp, sp, 0, 2 );
 
 				sc_start( ss, bl, skill_get_sc( sg->skill_id ), 100, sg->skill_lv, sg->interval + 100 );
-			} 
+			}
 			break;
 
 		case UNT_HYUN_ROKS_BREEZE:
@@ -8191,7 +8238,7 @@ int32 skill_check_pc_partner(map_session_data *sd, uint16 skill_id, uint16 *skil
 	memset (p_sd, 0, sizeof(p_sd));
 	i = map_foreachinallrange(skill_check_condition_char_sub, sd, range, BL_PC, sd, &c, &p_sd, skill_id);
 
-	if ( skill_id != PR_BENEDICTIO && skill_id != AB_ADORAMUS && skill_id != WM_GREAT_ECHO && 
+	if ( skill_id != PR_BENEDICTIO && skill_id != AB_ADORAMUS && skill_id != WM_GREAT_ECHO &&
 		!(skill_id >= TR_GEF_NOCTURN && skill_id <= TR_PRON_MARCH)) //Apply the average lv to encore skills.
 		*skill_lv = (i+(*skill_lv))/(c+1); //I know c should be one, but this shows how it could be used for the average of n partners.
 	return c;
@@ -8352,7 +8399,7 @@ int32 skill_check_bl_sc(block_list *target, va_list ap) {
 
 }
 
-/** 
+/**
  * Check skill condition when cast begin
  * For ammo, only check if the skill need ammo
  * For checking ammo requirement (type and amount) will be skill_check_condition_castend
@@ -8929,7 +8976,7 @@ bool skill_check_condition_castbegin( map_session_data& sd, uint16 skill_id, uin
 				int16 sx = sd.x;
 				int16 sy = sd.y;
 				uint8 dir = unit_getdir(&sd) % DIR_MAX;
-				
+
 				switch (dir) {
 					case DIR_NORTH: sy++; break;
 					case DIR_NORTHWEST: sx--; sy++; break;
@@ -10703,7 +10750,7 @@ void skill_identify(map_session_data *sd, int32 idx)
 		}
 	}
 	clif_item_identified( *sd, idx, failure );
-	
+
 	if(!failure) {
 		pc_setreg(sd, add_str("@identify_idx"), idx);
 		npc_script_event( *sd, NPCE_IDENTIFY );
@@ -11681,7 +11728,7 @@ bool skill_check_shadowform(block_list *bl, int64 damage, int32 hit)
 	if( sc && sc->getSCE(SC__SHADOWFORM) ) {
 		block_list *src = map_id2bl(sc->getSCE(SC__SHADOWFORM)->val2);
 
-		if( !src || src->m != bl->m ) { 
+		if( !src || src->m != bl->m ) {
 			status_change_end(bl, SC__SHADOWFORM);
 			return false;
 		}
@@ -12483,7 +12530,7 @@ static int32 skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 				break;
 
 			default:
-				if (group->val2 == 1 && (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 || 
+				if (group->val2 == 1 && (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 ||
 					group->skill_id == AG_VIOLENT_QUAKE_ATK || group->skill_id == AG_ALL_BLOOM_ATK || group->skill_id == AG_ALL_BLOOM_ATK2 || group->skill_id == NPC_RAINOFMETEOR ||
 					group->skill_id == HN_METEOR_STORM_BUSTER)) {
 					// Deal damage before expiration
@@ -12540,7 +12587,7 @@ static int32 skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 				}
 				break;
 			default:
-				if (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 || 
+				if (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 ||
 					group->skill_id == AG_VIOLENT_QUAKE_ATK || group->skill_id == AG_ALL_BLOOM_ATK || group->skill_id == AG_ALL_BLOOM_ATK2 || group->skill_id == NPC_RAINOFMETEOR ||
 					group->skill_id == HN_METEOR_STORM_BUSTER) {
 					if (group->val2 == 0 && (DIFF_TICK(tick, group->tick) >= group->limit - group->interval || DIFF_TICK(tick, group->tick) >= unit->limit - group->interval)) {
@@ -12589,7 +12636,7 @@ static int32 skill_unit_timer_sub(DBKey key, DBData *data, va_list ap)
 				group->bl_flag= BL_NUL;
 			}
 		}
-		else if (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 || 
+		else if (group->skill_id == WZ_METEOR || group->skill_id == SU_CN_METEOR || group->skill_id == SU_CN_METEOR2 ||
 			group->skill_id == AG_VIOLENT_QUAKE_ATK || group->skill_id == AG_ALL_BLOOM_ATK || group->skill_id == AG_ALL_BLOOM_ATK2 || group->skill_id == NPC_RAINOFMETEOR ||
 			group->skill_id == HN_METEOR_STORM_BUSTER ||
 			((group->skill_id == CR_GRANDCROSS || group->skill_id == NPC_GRANDDARKNESS) && unit->val1 <= 0)) {
