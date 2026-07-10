@@ -1,0 +1,294 @@
+=======================================================================
+ NECROMANCER  -  CLIENT PATCH  (dedicated new job id 4435)
+ Server side is done: JOB_NECROMANCER = 4435, MAPID_NECROMANCER, an
+ Acolyte-lineage base job (Inherit: Acolyte) holding the 7 NEC_* skills.
+ Target client: same as hokage-client.txt  (data\luafiles514\lua files\)
+ Skills: NEC_RAISE_INFERNO (7013) .. NEC_REVERSE_CONTRACT (7019)
+=======================================================================
+
+ !! READ SECTION 0 FIRST !!
+ This is a BRAND-NEW job id -- the exact thing that made the old
+ JOB_HOKAGE(4300) attempt get reverted. It works, but only if you key the
+ skillinfoz tables by the LITERAL number 4435, never by JT_NECROMANCER.
+
+
+ WHAT GOES WHERE
+ ---------------
+  SECTION 0   the nil-index trap        -> why 4300 failed, how 4435 avoids it
+  SECTION 1   npcidentity.lub           -> register JT_NECROMANCER = 4435
+  SECTION 2   jobname.lub               -> sprite base name (reuse Acolyte's)
+  SECTION 3   skillid.lub               -> SKID.NEC_* = 7013..7019
+  SECTION 4   skillinfolist.lub         -> SP / MaxLv / range
+  SECTION 5   skilldescript.lub         -> tooltips
+  SECTION 6   skilltreeview.lub         -> the 4435 tab  (LITERAL key!)
+  SECTION 7   jobinheritlist.lub        -> DO NOT ADD AN ENTRY (explained)
+  SECTION 8   icons + msgstringtable    -> cosmetics
+  SECTION 9   post-install test
+
+
+=======================================================================
+ SECTION 0  -  THE NIL-INDEX TRAP  (this is what killed JOB_HOKAGE 4300)
+=======================================================================
+ The files under \skillinfoz\ run in their OWN lua state. npcidentity.lub is
+ loaded into the MAIN client state, so inside skilltreeview.lub and
+ jobinheritlist.lub the symbol JT_NECROMANCER / JOBID.JT_NECROMANCER is NIL.
+
+ Using a nil table key throws:
+     [string "buf"]:NNN: table index is nil
+ and if it happens inside the JOB_INHERIT_LIST = {...} literal it ABORTS
+ jobinheritlist.lub, leaves JOB_INHERIT_LIST nil, and then skillinfo_f.lua
+ GetInheritJob crashes the ENTIRE skill window.
+
+ RULES:
+   * In skilltreeview.lub / jobinheritlist.lub  -> use the literal:  [4435]
+   * In npcidentity.lub / jobname.lub           -> JT_NECROMANCER is fine
+   * SKID.NEC_* is fine everywhere (skillid.lub defines it in that state)
+
+
+=======================================================================
+ SECTION 1  -  npcidentity.lub   (main state: register the job id)
+ ...\lua files\datainfo\npcidentity.lub
+=======================================================================
+ Add alongside the other job entries:
+
+     JT_NECROMANCER = 4435,
+
+ TIP: rather than trust this snippet's placement, grep your GRF for an
+ existing modern job -- JT_SPIRIT_HANDLER (4308) is a good template -- and
+ add a JT_NECROMANCER line everywhere JT_SPIRIT_HANDLER appears. That is the
+ reliable way to catch any table your particular client revision also needs
+ (some builds carry a second copy in jobidentity.lub / pcjobnametable.lub).
+
+
+=======================================================================
+ SECTION 2  -  jobname.lub   (job id -> sprite base name)
+ ...\lua files\datainfo\jobname.lub
+=======================================================================
+ The value here is the SPRITE FILE base name. The client will look for
+     data\sprite\<human>\<body>\<male>\<value>_<male>.spr  (+ .act, + palettes)
+ and CRASH / render nothing if it is missing.
+
+ EASIEST PATH -- ship no new art, reuse the Acolyte body:
+ find the existing Acolyte row in JobNameTable and give Necromancer the
+ SAME string value:
+
+     [jobtbl.JT_NECROMANCER] = <copy the exact string from the JT_ACOLYTE row>,
+
+ That gets you a working, correctly-animated body on day one. Swap in custom
+ art later by adding real necromancer_*.spr/.act/.pal files and changing this
+ value to "necromancer".
+
+ If you DO add custom sprites, the .act must keep the full player action set
+ (idle/walk/sit/attack/cast/hurt/dead x 8 directions) or the client crashes on
+ the first missing animation. Folder names are EUC-KR (codepage 949).
+
+
+=======================================================================
+ SECTION 3  -  skillid.lub   (SKID: skill name -> id)
+ ...\lua files\skillinfoz\skillid.lub
+=======================================================================
+SKID.NEC_RAISE_INFERNO      = 7013
+SKID.NEC_BLIZZARD_WRATH     = 7014
+SKID.NEC_VORTEX_GRASP       = 7015
+SKID.NEC_DEMON_AGONY        = 7016
+SKID.NEC_SACRED_SOUL_VOODOO = 7017
+SKID.NEC_CHAOS_BONDS        = 7018
+SKID.NEC_REVERSE_CONTRACT   = 7019
+
+
+=======================================================================
+ SECTION 4  -  skillinfolist.lub
+ SpAmount[] matches db/import/skill_db.yml exactly (100 SP each summon,
+ 20 SP for Reverse Contract). All are MaxLv 1, self-cast -> AttackRange 0.
+ 1st string = icon resource -> needs data\texture\...\item\<name>.bmp
+ (see SECTION 8 to reuse an existing icon instead).
+=======================================================================
+SKILL_INFO_LIST[SKID.NEC_RAISE_INFERNO] = {
+	"NEC_RAISE_INFERNO", SkillName = "Raise Inferno", MaxLv = 1,
+	SpAmount = { 100 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_BLIZZARD_WRATH] = {
+	"NEC_BLIZZARD_WRATH", SkillName = "Blizzard's Wrath", MaxLv = 1,
+	SpAmount = { 100 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_VORTEX_GRASP] = {
+	"NEC_VORTEX_GRASP", SkillName = "Vortex Grasp", MaxLv = 1,
+	SpAmount = { 100 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_DEMON_AGONY] = {
+	"NEC_DEMON_AGONY", SkillName = "Demon's Agony", MaxLv = 1,
+	SpAmount = { 100 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_SACRED_SOUL_VOODOO] = {
+	"NEC_SACRED_SOUL_VOODOO", SkillName = "Sacred Soul Voodoo", MaxLv = 1,
+	SpAmount = { 100 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_CHAOS_BONDS] = {
+	"NEC_CHAOS_BONDS", SkillName = "Chaos Bonds", MaxLv = 1,
+	SpAmount = { 100 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_REVERSE_CONTRACT] = {
+	"NEC_REVERSE_CONTRACT", SkillName = "Reverse Contract", MaxLv = 1,
+	SpAmount = { 20 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+
+
+=======================================================================
+ SECTION 5  -  skilldescript.lub   (tooltips)
+ Numbers below mirror skill_db.yml: 2s cast + 1s fixed, 30s cooldown,
+ 120s companion lifespan, one companion at a time.
+=======================================================================
+SKILL_DESCRIPT[SKID.NEC_RAISE_INFERNO] = {
+	"Raise Inferno",
+	"^777777Binds the Lord of Fire to your will.^000000",
+	"Summons Ifrit to fight at your side for 120 seconds.",
+	"Replaces your current companion.",
+	"^0000FFSP Cost:^000000 100    ^0000FFCooldown:^000000 30s",
+	"^0000FFMax Level:^000000 1" }
+SKILL_DESCRIPT[SKID.NEC_BLIZZARD_WRATH] = {
+	"Blizzard's Wrath",
+	"^777777Binds the frozen tyrant to your will.^000000",
+	"Summons Ktullanux to fight at your side for 120 seconds.",
+	"Replaces your current companion.",
+	"^0000FFSP Cost:^000000 100    ^0000FFCooldown:^000000 30s",
+	"^0000FFMax Level:^000000 1" }
+SKILL_DESCRIPT[SKID.NEC_VORTEX_GRASP] = {
+	"Vortex Grasp",
+	"^777777Binds the storm-born beast to your will.^000000",
+	"Summons a Gryphon to fight at your side for 120 seconds.",
+	"Replaces your current companion.",
+	"^0000FFSP Cost:^000000 100    ^0000FFCooldown:^000000 30s",
+	"^0000FFMax Level:^000000 1" }
+SKILL_DESCRIPT[SKID.NEC_DEMON_AGONY] = {
+	"Demon's Agony",
+	"^777777Binds a soul torn from Thanatos' tower.^000000",
+	"Summons Thanatos Phantom to fight at your side for 120 seconds.",
+	"Replaces your current companion.",
+	"^0000FFSP Cost:^000000 100    ^0000FFCooldown:^000000 30s",
+	"^0000FFMax Level:^000000 1" }
+SKILL_DESCRIPT[SKID.NEC_SACRED_SOUL_VOODOO] = {
+	"Sacred Soul Voodoo",
+	"^777777Chains a fallen valkyrie to the mortal world.^000000",
+	"Summons Valkyrie Randgris to fight at your side for 120 seconds.",
+	"Replaces your current companion.",
+	"^0000FFSP Cost:^000000 100    ^0000FFCooldown:^000000 30s",
+	"^0000FFMax Level:^000000 1" }
+SKILL_DESCRIPT[SKID.NEC_CHAOS_BONDS] = {
+	"Chaos Bonds",
+	"^777777Binds the warlord of the orcish hordes.^000000",
+	"Summons Orc Lord to fight at your side for 120 seconds.",
+	"Replaces your current companion.",
+	"^0000FFSP Cost:^000000 100    ^0000FFCooldown:^000000 30s",
+	"^0000FFMax Level:^000000 1" }
+SKILL_DESCRIPT[SKID.NEC_REVERSE_CONTRACT] = {
+	"Reverse Contract",
+	"^777777Severs the pact.^000000",
+	"Instantly dispels your active companion.",
+	"^0000FFSP Cost:^000000 20    ^0000FFCooldown:^000000 1s",
+	"^0000FFMax Level:^000000 1" }
+
+
+=======================================================================
+ SECTION 6  -  skilltreeview.lub   (the Necromancer tab)
+ ...\lua files\skillinfoz\skilltreeview.lub
+
+ *** KEY BY THE LITERAL 4435 -- JOBID.JT_NECROMANCER IS NIL IN THIS STATE ***
+
+ The server tree is `Inherit: Acolyte`, so the Acolyte + Novice skills are
+ genuinely learnable on this job. They must be LISTED HERE or you will have
+ no way to click them (see SECTION 7 -- we are not using jobinheritlist).
+
+ 7-column grid, index = row*7 + col, 0-based.
+ Rows 0-2 = the inherited Acolyte/Novice set. Row 3 = the 7 NEC_* skills.
+=======================================================================
+SKILL_TREEVIEW_DIC[4435] = {
+	-- row 0
+	[0]  = SKID.NV_BASIC,
+	[1]  = SKID.AL_DP,
+	[2]  = SKID.AL_DEMONBANE,
+	[3]  = SKID.AL_RUWACH,
+	[4]  = SKID.AL_PNEUMA,
+	[5]  = SKID.AL_TELEPORT,
+	[6]  = SKID.AL_WARP,
+	-- row 1
+	[7]  = SKID.AL_HEAL,
+	[8]  = SKID.AL_INCAGI,
+	[9]  = SKID.AL_DECAGI,
+	[10] = SKID.AL_HOLYWATER,
+	[11] = SKID.AL_CRUCIS,
+	[12] = SKID.AL_ANGELUS,
+	[13] = SKID.AL_BLESSING,
+	-- row 2
+	[14] = SKID.AL_CURE,
+	[15] = SKID.AL_HOLYLIGHT,
+	[16] = SKID.NV_FIRSTAID,
+	[17] = SKID.NV_TRICKDEAD,
+	-- row 3  -- the Necromancer summons
+	[21] = SKID.NEC_RAISE_INFERNO,
+	[22] = SKID.NEC_BLIZZARD_WRATH,
+	[23] = SKID.NEC_VORTEX_GRASP,
+	[24] = SKID.NEC_DEMON_AGONY,
+	[25] = SKID.NEC_SACRED_SOUL_VOODOO,
+	[26] = SKID.NEC_CHAOS_BONDS,
+	[27] = SKID.NEC_REVERSE_CONTRACT,
+}
+
+
+=======================================================================
+ SECTION 7  -  jobinheritlist.lub   -- ADD NOTHING
+=======================================================================
+ JOB_INHERIT_LIST is the table that made the 4300 attempt cascade into a
+ dead skill window. We do not need it: SECTION 6 already lists the inherited
+ Acolyte/Novice skills directly in the 4435 tab, which is the same result
+ with none of the risk.
+
+ If you ever do add an entry, it MUST be the literal key:
+     JOB_INHERIT_LIST[4435] = <n>        -- NOT JOB_INHERIT_LIST[JT_NECROMANCER]
+ A nil key anywhere inside that table literal aborts the whole file.
+
+
+=======================================================================
+ SECTION 8  -  icons + job name (cosmetics)
+=======================================================================
+ SKILL ICONS
+   The 1st string in each SKILL_INFO_LIST row is the icon resource, so the
+   client wants 24x24 bmp files:
+     data\texture\<user interface>\item\nec_raise_inferno.bmp
+     data\texture\<user interface>\item\nec_blizzard_wrath.bmp
+     data\texture\<user interface>\item\nec_vortex_grasp.bmp
+     data\texture\<user interface>\item\nec_demon_agony.bmp
+     data\texture\<user interface>\item\nec_sacred_soul_voodoo.bmp
+     data\texture\<user interface>\item\nec_chaos_bonds.bmp
+     data\texture\<user interface>\item\nec_reverse_contract.bmp
+   To skip the art entirely, replace that 1st string with an existing skill's
+   resource name (e.g. "AL_HEAL") and you inherit that skill's icon.
+
+ JOB NAME IN THE UI
+   The job name shown in char-select / basic info comes from the CLIENT's
+   data\msgstringtable.txt, indexed off the job id internally -- it is NOT
+   sent by the server. A job id the client has never heard of will most
+   likely render blank or "Unknown Job" there. Purely cosmetic: the class
+   plays fine. Server-side text (@job output, logs) already says
+   "Necromancer" via job_name() in pc.cpp / inter.cpp.
+
+ SKILL CAST EFFECTS
+   The NEC_* skills have no client-side effect entry, so casting shows no
+   special animation. Harmless. If you want a visual, the server-side trick
+   from Sensatsu Suishou applies: pass another skill's id to
+   clif_skill_nodamage/clif_skill_damage and the client plays THAT animation
+   with zero client edits.
+
+
+=======================================================================
+ SECTION 9  -  POST-INSTALL TEST
+=======================================================================
+  1. Server: rebuild (the job id is a C++ enum change, not a db reload), then
+     restart. @reloaddb alone is NOT enough this time.
+  2. Client: pack the edited .lub files into your GRF, load it first in data.ini.
+  3. In-game: @job 4435    (or: jobchange 4435 from a script/NPC)
+  4. Skill window: a Necromancer tab with the Acolyte set on rows 0-2 and the
+     7 NEC_* summons on row 3. The tree unlocks after 9 Novice skill points
+     are spent -- that is normal base-job behavior, not a bug.
+  5. Cast any summon: one MVP companion appears, follows you across portals,
+     lasts 120s, dies with you. Recasting or Reverse Contract dispels it.
+  6. Equipment: all Acolyte gear equips (pc_job_can_use_item borrows the
+     Acolyte mask). Gear tagged for other classes will not.
+
+  IF THE SKILL WINDOW IS BLANK OR THE CLIENT ERRORS ON LOGIN
+     -> you almost certainly used JT_NECROMANCER as a table key inside
+        \skillinfoz\. Re-read SECTION 0.
+=======================================================================
+</content>

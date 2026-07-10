@@ -7,6 +7,7 @@
 # parser state mid-load and crash the map-server.
 #
 #  - Hokage (job 4051 = Death_Knight): stats + ASPD  [vestigial - class now on Kagerou/Oboro]
+#  - Necromancer (job 4435): stats + ASPD; shares the Base 255 / Job 120 exp tables
 #  - Transcendent line: Base 255 / Job 120 exp tables
 ###########################################################################
 
@@ -54,6 +55,82 @@ Body:
       - { Level: 47, Agi: 1 }
       - { Level: 49, Dex: 1 }
       - { Level: 50, Luk: 1 }
+  # Necromancer - custom class on job 4435. Acolyte-lineage caster/summoner.
+  # BaseASPD lives here because db/<mode>/job_aspd.yml has no Necromancer entry.
+  # Level caps and exp curves are shared with the transcendent blocks below
+  # (Necromancer is listed in both).
+  - Jobs:
+      Necromancer: true
+    MaxWeight: 26000
+    HpFactor: 75
+    SpIncrease: 800
+    BaseASPD:            # copied from the pre-re Acolyte line (no Shield in pre-re)
+      Fist: 400
+      Mace: 600
+      2hMace: 600
+      Staff: 600
+      2hStaff: 600
+    BonusStats:
+      - { Level: 2, Int: 1 }
+      - { Level: 4, Dex: 1 }
+      - { Level: 6, Int: 1 }
+      - { Level: 8, Vit: 1 }
+      - { Level: 10, Dex: 1 }
+      - { Level: 12, Luk: 1 }
+      - { Level: 14, Int: 1 }
+      - { Level: 16, Agi: 1 }
+      - { Level: 18, Dex: 1 }
+      - { Level: 20, Str: 1 }
+      - { Level: 22, Int: 1 }
+      - { Level: 24, Dex: 1 }
+      - { Level: 26, Int: 1 }
+      - { Level: 28, Vit: 1 }
+      - { Level: 30, Dex: 1 }
+      - { Level: 32, Luk: 1 }
+      - { Level: 34, Int: 1 }
+      - { Level: 36, Agi: 1 }
+      - { Level: 38, Dex: 1 }
+      - { Level: 40, Str: 1 }
+      - { Level: 42, Int: 1 }
+      - { Level: 44, Dex: 1 }
+      - { Level: 46, Int: 1 }
+      - { Level: 48, Vit: 1 }
+      - { Level: 50, Dex: 1 }
+      - { Level: 52, Luk: 1 }
+      - { Level: 54, Int: 1 }
+      - { Level: 56, Agi: 1 }
+      - { Level: 58, Dex: 1 }
+      - { Level: 60, Str: 1 }
+      - { Level: 62, Int: 1 }
+      - { Level: 64, Dex: 1 }
+      - { Level: 66, Int: 1 }
+      - { Level: 68, Vit: 1 }
+      - { Level: 70, Dex: 1 }
+      - { Level: 72, Luk: 1 }
+      - { Level: 74, Int: 1 }
+      - { Level: 76, Agi: 1 }
+      - { Level: 78, Dex: 1 }
+      - { Level: 80, Str: 1 }
+      - { Level: 82, Int: 1 }
+      - { Level: 84, Dex: 1 }
+      - { Level: 86, Int: 1 }
+      - { Level: 88, Vit: 1 }
+      - { Level: 90, Dex: 1 }
+      - { Level: 92, Luk: 1 }
+      - { Level: 94, Int: 1 }
+      - { Level: 96, Agi: 1 }
+      - { Level: 98, Dex: 1 }
+      - { Level: 100, Str: 1 }
+      - { Level: 102, Int: 1 }
+      - { Level: 104, Dex: 1 }
+      - { Level: 106, Int: 1 }
+      - { Level: 108, Vit: 1 }
+      - { Level: 110, Dex: 1 }
+      - { Level: 112, Luk: 1 }
+      - { Level: 114, Int: 1 }
+      - { Level: 116, Agi: 1 }
+      - { Level: 118, Dex: 1 }
+      - { Level: 120, Str: 1 }
   # Base level 255 for the whole transcendent line
   - Jobs:
       Novice_High: true
@@ -78,6 +155,7 @@ Body:
       Clown: true
       Gypsy: true
       Paladin2: true
+      Necromancer: true
     MaxBaseLevel: 255
     BaseExp:
       - { Level: 1, Exp: 200 }
@@ -352,6 +430,7 @@ Body:
       Clown: true
       Gypsy: true
       Paladin2: true
+      Necromancer: true
     MaxJobLevel: 120
     JobExp:
       - { Level: 1, Exp: 150 }

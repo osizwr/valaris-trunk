@@ -249,6 +249,8 @@
 
 	export_constant(JOB_SKY_EMPEROR2);
 
+	export_constant(JOB_NECROMANCER);
+
 	export_constant(JOB_RUNE_KNIGHT_2ND);
 	export_constant(JOB_MECHANIC_2ND);
 	export_constant(JOB_GUILLOTINE_CROSS_2ND);
@@ -290,6 +292,7 @@
 	export_constant2("EAJ_NINJA",MAPID_NINJA);
 	export_constant2("EAJ_SUMMONER",MAPID_SUMMONER);
 	export_constant2("EAJ_GANGSI",MAPID_GANGSI);
+	export_constant2("EAJ_NECROMANCER",MAPID_NECROMANCER);
 
 	export_constant2("EAJ_SUPER_NOVICE",MAPID_SUPER_NOVICE);
 	export_constant2("EAJ_SUPERNOVICE",MAPID_SUPER_NOVICE);

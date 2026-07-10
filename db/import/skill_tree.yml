@@ -13,6 +13,11 @@
 #
 # Applies in BOTH renewal and pre-re (import has no Mode tag). Zeroing a skill
 # that doesn't exist in a given mode's base tree is a harmless no-op.
+#
+# NECROMANCER = custom job 4435 (JOB_NECROMANCER / MAPID_NECROMANCER), an
+# Acolyte-lineage class. Its tree is created here - there is no base entry to
+# merge with. Every current and future NEC_* skill goes in the one Tree block
+# below; nothing else needs touching to add one.
 ###########################################################################
 
 Header:
@@ -81,6 +86,32 @@ Body:
         MaxLevel: 1
       - Name: HOK_SENSATSU_SUISHOU  # Sensatsu Suishou - 1% current HP/lv AoE (7012)
         MaxLevel: 10
+
+  #########################################################################
+  # NECROMANCER (job 4435) - custom Acolyte-lineage summoner.
+  #
+  # Add future NEC_* skills to this Tree. Nothing else is job-specific:
+  # the skill only needs an entry in db/import/skill_db.yml and, if it has
+  # behavior, a case in skill_castend_nodamage_id().
+  #########################################################################
+  - Job: Necromancer
+    Inherit:
+      Acolyte: true               # full Acolyte skill set
+    Tree:
+      - Name: NEC_RAISE_INFERNO       # Raise Inferno - summons Ifrit (7013)
+        MaxLevel: 1
+      - Name: NEC_BLIZZARD_WRATH      # Blizzard's Wrath - summons Ktullanux (7014)
+        MaxLevel: 1
+      - Name: NEC_VORTEX_GRASP        # Vortex Grasp - summons Gryphon (7015)
+        MaxLevel: 1
+      - Name: NEC_DEMON_AGONY         # Demon's Agony - summons Thanatos Phantom (7016)
+        MaxLevel: 1
+      - Name: NEC_SACRED_SOUL_VOODOO  # Sacred Soul Voodoo - summons Randgris (7017)
+        MaxLevel: 1
+      - Name: NEC_CHAOS_BONDS         # Chaos Bonds - summons Orc Lord (7018)
+        MaxLevel: 1
+      - Name: NEC_REVERSE_CONTRACT    # Reverse Contract - dispels the companion (7019)
+        MaxLevel: 1
 
   #########################################################################
   # OBORO (female) - Hokage

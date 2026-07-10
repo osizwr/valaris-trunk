@@ -1109,6 +1109,9 @@ enum e_job {
 
 	JOB_SECOND_JOB_END = 4350,
 
+	// Custom classes
+	JOB_NECROMANCER = 4435,
+
 	JOB_MAX,
 };
 

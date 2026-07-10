@@ -1775,6 +1775,11 @@ static bool pc_job_can_use_item( const map_session_data* sd, const item_data* it
 	// Calculate the required bit to check
 	uint64 job = 1ULL << ( sd->class_ & MAPID_FIRSTMASK );
 
+	// Necromancer has no gear of its own, so it borrows the Acolyte equipment mask
+	if( ( sd->class_ & MAPID_FIRSTMASK ) == MAPID_NECROMANCER ){
+		job |= 1ULL << MAPID_ACOLYTE;
+	}
+
 	size_t index;
 
 	// 2-1
@@ -7556,6 +7561,7 @@ uint64 pc_jobid2mapid(uint16 b_class)
 		case JOB_HANBOK:                return MAPID_HANBOK;
 		case JOB_OKTOBERFEST:           return MAPID_OKTOBERFEST;
 		case JOB_SUMMER2:               return MAPID_SUMMER2;
+		case JOB_NECROMANCER:           return MAPID_NECROMANCER;
 	//2-1 Jobs
 		case JOB_SUPER_NOVICE:          return MAPID_SUPER_NOVICE;
 		case JOB_KNIGHT:                return MAPID_KNIGHT;
@@ -7737,6 +7743,7 @@ int32 pc_mapid2jobid(uint64 class_, int32 sex)
 		case MAPID_HANBOK:                return JOB_HANBOK;
 		case MAPID_OKTOBERFEST:           return JOB_OKTOBERFEST;
 		case MAPID_SUMMER2:               return JOB_SUMMER2;
+		case MAPID_NECROMANCER:           return JOB_NECROMANCER;
 	//2-1 Jobs
 		case MAPID_SUPER_NOVICE:          return JOB_SUPER_NOVICE;
 		case MAPID_KNIGHT:                return JOB_KNIGHT;
@@ -8177,6 +8184,9 @@ const char* job_name(int32 class_)
 
 	case JOB_SKY_EMPEROR2:
 		return msg_txt( nullptr, 813 );
+
+	case JOB_NECROMANCER:
+		return "Necromancer";
 
 	default:
 		return msg_txt(nullptr,655);
