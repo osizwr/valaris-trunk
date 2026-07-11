@@ -7139,12 +7139,12 @@ enum e_setpos pc_setpos(map_session_data* sd, uint16 mapindex, int32 x, int32 y,
 	if( clone_oldmap >= 0 && clone_oldmap != m && ( sd->class_&MAPID_SECONDMASK ) == MAPID_KAGEROUOBORO )
 		mob_warp_clones( clone_oldmap, sd->id, m, x, y );
 
-	// Custom (Necromancer): on an actual map change, drag the caster's summoned MVP
-	// companion (Ifrit, etc.) along so it follows through portals, and refresh its
-	// attack permission for the destination map. Gated to players who actually have
-	// a companion out, so it's a no-op for everyone else.
+	// Custom (Necromancer): on an actual map change, drag the caster's summoned
+	// minions (the MVP companion AND every Thriller horde member) along so they
+	// follow through portals. Gated to players who actually have a summon out, so
+	// it's a no-op for everyone else.
 	if( clone_oldmap >= 0 && clone_oldmap != m && sd->necro_companion_id > 0 )
-		mob_warp_necro_companion( sd, m, x, y );
+		mob_warp_necro_companion( sd, clone_oldmap, m, x, y );
 
 	if( sd->status.guild_id > 0 && mapdata->getMapFlag(MF_GVG_CASTLE) )
 	{	// Increased guild castle regen [Valaris]
@@ -10811,6 +10811,22 @@ int32 pc_itemheal(map_session_data *sd, t_itemid itemid, int32 hp, int32 sp)
 #endif
 		if (sd->sc.getSCE(SC_BITESCAR))
 			hp = 0;
+
+		// Custom (Necromancer): Twist Soul - the unholy will inverts every healing
+		// item the cursed enemy consumes (HP/SP restore becomes loss). It can never
+		// kill: HP damage is floored so at least 1 HP always remains.
+		if (sd->sc.getSCE(SC_NEC_TWIST_SOUL)) {
+			if (hp > 0) {
+				int32 survivable = sd->battle_status.hp - 1;
+				if (survivable < 0)
+					survivable = 0;
+				if (hp > survivable)
+					hp = survivable;
+				hp = -hp;
+			}
+			if (sp > 0)
+				sp = -sp;
+		}
 	}
 
 	return status_heal(sd, hp, sp, 1);

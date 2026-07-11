@@ -2012,6 +2012,9 @@
 	export_constant(SC_JINTON);
 	export_constant(SC_SENNIN_MODE);
 	export_constant(SC_FUUJUTSU_KYUUIN);
+	export_constant(SC_NEC_CORPSE_POSSESSION);
+	export_constant(SC_NEC_TWIST_SOUL);
+	export_constant(SC_NEC_CONFINED_SHADOWS);
 
 /// Do not modify code below this, until the end of the API hook, since it will be automatically generated again
 /// @APIHOOK_START(EFST_CONST)

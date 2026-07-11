@@ -2171,7 +2171,7 @@ bool status_check_skilluse(const block_list* src, const block_list* target, uint
 			(src->type != BL_PC || ((TBL_PC*)src)->skillitem != skill_id)
 		) {	// Skills blocked through status changes...
 			if (!flag && ( // Blocked only from using the skill (stuff like autospell may still go through
-				( sc->cant.cast && skill_id != RK_REFRESH && skill_id != SU_GROOMING && skill_id != SR_GENTLETOUCH_CURE ) ||
+				( sc->cant.cast && skill_id != RK_REFRESH && skill_id != SU_GROOMING && skill_id != SR_GENTLETOUCH_CURE && skill_id != NEC_CONFINED_SHADOWS ) || // NEC_CONFINED_SHADOWS: allow recasting to toggle the stance off
 #ifndef RENEWAL
 				(sc->getSCE(SC_BASILICA) && (sc->getSCE(SC_BASILICA)->val4 != src->id || skill_id != HP_BASILICA)) || // Only Basilica caster that can cast, and only Basilica to cancel it
 #endif
@@ -6784,6 +6784,8 @@ static uint16 status_calc_str(block_list *bl, status_change *sc, int32 str)
 		str -= ((sc->getSCE(SC_MARIONETTE)->val3)>>16)&0xFF;
 	if(sc->getSCE(SC_MARIONETTE2))
 		str += ((sc->getSCE(SC_MARIONETTE2)->val3)>>16)&0xFF;
+	if(sc->getSCE(SC_NEC_CORPSE_POSSESSION)) // Corpse Possession: half the trapped enemy's STR (packed like Marionette)
+		str += ((sc->getSCE(SC_NEC_CORPSE_POSSESSION)->val3)>>16)&0xFF;
 	if(sc->getSCE(SC_SPIRIT) && sc->getSCE(SC_SPIRIT)->val2 == SL_HIGH)
 		str += ((sc->getSCE(SC_SPIRIT)->val3)>>16)&0xFF;
 	if(sc->getSCE(SC_GIANTGROWTH))
@@ -6855,6 +6857,8 @@ static uint16 status_calc_agi(block_list *bl, status_change *sc, int32 agi)
 		agi -= ((sc->getSCE(SC_MARIONETTE)->val3)>>8)&0xFF;
 	if(sc->getSCE(SC_MARIONETTE2))
 		agi += ((sc->getSCE(SC_MARIONETTE2)->val3)>>8)&0xFF;
+	if(sc->getSCE(SC_NEC_CORPSE_POSSESSION)) // Corpse Possession: half the trapped enemy's AGI
+		agi += ((sc->getSCE(SC_NEC_CORPSE_POSSESSION)->val3)>>8)&0xFF;
 	if(sc->getSCE(SC_SPIRIT) && sc->getSCE(SC_SPIRIT)->val2 == SL_HIGH)
 		agi += ((sc->getSCE(SC_SPIRIT)->val3)>>8)&0xFF;
 	if(sc->getSCE(SC_ADORAMUS))
@@ -6918,6 +6922,8 @@ static uint16 status_calc_vit(block_list *bl, status_change *sc, int32 vit)
 		vit -= sc->getSCE(SC_MARIONETTE)->val3&0xFF;
 	if(sc->getSCE(SC_MARIONETTE2))
 		vit += sc->getSCE(SC_MARIONETTE2)->val3&0xFF;
+	if(sc->getSCE(SC_NEC_CORPSE_POSSESSION)) // Corpse Possession: half the trapped enemy's VIT
+		vit += sc->getSCE(SC_NEC_CORPSE_POSSESSION)->val3&0xFF;
 	if(sc->getSCE(SC_SPIRIT) && sc->getSCE(SC_SPIRIT)->val2 == SL_HIGH)
 		vit += sc->getSCE(SC_SPIRIT)->val3&0xFF;
 	if(sc->getSCE(SC_INSPIRATION))
@@ -6987,6 +6993,8 @@ static uint16 status_calc_int(block_list *bl, status_change *sc, int32 int_)
 		int_ -= ((sc->getSCE(SC_MARIONETTE)->val4)>>16)&0xFF;
 	if(sc->getSCE(SC_MARIONETTE2))
 		int_ += ((sc->getSCE(SC_MARIONETTE2)->val4)>>16)&0xFF;
+	if(sc->getSCE(SC_NEC_CORPSE_POSSESSION)) // Corpse Possession: half the trapped enemy's INT
+		int_ += ((sc->getSCE(SC_NEC_CORPSE_POSSESSION)->val4)>>16)&0xFF;
 	if(sc->getSCE(SC_SPIRIT) && sc->getSCE(SC_SPIRIT)->val2 == SL_HIGH)
 		int_ += ((sc->getSCE(SC_SPIRIT)->val4)>>16)&0xFF;
 	if(sc->getSCE(SC_INSPIRATION))
@@ -7069,6 +7077,8 @@ static uint16 status_calc_dex(block_list *bl, status_change *sc, int32 dex)
 		dex -= ((sc->getSCE(SC_MARIONETTE)->val4)>>8)&0xFF;
 	if(sc->getSCE(SC_MARIONETTE2))
 		dex += ((sc->getSCE(SC_MARIONETTE2)->val4)>>8)&0xFF;
+	if(sc->getSCE(SC_NEC_CORPSE_POSSESSION)) // Corpse Possession: half the trapped enemy's DEX
+		dex += ((sc->getSCE(SC_NEC_CORPSE_POSSESSION)->val4)>>8)&0xFF;
 	if(sc->getSCE(SC_SPIRIT) && sc->getSCE(SC_SPIRIT)->val2 == SL_HIGH)
 		dex += ((sc->getSCE(SC_SPIRIT)->val4)>>8)&0xFF;
 	if(sc->getSCE(SC_INSPIRATION))
@@ -7132,6 +7142,8 @@ static uint16 status_calc_luk(block_list *bl, status_change *sc, int32 luk)
 		luk -= sc->getSCE(SC_MARIONETTE)->val4&0xFF;
 	if(sc->getSCE(SC_MARIONETTE2))
 		luk += sc->getSCE(SC_MARIONETTE2)->val4&0xFF;
+	if(sc->getSCE(SC_NEC_CORPSE_POSSESSION)) // Corpse Possession: half the trapped enemy's LUK
+		luk += sc->getSCE(SC_NEC_CORPSE_POSSESSION)->val4&0xFF;
 	if(sc->getSCE(SC_SPIRIT) && sc->getSCE(SC_SPIRIT)->val2 == SL_HIGH)
 		luk += sc->getSCE(SC_SPIRIT)->val4&0xFF;
 	if(sc->getSCE(SC_INSPIRATION))
@@ -11891,6 +11903,10 @@ static bool status_change_start_post_delay(block_list* src, block_list* bl, sc_t
 			val4 = tick / 5000;
 			tick_time = 5000;
 			break;
+		case SC_NEC_CONFINED_SHADOWS: // Confined Shadows (Necromancer): heal-over-time every second
+			val4 = tick / 1000; // number of 1-second heal ticks (= duration)
+			tick_time = 1000;
+			break;
 		case SC_SECRAMENT:
 			val2 = 10 * val1;
 			break;
@@ -14637,6 +14653,17 @@ TIMER_FUNC(status_change_timer){
 				heal = ~heal + 1;
 			status_heal(bl, heal, 0, 3);
 			sc_timer_next(5000 + tick);
+			return 0;
+		}
+		break;
+
+	case SC_NEC_CONFINED_SHADOWS: // Confined Shadows (Necromancer): restore HP/SP each second
+		if( --(sce->val4) >= 0 ) {
+			// 4% of max HP/SP per level, per second (lv5 = 20%/sec).
+			int32 heal_hp = (int32)status->max_hp * 4 * sce->val1 / 100;
+			int32 heal_sp = (int32)status->max_sp * 4 * sce->val1 / 100;
+			status_heal(bl, heal_hp, heal_sp, 3);
+			sc_timer_next(1000 + tick);
 			return 0;
 		}
 		break;

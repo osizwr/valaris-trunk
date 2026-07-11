@@ -751,3 +751,494 @@ Body:
       SpCost:
         - Level: 1
           Amount: 20
+
+  #########################################################################
+  # Thriller (7020) - summons a horde of allied undead (zombies + hell
+  # hounds) that fight alongside the caster. The number of each type scales
+  # with the skill level (skill_lv of each type -> 2 * skill_lv total).
+  # Reuses the AI_NECRO_COMPANION combat-slave machinery, so the horde is
+  # safe in town, follows across maps, and only one summon SET exists at a
+  # time (casting this or an MVP summon replaces the previous minions).
+  # Behavior: src/map/skill.cpp -> case NEC_THRILLER (mob_summon_necro_horde).
+  # Duration1 is the horde lifespan.
+  #########################################################################
+  - Id: 7020
+    Name: NEC_THRILLER
+    Description: "Thriller"
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 3000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 30000
+    Duration1:                 # horde lifespan (60s)
+      - Level: 1
+        Time: 60000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 80
+        - Level: 2
+          Amount: 100
+        - Level: 3
+          Amount: 120
+        - Level: 4
+          Amount: 140
+        - Level: 5
+          Amount: 160
+
+  #########################################################################
+  # Deadly Puppet (7021) - backslide, hide in the shadows, and leave a
+  # standing clone (with the caster's HP) at the old position as a decoy /
+  # time bomb. When the timer (Duration1) elapses the clone explodes for a
+  # share of its max HP that grows with the skill level, and the caster's
+  # hide lifts. Cooldown is kept above Duration1 so a new puppet can't
+  # overlap the previous detonation timer. SplashArea is the blast radius.
+  # Behavior: src/map/skill.cpp -> case NEC_DEADLY_PUPPET
+  # (mob_spawn_deadly_puppet + skill_deadly_puppet_end).
+  #########################################################################
+  - Id: 7021
+    Name: NEC_DEADLY_PUPPET
+    Description: "Deadly Puppet"
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    SplashArea:
+      - Level: 1
+        Area: 2
+      - Level: 2
+        Area: 2
+      - Level: 3
+        Area: 3
+      - Level: 4
+        Area: 3
+      - Level: 5
+        Area: 4
+    CastTime:
+      - Level: 1
+        Time: 1000
+    FixedCastTime:
+      - Level: 1
+        Time: 500
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 11000
+      - Level: 2
+        Time: 12000
+      - Level: 3
+        Time: 13000
+      - Level: 4
+        Time: 14000
+      - Level: 5
+        Time: 15000
+    Duration1:                 # bomb timer / hide duration
+      - Level: 1
+        Time: 5000
+      - Level: 2
+        Time: 6000
+      - Level: 3
+        Time: 7000
+      - Level: 4
+        Time: 8000
+      - Level: 5
+        Time: 9000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 60
+        - Level: 2
+          Amount: 70
+        - Level: 3
+          Amount: 80
+        - Level: 4
+          Amount: 90
+        - Level: 5
+          Amount: 100
+
+  #########################################################################
+  # Unholy Bomb (7022) - a bomb of dead human remains that behaves EXACTLY
+  # like the Alchemist's Acid Demonstration (CR_ACIDDEMONSTRATION): a
+  # forced-neutral Misc multi-hit (hits = level, ignores Flee) whose pre-re
+  # damage scales off the target's VIT and the caster's INT, and which
+  # shatters the target's weapon + armor. All AD mechanics are shared in
+  # code (battle_calc_misc_attack + the SkillUnholyBomb impl); the only
+  # deliberate difference is the cost: SP instead of Alchemist bottles.
+  # Behavior: src/map/skills/custom/unholybomb.cpp + case NEC_UNHOLY_BOMB in
+  # battle_calc_misc_attack (battle.cpp).
+  #########################################################################
+  - Id: 7022
+    Name: NEC_UNHOLY_BOMB
+    Description: "Unholy Bomb"
+    MaxLevel: 10
+    Type: Misc
+    TargetType: Attack
+    DamageFlags:
+      IgnoreFlee: true
+    Range: 9
+    Hit: Multi_Hit
+    HitCount:
+      - Level: 1
+        Count: 1
+      - Level: 2
+        Count: 2
+      - Level: 3
+        Count: 3
+      - Level: 4
+        Count: 4
+      - Level: 5
+        Count: 5
+      - Level: 6
+        Count: 6
+      - Level: 7
+        Count: 7
+      - Level: 8
+        Count: 8
+      - Level: 9
+        Count: 9
+      - Level: 10
+        Count: 10
+    CastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 30
+        - Level: 2
+          Amount: 33
+        - Level: 3
+          Amount: 36
+        - Level: 4
+          Amount: 39
+        - Level: 5
+          Amount: 42
+        - Level: 6
+          Amount: 45
+        - Level: 7
+          Amount: 48
+        - Level: 8
+          Amount: 51
+        - Level: 9
+          Amount: 54
+        - Level: 10
+          Amount: 57
+
+  #########################################################################
+  # Corpse Possession (7023) - traps an enemy in place and grants the caster
+  # HALF of that enemy's six base stats for the duration. Supportive but cast
+  # on an enemy (TargetType Attack + NoDamage). Behavior: src/map/skill.cpp
+  # -> case NEC_CORPSE_POSSESSION (SC_STOP on the enemy + SC_NEC_CORPSE_
+  # POSSESSION on the caster; the stat bonus is applied in status_calc_str/...).
+  # Duration1 is both the trap time and the stat-steal buff time.
+  #########################################################################
+  - Id: 7023
+    Name: NEC_CORPSE_POSSESSION
+    Description: "Corpse Possession"
+    MaxLevel: 6
+    TargetType: Attack
+    DamageFlags:
+      NoDamage: true
+    Range: 9
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 20000
+    Duration1:                 # trap + stat-steal duration
+      - Level: 1
+        Time: 5000
+      - Level: 2
+        Time: 6000
+      - Level: 3
+        Time: 7000
+      - Level: 4
+        Time: 8000
+      - Level: 5
+        Time: 9000
+      - Level: 6
+        Time: 10000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 40
+        - Level: 2
+          Amount: 45
+        - Level: 3
+          Amount: 50
+        - Level: 4
+          Amount: 55
+        - Level: 5
+          Amount: 60
+        - Level: 6
+          Amount: 65
+
+  #########################################################################
+  # Doom Hole (7024) - offensive Dark magic that erupts over a wide splash
+  # area, with a chance to Curse each enemy hit and a knockback. Magic ratio
+  # scales with level in the SkillDoomHole impl; SplashArea/Element/Knockback
+  # are data-driven here. Duration2 is the Curse duration; the Curse chance
+  # (20% + 5%/level) is applied in the impl's applyAdditionalEffects.
+  # Behavior: src/map/skills/custom/doomhole.cpp.
+  #########################################################################
+  - Id: 7024
+    Name: NEC_DOOM_HOLE
+    Description: "Doom Hole"
+    MaxLevel: 10
+    Type: Magic
+    TargetType: Attack
+    DamageFlags:
+      Splash: true
+    Range: 9
+    Hit: Single
+    HitCount: 1
+    Element: Dark
+    SplashArea: 4              # ~9x9 blast (approx. 10x10)
+    Knockback: 2
+    CastTime:
+      - Level: 1
+        Time: 2000
+    FixedCastTime:
+      - Level: 1
+        Time: 800
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 3000
+    Duration2:                 # Curse duration
+      - Level: 1
+        Time: 10000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 45
+        - Level: 2
+          Amount: 50
+        - Level: 3
+          Amount: 55
+        - Level: 4
+          Amount: 60
+        - Level: 5
+          Amount: 65
+        - Level: 6
+          Amount: 70
+        - Level: 7
+          Amount: 75
+        - Level: 8
+          Amount: 80
+        - Level: 9
+          Amount: 85
+        - Level: 10
+          Amount: 90
+
+  #########################################################################
+  # Twist Soul (7025) - curses an enemy so that every healing ITEM they
+  # consume harms them instead of healing (HP/SP restore becomes loss). It
+  # can never kill: HP damage is floored so at least 1 HP remains. Supportive
+  # but cast on an enemy (TargetType Attack + NoDamage). Behavior:
+  # src/map/skill.cpp -> case NEC_TWIST_SOUL (SC_NEC_TWIST_SOUL); the heal
+  # inversion itself is in pc_itemheal (src/map/pc.cpp). Duration1 = debuff time.
+  #########################################################################
+  - Id: 7025
+    Name: NEC_TWIST_SOUL
+    Description: "Twist Soul"
+    MaxLevel: 5
+    TargetType: Attack
+    DamageFlags:
+      NoDamage: true
+    Range: 9
+    CastTime:
+      - Level: 1
+        Time: 1500
+    FixedCastTime:
+      - Level: 1
+        Time: 800
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 15000
+    Duration1:                 # debuff duration
+      - Level: 1
+        Time: 10000
+      - Level: 2
+        Time: 15000
+      - Level: 3
+        Time: 20000
+      - Level: 4
+        Time: 25000
+      - Level: 5
+        Time: 30000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 30
+        - Level: 2
+          Amount: 35
+        - Level: 3
+          Amount: 40
+        - Level: 4
+          Amount: 45
+        - Level: 5
+          Amount: 50
+
+  #########################################################################
+  # Aqua Satanica (7026) - creates 1 Cursed Water (item 12020). The caster
+  # must be standing on an actual water cell: `Requires: State: Water` checks
+  # CELL_CHKWATER, which map-wide submersion maps (undersea tunnel 4/5, sunken
+  # ship) do NOT have, so it correctly fails there. Behavior: src/map/skill.cpp
+  # -> case NEC_AQUA_SATANICA (pc_additem ITEMID_CURSED_WATER).
+  #########################################################################
+  - Id: 7026
+    Name: NEC_AQUA_SATANICA
+    Description: "Aqua Satanica"
+    MaxLevel: 1
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 2000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 15
+      State: Water
+
+  #########################################################################
+  # Demon's Touch (7027) - endows an ally's (or the caster's own) weapon with
+  # the Shadow/Dark element for a duration (SC_ENCHANTARMS, val1 = ELE_DARK).
+  # Behavior: src/map/skill.cpp -> case NEC_DEMONS_TOUCH. Duration1 = endow time.
+  #########################################################################
+  - Id: 7027
+    Name: NEC_DEMONS_TOUCH
+    Description: "Demon's Touch"
+    MaxLevel: 10
+    TargetType: Support
+    DamageFlags:
+      NoDamage: true
+    Range: 9
+    CastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 1000
+    Cooldown:
+      - Level: 1
+        Time: 2000
+    Duration1:                 # weapon endow duration (30s + 30s per level)
+      - Level: 1
+        Time: 30000
+      - Level: 2
+        Time: 60000
+      - Level: 3
+        Time: 90000
+      - Level: 4
+        Time: 120000
+      - Level: 5
+        Time: 150000
+      - Level: 6
+        Time: 180000
+      - Level: 7
+        Time: 210000
+      - Level: 8
+        Time: 240000
+      - Level: 9
+        Time: 270000
+      - Level: 10
+        Time: 300000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 30
+        - Level: 2
+          Amount: 33
+        - Level: 3
+          Amount: 36
+        - Level: 4
+          Amount: 39
+        - Level: 5
+          Amount: 42
+        - Level: 6
+          Amount: 45
+        - Level: 7
+          Amount: 48
+        - Level: 8
+          Amount: 51
+        - Level: 9
+          Amount: 54
+        - Level: 10
+          Amount: 57
+
+  #########################################################################
+  # Confined Shadows (7028) - TOGGLE. Confines the caster into a curse: roots
+  # them (NoMove/NoAttack/NoCast, set in db/import/status.yml) and restores
+  # 4% of max HP/SP per level, per second (lv5 = 20%/sec). Recasting toggles
+  # it off (that recast bypasses the NoCast lock - see status.cpp cant.cast
+  # exemption). Behavior: src/map/skill.cpp -> case NEC_CONFINED_SHADOWS +
+  # SC_NEC_CONFINED_SHADOWS heal tick in status.cpp. Duration1 = max stance time.
+  #########################################################################
+  - Id: 7028
+    Name: NEC_CONFINED_SHADOWS
+    Description: "Confined Shadows"
+    MaxLevel: 5
+    TargetType: Self
+    DamageFlags:
+      NoDamage: true
+    CastTime:
+      - Level: 1
+        Time: 1000
+    AfterCastActDelay:
+      - Level: 1
+        Time: 500
+    Cooldown:
+      - Level: 1
+        Time: 2000
+    Duration1:                 # max stance duration (60s; toggle off any time)
+      - Level: 1
+        Time: 60000
+    Requires:
+      SpCost:
+        - Level: 1
+          Amount: 40
+        - Level: 2
+          Amount: 45
+        - Level: 3
+          Amount: 50
+        - Level: 4
+          Amount: 55
+        - Level: 5
+          Amount: 60

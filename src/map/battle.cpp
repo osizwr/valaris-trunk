@@ -1562,6 +1562,7 @@ bool battle_status_block_damage(block_list *src, block_list *target, status_chan
 	if (sc->getSCE(SC_NEUTRALBARRIER) && ((flag&(BF_LONG|BF_MAGIC)) == BF_LONG
 #ifndef RENEWAL
 		|| skill_id == CR_ACIDDEMONSTRATION
+		|| skill_id == NEC_UNHOLY_BOMB // Custom (Necromancer): mirrors Acid Demonstration
 #endif
 		)) {
 		d->dmg_lv = ATK_MISS;
@@ -6460,6 +6461,7 @@ struct Damage battle_calc_misc_attack(block_list *src,block_list *target,uint16 
 			}
 			// Fall through
 #else
+		case NEC_UNHOLY_BOMB: // Custom (Necromancer): shares Acid Demonstration's formula
 		case CR_ACIDDEMONSTRATION:
 			if(tstatus->vit+sstatus->int_) //crash fix
 				md.damage = (int32)((int64)7*tstatus->vit*sstatus->int_*sstatus->int_ / (10*(tstatus->vit+sstatus->int_)));

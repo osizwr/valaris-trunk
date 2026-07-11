@@ -112,6 +112,24 @@ Body:
         MaxLevel: 1
       - Name: NEC_REVERSE_CONTRACT    # Reverse Contract - dispels the companion (7019)
         MaxLevel: 1
+      - Name: NEC_THRILLER            # Thriller - summons a horde of undead (7020)
+        MaxLevel: 5
+      - Name: NEC_DEADLY_PUPPET       # Deadly Puppet - backslide + hide + time-bomb clone (7021)
+        MaxLevel: 5
+      - Name: NEC_UNHOLY_BOMB         # Unholy Bomb - offensive, exactly like Acid Demonstration (7022)
+        MaxLevel: 10
+      - Name: NEC_CORPSE_POSSESSION   # Corpse Possession - trap enemy + steal half its stats (7023)
+        MaxLevel: 6
+      - Name: NEC_DOOM_HOLE           # Doom Hole - Dark magic AoE, curse + knockback (7024)
+        MaxLevel: 10
+      - Name: NEC_TWIST_SOUL          # Twist Soul - inverts the enemy's healing items (7025)
+        MaxLevel: 5
+      - Name: NEC_AQUA_SATANICA       # Aqua Satanica - create 1 Cursed Water on water (7026)
+        MaxLevel: 1
+      - Name: NEC_DEMONS_TOUCH        # Demon's Touch - endow ally weapon with Shadow element (7027)
+        MaxLevel: 10
+      - Name: NEC_CONFINED_SHADOWS    # Confined Shadows - toggle root + HP/SP regen (7028)
+        MaxLevel: 5
 
   #########################################################################
   # OBORO (female) - Hokage

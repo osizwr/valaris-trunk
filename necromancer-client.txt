@@ -3,7 +3,7 @@
  Server side is done: JOB_NECROMANCER = 4435, MAPID_NECROMANCER, an
  Acolyte-lineage base job (Inherit: Acolyte) holding the 7 NEC_* skills.
  Target client: same as hokage-client.txt  (data\luafiles514\lua files\)
- Skills: NEC_RAISE_INFERNO (7013) .. NEC_REVERSE_CONTRACT (7019)
+ Skills: NEC_RAISE_INFERNO (7013) .. NEC_CONFINED_SHADOWS (7028)   [16 total]
 =======================================================================
 
  !! READ SECTION 0 FIRST !!
@@ -17,7 +17,7 @@
   SECTION 0   the nil-index trap        -> why 4300 failed, how 4435 avoids it
   SECTION 1   npcidentity.lub           -> register JT_NECROMANCER = 4435
   SECTION 2   jobname.lub               -> sprite base name (reuse Acolyte's)
-  SECTION 3   skillid.lub               -> SKID.NEC_* = 7013..7019
+  SECTION 3   skillid.lub               -> SKID.NEC_* = 7013..7028
   SECTION 4   skillinfolist.lub         -> SP / MaxLv / range
   SECTION 5   skilldescript.lub         -> tooltips
   SECTION 6   skilltreeview.lub         -> the 4435 tab  (LITERAL key!)
@@ -94,6 +94,15 @@ SKID.NEC_DEMON_AGONY        = 7016
 SKID.NEC_SACRED_SOUL_VOODOO = 7017
 SKID.NEC_CHAOS_BONDS        = 7018
 SKID.NEC_REVERSE_CONTRACT   = 7019
+SKID.NEC_THRILLER           = 7020
+SKID.NEC_DEADLY_PUPPET      = 7021
+SKID.NEC_UNHOLY_BOMB        = 7022
+SKID.NEC_CORPSE_POSSESSION  = 7023
+SKID.NEC_DOOM_HOLE          = 7024
+SKID.NEC_TWIST_SOUL         = 7025
+SKID.NEC_AQUA_SATANICA      = 7026
+SKID.NEC_DEMONS_TOUCH       = 7027
+SKID.NEC_CONFINED_SHADOWS   = 7028
 
 
 =======================================================================
@@ -124,6 +133,45 @@ SKILL_INFO_LIST[SKID.NEC_CHAOS_BONDS] = {
 SKILL_INFO_LIST[SKID.NEC_REVERSE_CONTRACT] = {
 	"NEC_REVERSE_CONTRACT", SkillName = "Reverse Contract", MaxLv = 1,
 	SpAmount = { 20 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+
+-- ----- second batch (7020-7028). SpAmount matches db/import/skill_db.yml. -----
+-- AttackRange arrays are full-length (per level) to match SpAmount: 0 = self,
+-- 9 = the enemy/ally-target skills.
+SKILL_INFO_LIST[SKID.NEC_THRILLER] = {
+	"NEC_THRILLER", SkillName = "Thriller", MaxLv = 5,
+	SpAmount = { 80, 100, 120, 140, 160 }, bSeperateLv = true,
+	AttackRange = { 0, 0, 0, 0, 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_DEADLY_PUPPET] = {
+	"NEC_DEADLY_PUPPET", SkillName = "Deadly Puppet", MaxLv = 5,
+	SpAmount = { 60, 70, 80, 90, 100 }, bSeperateLv = true,
+	AttackRange = { 0, 0, 0, 0, 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_UNHOLY_BOMB] = {
+	"NEC_UNHOLY_BOMB", SkillName = "Unholy Bomb", MaxLv = 10,
+	SpAmount = { 30, 33, 36, 39, 42, 45, 48, 51, 54, 57 }, bSeperateLv = true,
+	AttackRange = { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_CORPSE_POSSESSION] = {
+	"NEC_CORPSE_POSSESSION", SkillName = "Corpse Possession", MaxLv = 6,
+	SpAmount = { 40, 45, 50, 55, 60, 65 }, bSeperateLv = true,
+	AttackRange = { 9, 9, 9, 9, 9, 9 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_DOOM_HOLE] = {
+	"NEC_DOOM_HOLE", SkillName = "Doom Hole", MaxLv = 10,
+	SpAmount = { 45, 50, 55, 60, 65, 70, 75, 80, 85, 90 }, bSeperateLv = true,
+	AttackRange = { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_TWIST_SOUL] = {
+	"NEC_TWIST_SOUL", SkillName = "Twist Soul", MaxLv = 5,
+	SpAmount = { 30, 35, 40, 45, 50 }, bSeperateLv = true,
+	AttackRange = { 9, 9, 9, 9, 9 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_AQUA_SATANICA] = {
+	"NEC_AQUA_SATANICA", SkillName = "Aqua Satanica", MaxLv = 1,
+	SpAmount = { 15 }, bSeperateLv = true, AttackRange = { 0 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_DEMONS_TOUCH] = {
+	"NEC_DEMONS_TOUCH", SkillName = "Demon's Touch", MaxLv = 10,
+	SpAmount = { 30, 33, 36, 39, 42, 45, 48, 51, 54, 57 }, bSeperateLv = true,
+	AttackRange = { 9, 9, 9, 9, 9, 9, 9, 9, 9, 9 }, _NeedSkillList = {} }
+SKILL_INFO_LIST[SKID.NEC_CONFINED_SHADOWS] = {
+	"NEC_CONFINED_SHADOWS", SkillName = "Confined Shadows", MaxLv = 5,
+	SpAmount = { 40, 45, 50, 55, 60 }, bSeperateLv = true,
+	AttackRange = { 0, 0, 0, 0, 0 }, _NeedSkillList = {} }
 
 
 =======================================================================
@@ -179,6 +227,66 @@ SKILL_DESCRIPT[SKID.NEC_REVERSE_CONTRACT] = {
 	"Instantly dispels your active companion.",
 	"^0000FFSP Cost:^000000 20    ^0000FFCooldown:^000000 1s",
 	"^0000FFMax Level:^000000 1" }
+SKILL_DESCRIPT[SKID.NEC_THRILLER] = {
+	"Thriller",
+	"^777777Raises the dead to march at your side.^000000",
+	"Summons a horde of allied Zombies and Hell Hounds",
+	"to fight for you. The number summoned grows with level",
+	"(2 per level, up to 10). They last 60 seconds.",
+	"^0000FFTarget:^000000 Self    ^0000FFMax Level:^000000 5" }
+SKILL_DESCRIPT[SKID.NEC_DEADLY_PUPPET] = {
+	"Deadly Puppet",
+	"^777777Slip into shadow and leave a cursed effigy.^000000",
+	"You back-slide and hide, leaving a standing clone",
+	"(with your HP) as a decoy. After a few seconds it",
+	"detonates for damage that rises with level, and your",
+	"cloak lifts. The clone can be destroyed before it blows.",
+	"^0000FFTarget:^000000 Self    ^0000FFMax Level:^000000 5" }
+SKILL_DESCRIPT[SKID.NEC_UNHOLY_BOMB] = {
+	"Unholy Bomb",
+	"^777777A bomb of dead human remains.^000000",
+	"Hurls a bomb that detonates on an enemy, dealing",
+	"damage based on the target's VIT and your INT, and",
+	"shatters their weapon and armor. (Acid Demonstration.)",
+	"^0000FFTarget:^000000 Enemy    ^0000FFMax Level:^000000 10" }
+SKILL_DESCRIPT[SKID.NEC_CORPSE_POSSESSION] = {
+	"Corpse Possession",
+	"^777777Seize an enemy's body and drain its power.^000000",
+	"Traps an enemy in place and grants you HALF of that",
+	"enemy's stats for the duration.",
+	"^0000FFTarget:^000000 Enemy    ^0000FFMax Level:^000000 6" }
+SKILL_DESCRIPT[SKID.NEC_DOOM_HOLE] = {
+	"Doom Hole",
+	"^777777Tear open a rift of dark necromancy.^000000",
+	"Erupts over a wide area, dealing Shadow magic damage.",
+	"Each enemy hit may be Cursed and is knocked back.",
+	"^0000FFTarget:^000000 Enemy    ^0000FFMax Level:^000000 10" }
+SKILL_DESCRIPT[SKID.NEC_TWIST_SOUL] = {
+	"Twist Soul",
+	"^777777Twist an enemy's will against itself.^000000",
+	"Every healing item the cursed enemy uses harms them",
+	"instead of healing. It cannot kill - it stops at 1 HP.",
+	"^0000FFTarget:^000000 Enemy    ^0000FFMax Level:^000000 5" }
+SKILL_DESCRIPT[SKID.NEC_AQUA_SATANICA] = {
+	"Aqua Satanica",
+	"^777777Corrupt the water at your feet.^000000",
+	"Creates 1 Cursed Water. You must be standing on a",
+	"water tile; map-wide submersion (undersea tunnel 4/5,",
+	"sunken ship) does not count.",
+	"^0000FFSP Cost:^000000 15    ^0000FFMax Level:^000000 1" }
+SKILL_DESCRIPT[SKID.NEC_DEMONS_TOUCH] = {
+	"Demon's Touch",
+	"^777777Bless a weapon with the demon's mark.^000000",
+	"Enchants an ally's (or your own) weapon with the",
+	"Shadow property for a time. Duration grows with level.",
+	"^0000FFTarget:^000000 Ally / Self    ^0000FFMax Level:^000000 10" }
+SKILL_DESCRIPT[SKID.NEC_CONFINED_SHADOWS] = {
+	"Confined Shadows",
+	"^777777Confine yourself within a curse.^000000",
+	"Heals your wounds and greatly boosts HP/SP recovery",
+	"(4% of max per level, each second). While active you",
+	"cannot move, attack or cast. Recast to end it.",
+	"^0000FFTarget:^000000 Self    ^0000FFMax Level:^000000 5" }
 
 
 =======================================================================
@@ -192,7 +300,8 @@ SKILL_DESCRIPT[SKID.NEC_REVERSE_CONTRACT] = {
  no way to click them (see SECTION 7 -- we are not using jobinheritlist).
 
  7-column grid, index = row*7 + col, 0-based.
- Rows 0-2 = the inherited Acolyte/Novice set. Row 3 = the 7 NEC_* skills.
+ Rows 0-2 = the inherited Acolyte/Novice set. Rows 3-5 = the 16 NEC_* skills
+ (row 3 = the original 7 summons, rows 4-5 = the second batch, 7020-7028).
 =======================================================================
 SKILL_TREEVIEW_DIC[4435] = {
 	-- row 0
@@ -216,7 +325,7 @@ SKILL_TREEVIEW_DIC[4435] = {
 	[15] = SKID.AL_HOLYLIGHT,
 	[16] = SKID.NV_FIRSTAID,
 	[17] = SKID.NV_TRICKDEAD,
-	-- row 3  -- the Necromancer summons
+	-- row 3  -- the Necromancer summons (7013-7019)
 	[21] = SKID.NEC_RAISE_INFERNO,
 	[22] = SKID.NEC_BLIZZARD_WRATH,
 	[23] = SKID.NEC_VORTEX_GRASP,
@@ -224,6 +333,17 @@ SKILL_TREEVIEW_DIC[4435] = {
 	[25] = SKID.NEC_SACRED_SOUL_VOODOO,
 	[26] = SKID.NEC_CHAOS_BONDS,
 	[27] = SKID.NEC_REVERSE_CONTRACT,
+	-- row 4  -- second batch (7020-7026)
+	[28] = SKID.NEC_THRILLER,
+	[29] = SKID.NEC_DEADLY_PUPPET,
+	[30] = SKID.NEC_UNHOLY_BOMB,
+	[31] = SKID.NEC_CORPSE_POSSESSION,
+	[32] = SKID.NEC_DOOM_HOLE,
+	[33] = SKID.NEC_TWIST_SOUL,
+	[34] = SKID.NEC_AQUA_SATANICA,
+	-- row 5  -- second batch (7027-7028)
+	[35] = SKID.NEC_DEMONS_TOUCH,
+	[36] = SKID.NEC_CONFINED_SHADOWS,
 }
 
 
@@ -255,6 +375,12 @@ SKILL_TREEVIEW_DIC[4435] = {
      data\texture\<user interface>\item\nec_reverse_contract.bmp
    To skip the art entirely, replace that 1st string with an existing skill's
    resource name (e.g. "AL_HEAL") and you inherit that skill's icon.
+
+   The second batch (7020-7028) follows the same nec_<name>.bmp convention:
+     nec_thriller.bmp, nec_deadly_puppet.bmp, nec_unholy_bomb.bmp,
+     nec_corpse_possession.bmp, nec_doom_hole.bmp, nec_twist_soul.bmp,
+     nec_aqua_satanica.bmp, nec_demons_touch.bmp, nec_confined_shadows.bmp
+   (or reuse existing resource names to ship no art).
 
  JOB NAME IN THE UI
    The job name shown in char-select / basic info comes from the CLIENT's

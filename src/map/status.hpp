@@ -1450,6 +1450,9 @@ enum sc_type : int16 {
 	SC_JINTON, // Jinton no Jutsu (Hokage): doubles flee + increases move speed
 	SC_SENNIN_MODE, // Sennin Mode / Sage Mode (Hokage): triples ATK (batk + watk)
 	SC_FUUJUTSU_KYUUIN, // Fuujutsu Kyuuin (Hokage): +100 armor DEF
+	SC_NEC_CORPSE_POSSESSION, // Corpse Possession (Necromancer): caster gains half the trapped enemy's stats
+	SC_NEC_TWIST_SOUL, // Twist Soul (Necromancer): the enemy's healing items harm instead of heal
+	SC_NEC_CONFINED_SHADOWS, // Confined Shadows (Necromancer): rooted HP/SP regen stance (toggle)
 
 	SC_MAX, //Automatically updated max, used in for's to check we are within bounds.
 };

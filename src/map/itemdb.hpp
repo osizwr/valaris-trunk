@@ -47,6 +47,7 @@ enum item_itemid : t_itemid
 	ITEMID_BLUE_POTION					= 505,
 	ITEMID_APPLE						= 512,
 	ITEMID_HOLY_WATER					= 523,
+	ITEMID_CURSED_WATER					= 12020, // Custom (Necromancer): Aqua Satanica product (Water_Of_Darkness)
 	ITEMID_PUMPKIN						= 535,
 	ITEMID_PET_FOOD						= 537,
 	ITEMID_RED_SLIM_POTION				= 545,

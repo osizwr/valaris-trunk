@@ -35,3 +35,35 @@ Body:
     Icon: EFST_STEELBODY      # defensive icon; shows a countdown timer
     CalcFlags:
       Def: true
+
+  # SC_NEC_CORPSE_POSSESSION - Corpse Possession (Necromancer). The caster gains
+  # HALF of the trapped enemy's six base stats (packed into val3/val4 like
+  # Marionette and applied in src/map/status.cpp status_calc_str/agi/vit/int/dex/
+  # luk). CalcFlags below re-run the stat calc while the buff is active.
+  - Status: Nec_Corpse_Possession
+    Icon: EFST_MARIONETTE     # "stolen stats" theme; shows a countdown timer
+    CalcFlags:
+      Str: true
+      Agi: true
+      Vit: true
+      Int: true
+      Dex: true
+      Luk: true
+
+  # SC_NEC_TWIST_SOUL - Twist Soul (Necromancer). A debuff on an enemy: every
+  # healing item they consume harms instead of heals (handled in pc_itemheal,
+  # src/map/pc.cpp). No CalcFlags - it changes no stats, it just flags the target.
+  - Status: Nec_Twist_Soul
+    Icon: EFST_CURSE          # cursed-healing theme; shows a countdown timer
+
+  # SC_NEC_CONFINED_SHADOWS - Confined Shadows (Necromancer). A self toggle stance:
+  # the caster is rooted (NoMove/NoAttack/NoCast) while HP/SP regenerate strongly
+  # (4% of max per level, per second - the heal tick is in src/map/status.cpp
+  # status_change_timer). Recasting the skill ends it (that recast is exempted from
+  # the NoCast lock in status.cpp). No CalcFlags - it changes no stats.
+  - Status: Nec_Confined_Shadows
+    Icon: EFST_TENSIONRELAX   # HP-recovery stance icon; shows a countdown timer
+    Flags:
+      NoMove: true
+      NoAttack: true
+      NoCast: true

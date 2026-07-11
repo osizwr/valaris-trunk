@@ -4169,29 +4169,126 @@ int32 mob_summon_necro_companion(map_session_data *sd, int32 mob_id, uint16 skil
 }
 
 /*==========================================
- * Custom (Necromancer): drags the caster's summoned companion onto a new map so
- * it follows across portals/warps (called from pc_setpos, like the Hokage
- * clones). The companion's combat mode is map-independent (it always fights;
- * whether it may hit players is decided per-map by battle_check_target), so no
- * mode refresh is needed here.
+ * Custom (Necromancer): drags EVERY one of the caster's summoned minions (the
+ * single MVP companion AND every Thriller horde member - both are marked
+ * AI_NECRO_COMPANION) from the old map onto the new one so they follow across
+ * portals/warps (called from pc_setpos, like the Hokage clones). Their combat
+ * mode is map-independent (they always fight; whether they may hit players is
+ * decided per-map by battle_check_target), so no mode refresh is needed here.
  *------------------------------------------*/
-void mob_warp_necro_companion(map_session_data *sd, int16 to_m, int16 x, int16 y)
+static int32 mob_warp_necro_companion_sub(block_list *bl, va_list ap)
 {
-	if( sd == nullptr || sd->necro_companion_id <= 0 )
-		return;
+	mob_data *md = BL_CAST(BL_MOB, bl);
+	int32 master_id = va_arg(ap, int32);
+	int16 m = (int16)va_arg(ap, int32);
+	int16 x = (int16)va_arg(ap, int32);
+	int16 y = (int16)va_arg(ap, int32);
 
-	mob_data *md = map_id2md(sd->necro_companion_id);
-	if( md == nullptr || md->master_id != sd->id || md->special_state.ai != AI_NECRO_COMPANION ){
-		// Companion is gone (died / expired) - forget the stale id.
-		sd->necro_companion_id = 0;
+	if( md != nullptr && md->special_state.ai == AI_NECRO_COMPANION && md->master_id == master_id ){
+		// Scatter slightly around the master's destination so minions don't stack
+		// on the same tile; unit_warp resolves a nearby free cell if blocked.
+		int16 nx = x + rnd_value( -MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE );
+		int16 ny = y + rnd_value( -MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE );
+		unit_warp(md, m, nx, ny, CLR_TELEPORT);
+	}
+	return 0;
+}
+
+void mob_warp_necro_companion(map_session_data *sd, int16 from_m, int16 to_m, int16 x, int16 y)
+{
+	if( sd == nullptr || from_m < 0 )
 		return;
+	map_foreachinmap(mob_warp_necro_companion_sub, from_m, BL_MOB, sd->id, (int32)to_m, (int32)x, (int32)y);
+}
+
+/*==========================================
+ * Custom (Necromancer): Thriller - summons a horde of friendly undead (zombies +
+ * hell hounds) that fight alongside the caster. The horde reuses the
+ * AI_NECRO_COMPANION combat-slave machinery (aggressive, safe in town, no
+ * EXP/drops, follows across maps, cleaned up on caster death/logout), so like the
+ * MVP companions only one summon SET exists at a time: any existing minions are
+ * dispelled first. The number of each undead type scales with the skill level.
+ * Returns the number of minions spawned.
+ *------------------------------------------*/
+int32 mob_summon_necro_horde(map_session_data *sd, uint16 skill_id, uint16 skill_lv)
+{
+	nullpo_ret(sd);
+
+	// One summon SET at a time: dispel any existing companion / previous horde.
+	mob_clear_necro_companion(sd);
+
+	// The two undead types (literals, like the MVP companion mob ids):
+	//   ZOMBIE (1015) and HELL_POODLE (1866, a demon-race hell hound).
+	static const int32 horde_ids[2] = { 1015, 1866 };
+
+	uint32 duration = skill_get_time(skill_id, skill_lv); // horde lifespan
+	int32 spawned = 0;
+	int32 last_id = 0;
+
+	// skill_lv of each type -> 2 * skill_lv minions total (lv1 = 2 ... lv5 = 10).
+	for( int32 i = 0; i < skill_lv; i++ ){
+		for( int32 t = 0; t < 2; t++ ){
+			int32 mob_id = horde_ids[t];
+			if( !mob_db.exists(mob_id) )
+				continue;
+
+			// x/y = -1 -> mob_once_spawn_sub picks a free cell next to the caster.
+			mob_data *md = mob_once_spawn_sub(sd, sd->m, -1, -1, sd->status.name, mob_id, "", SZ_SMALL, AI_NONE);
+			if( md == nullptr )
+				continue;
+
+			md->master_id = sd->id;
+			md->special_state.ai = AI_NECRO_COMPANION;
+
+			if( duration > 0 ){
+				if( md->deletetimer != INVALID_TIMER )
+					delete_timer(md->deletetimer, mob_timer_delete);
+				md->deletetimer = add_timer(gettick() + duration, mob_timer_delete, md->id, 0);
+			}
+
+			mob_spawn(md);
+			status_calc_slave_mode(*md); // full-combat aggressive mode (attacks players only on PvP/GvG maps)
+			last_id = md->id;
+			spawned++;
+		}
 	}
 
-	// Scatter slightly around the master's destination so it doesn't stack on
-	// the same tile; unit_warp resolves a nearby free cell if blocked.
-	int16 nx = x + rnd_value( -MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE );
-	int16 ny = y + rnd_value( -MOB_SLAVEDISTANCE, MOB_SLAVEDISTANCE );
-	unit_warp(md, to_m, nx, ny, CLR_TELEPORT);
+	// Track one member so the death / logout / cross-map follow hooks (which key
+	// off necro_companion_id > 0 then scan all AI_NECRO_COMPANION mobs) engage.
+	sd->necro_companion_id = last_id;
+	return spawned;
+}
+
+/*==========================================
+ * Custom (Necromancer): Deadly Puppet - leaves a standing clone of the caster at
+ * the given tile as a decoy / time bomb. The clone is a friendly slave (flag 1)
+ * that cannot cast (flag 2) and copies the caster's stats via mob_clone_spawn, so
+ * it has the caster's HP and is vulnerable to attacks. It is rooted (no move /
+ * attack) so it just stands there and the slave AI never drags it to the caster.
+ * No auto-delete timer: the skill's detonation timer (skill.cpp) frees it.
+ * Returns the spawned clone's game id, or 0 on failure.
+ *------------------------------------------*/
+int32 mob_spawn_deadly_puppet(map_session_data *sd, int16 x, int16 y)
+{
+	nullpo_ret(sd);
+
+	int32 gid = mob_clone_spawn(sd, sd->m, x, y, "", sd->id, MD_NONE, 1|2, 0);
+	if( gid <= 0 )
+		return 0;
+
+	mob_data *md = map_id2md(gid);
+	if( md == nullptr )
+		return 0;
+
+	// Own AI id so it gives no EXP/drops and is not treated as a companion.
+	md->special_state.ai = AI_NECRO_PUPPET;
+
+	// Root it: strip movement/attack so it stands still as a decoy. Removing
+	// MD_CANMOVE also makes the slave AI leave it in place (see mob_ai_sub_hard_slavemob).
+	sc_start4(nullptr, md, SC_MODECHANGE, 100, 1, 0, 0,
+		MD_CANMOVE|MD_CANATTACK|MD_AGGRESSIVE|MD_CHANGETARGETMELEE|MD_CHANGETARGETCHASE, 0);
+
+	return gid;
 }
 
 /**

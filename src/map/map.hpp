@@ -447,6 +447,7 @@ enum mob_ai {
 	AI_ABR,
 	AI_BIONIC,
 	AI_NECRO_COMPANION, // Custom: Necromancer summoned MVP companion (Raise Inferno, etc.)
+	AI_NECRO_PUPPET,    // Custom: Necromancer Deadly Puppet standing decoy / time-bomb
 	AI_MAX
 };
 

@@ -2461,6 +2461,15 @@ enum e_skill {
 	NEC_SACRED_SOUL_VOODOO = 7017, // Sacred Soul Voodoo (summons Valkyrie Randgris)
 	NEC_CHAOS_BONDS = 7018,        // Chaos Bonds (summons Orc Lord)
 	NEC_REVERSE_CONTRACT = 7019,   // Reverse Contract (unsummons the Necromancer's companion)
+	NEC_THRILLER = 7020,           // Thriller (summons a horde of zombies + hell hounds, count scales with level)
+	NEC_DEADLY_PUPPET = 7021,      // Deadly Puppet (backslide + hide + standing time-bomb clone)
+	NEC_UNHOLY_BOMB = 7022,        // Unholy Bomb (offensive: behaves exactly like Acid Demonstration)
+	NEC_CORPSE_POSSESSION = 7023,  // Corpse Possession (traps an enemy and steals half its stats)
+	NEC_DOOM_HOLE = 7024,          // Doom Hole (offensive magic AoE: chance to Curse + knockback)
+	NEC_TWIST_SOUL = 7025,         // Twist Soul (inverts the enemy's healing items into damage)
+	NEC_AQUA_SATANICA = 7026,      // Aqua Satanica (creates 1 Cursed Water; must stand on a water cell)
+	NEC_DEMONS_TOUCH = 7027,       // Demon's Touch (endows an ally's weapon with Shadow/Dark element)
+	NEC_CONFINED_SHADOWS = 7028,   // Confined Shadows (toggle: root self + strong HP/SP regen)
 
 	HLIF_HEAL = 8001,
 	HLIF_AVOID,

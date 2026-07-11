@@ -10,6 +10,8 @@
 #include "shinratensei.cpp"
 #include "narakumi.cpp"
 #include "sensatsusuishou.cpp"
+#include "unholybomb.cpp"
+#include "doomhole.cpp"
 
 std::unique_ptr<const SkillImpl> SkillFactoryCustom::create(const e_skill skill_id) const {
 	switch( skill_id ){
@@ -24,6 +26,12 @@ std::unique_ptr<const SkillImpl> SkillFactoryCustom::create(const e_skill skill_
 			return std::make_unique<SkillNarakumi>();
 		case HOK_SENSATSU_SUISHOU:
 			return std::make_unique<SkillSensatsuSuishou>();
+
+		// Necromancer custom offensive skills
+		case NEC_UNHOLY_BOMB:
+			return std::make_unique<SkillUnholyBomb>();
+		case NEC_DOOM_HOLE:
+			return std::make_unique<SkillDoomHole>();
 
 		default:
 			return nullptr;

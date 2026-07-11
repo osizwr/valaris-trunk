@@ -4354,6 +4354,67 @@ int32 skill_castend_song(block_list* src, uint16 skill_id, uint16 skill_lv, t_ti
 	return map_foreachinrange(skill_apply_songs, src, skill_get_splash(skill_id, skill_lv), splash_target(src), flag, src, skill_id, skill_lv, tick);
 }
 
+/*==========================================
+ * Custom (Necromancer): Deadly Puppet explosion - deals the bomb damage to a
+ * single enemy in the blast radius. The source is the puppet itself, so it hits
+ * monsters on any map and rival players only on PvP/GvG maps (battle_check_target
+ * resolves the puppet to its player master), and never the caster or their allies.
+ *------------------------------------------*/
+static int32 skill_deadly_puppet_boom_sub(block_list *bl, va_list ap)
+{
+	block_list *src = va_arg(ap, block_list *);
+	int64 damage = va_arg(ap, int64);
+	t_tick tick = va_arg(ap, t_tick);
+
+	if( bl == nullptr || src == bl )
+		return 0;
+	if( battle_check_target(src, bl, BCT_ENEMY) <= 0 )
+		return 0;
+
+	clif_skill_damage(*src, *bl, tick, status_get_amotion(src), 0, damage, 1, NPC_SELFDESTRUCTION, -1, DMG_SPLASH);
+	battle_fix_damage(src, bl, damage, 0, NEC_DEADLY_PUPPET);
+	return 1;
+}
+
+/*==========================================
+ * Custom (Necromancer): Deadly Puppet detonation timer. Fires when the bomb timer
+ * set in the NEC_DEADLY_PUPPET case elapses. If the decoy is still standing it
+ * reveals the caster (ends the hide), blows up dealing AoE damage that scales with
+ * the skill level, then frees the puppet. If the decoy was already destroyed this
+ * is a no-op (the caster's hide self-expires on its own duration).
+ *   id   = puppet game id
+ *   data = skill level
+ *------------------------------------------*/
+TIMER_FUNC(skill_deadly_puppet_end)
+{
+	mob_data *md = map_id2md(id);
+	uint16 skill_lv = (uint16)data;
+
+	if( md == nullptr || md->special_state.ai != AI_NECRO_PUPPET )
+		return 0; // decoy already gone (killed / cleaned up)
+
+	// Reveal the caster (the puppet's master) as the bomb goes off.
+	if( map_session_data *sd = map_id2sd(md->master_id); sd != nullptr )
+		status_change_end(sd, SC_HIDING);
+
+	// Bomb damage: a share of the decoy's max HP (= the caster's HP at cast time),
+	// growing with the skill level (lv1 = 10% ... lv5 = 50%).
+	int64 damage = (int64)md->status.max_hp * (10 * skill_lv) / 100;
+	if( damage < 1 )
+		damage = 1;
+
+	int32 splash = skill_get_splash(NEC_DEADLY_PUPPET, skill_lv);
+	if( splash < 1 )
+		splash = 3;
+
+	// Explosion visual at the decoy (plays even with no targets in range).
+	clif_skill_damage(*md, *md, tick, status_get_amotion(md), 0, 0, 1, NPC_SELFDESTRUCTION, -1, DMG_SPLASH);
+	map_foreachinallrange(skill_deadly_puppet_boom_sub, md, splash, BL_CHAR, static_cast<block_list *>(md), damage, tick);
+
+	unit_free(md, CLR_OUTSIGHT);
+	return 0;
+}
+
 /**
  * Use no-damage skill from 'src' to 'bl
  * @param src Caster
@@ -4591,6 +4652,123 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 	case NEC_REVERSE_CONTRACT: // Reverse Contract - unsummons the Necromancer's companion
 		if( sd ){
 			mob_clear_necro_companion( sd );
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+		}
+		break;
+
+	case NEC_THRILLER: // Thriller - summon a horde of undead (zombies + hell hounds) to fight with you
+		if( sd ){
+			// Count scales with level (2 * skill_lv minions). Replaces any existing summon set.
+			if( mob_summon_necro_horde( sd, skill_id, skill_lv ) > 0 )
+				clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			else
+				clif_skill_fail( *sd, skill_id );
+		}
+		break;
+
+	case NEC_DEADLY_PUPPET: // Deadly Puppet - backslide, hide, and leave a standing time-bomb clone
+		if( sd ){
+			// Remember the caster's current tile - the decoy stands here.
+			int16 px = src->x, py = src->y;
+
+			// 1. Backslide: shove the caster a few cells backwards (opposite of facing).
+			//    skill_blown pushes the target opposite to the passed direction, so
+			//    passing the caster's own facing yields a backward slide.
+			skill_blown( src, src, 6, unit_getdir( src ),
+				(enum e_skill_blown)( BLOWN_IGNORE_NO_KNOCKBACK | BLOWN_NO_KNOCKBACK_MAP | BLOWN_MD_KNOCKBACK_IMMUNE | BLOWN_TARGET_NO_KNOCKBACK | BLOWN_TARGET_BASILICA ) );
+
+			// 2. Leave a standing clone (with the caster's HP) at the old position.
+			int32 gid = mob_spawn_deadly_puppet( sd, px, py );
+			if( gid > 0 ){
+				uint32 dur = skill_get_time( skill_id, skill_lv ); // bomb timer / hide duration
+				if( dur < 1000 )
+					dur = 5000;
+
+				// 3. Hide the caster in the shadows until the bomb goes off. The hide's
+				//    own duration matches the timer, so it lifts as the bomb detonates.
+				sc_start( src, src, SC_HIDING, 100, skill_lv, dur );
+
+				// 4. Schedule the detonation + reveal (data carries the skill level).
+				add_timer( tick + dur, skill_deadly_puppet_end, gid, skill_lv );
+
+				clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			}else{
+				clif_skill_fail( *sd, skill_id );
+			}
+		}
+		break;
+
+	case NEC_CORPSE_POSSESSION: // Corpse Possession - trap an enemy in place and steal half its stats
+		if( sd ){
+			status_data* tbase = status_get_base_status( bl );
+			if( tbase == nullptr ){
+				clif_skill_fail( *sd, skill_id );
+				break;
+			}
+			uint32 duration = skill_get_time( skill_id, skill_lv );
+
+			// Pack HALF of the enemy's six base stats into val3/val4 with the same
+			// bit layout Marionette uses; status_calc_str/agi/vit/int/dex/luk add
+			// these to the caster while SC_NEC_CORPSE_POSSESSION is active.
+			int32 pval3 = 0, pval4 = 0;
+			pval3 |= cap_value( tbase->str  / 2, 0, 0xFF ) << 16;
+			pval3 |= cap_value( tbase->agi  / 2, 0, 0xFF ) << 8;
+			pval3 |= cap_value( tbase->vit  / 2, 0, 0xFF );
+			pval4 |= cap_value( tbase->int_ / 2, 0, 0xFF ) << 16;
+			pval4 |= cap_value( tbase->dex  / 2, 0, 0xFF ) << 8;
+			pval4 |= cap_value( tbase->luk  / 2, 0, 0xFF );
+
+			// Trap the enemy in place (immobilize) for the duration...
+			sc_start( src, bl, SC_STOP, 100, skill_lv, duration );
+			// ...and grant the caster half of its stats for the same duration.
+			sc_start4( src, src, SC_NEC_CORPSE_POSSESSION, 100, skill_lv, 0, pval3, pval4, duration );
+
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+		}
+		break;
+
+	case NEC_TWIST_SOUL: // Twist Soul - the enemy's healing items harm instead of heal
+		if( sd ){
+			sc_start( src, bl, SC_NEC_TWIST_SOUL, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+		}
+		break;
+
+	case NEC_AQUA_SATANICA: // Aqua Satanica - create 1 Cursed Water (needs a water cell; State: Water)
+		if( sd ){
+			// The water requirement (and the "map-wide submersion doesn't count" rule)
+			// is enforced by the skill_db State: Water requirement at cast begin, which
+			// checks CELL_CHKWATER - submersion maps have no water cells so it fails there.
+			struct item tmp_item = {};
+			tmp_item.nameid = ITEMID_CURSED_WATER;
+			tmp_item.identify = 1;
+			tmp_item.amount = 1;
+
+			e_additem_result aflag = pc_additem( sd, &tmp_item, 1, LOG_TYPE_PRODUCE );
+			if( aflag != ADDITEM_SUCCESS ){ // inventory/weight full - drop it at the caster's feet
+				clif_additem( sd, 0, 0, aflag );
+				map_addflooritem( &tmp_item, 1, sd->m, sd->x, sd->y, 0, 0, 0, 4, 0 );
+			}
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+		}
+		break;
+
+	case NEC_DEMONS_TOUCH: // Demon's Touch - endow the target's weapon with the Shadow (Dark) element
+		if( sd ){
+			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
+			// SC_ENCHANTARMS val1 = element; status_get_attack_sc_element returns it.
+			sc_start( src, bl, SC_ENCHANTARMS, 100, ELE_DARK, skill_get_time( skill_id, skill_lv ) );
+		}
+		break;
+
+	case NEC_CONFINED_SHADOWS: // Confined Shadows - toggle a rooted HP/SP regen stance
+		if( sd ){
+			if( sd->sc.getSCE( SC_NEC_CONFINED_SHADOWS ) ){
+				// Recast disables the effect.
+				status_change_end( src, SC_NEC_CONFINED_SHADOWS );
+			}else{
+				sc_start( src, src, SC_NEC_CONFINED_SHADOWS, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
+			}
 			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
 		}
 		break;
@@ -16495,6 +16673,7 @@ void do_init_skill(void)
 	add_timer_func_list(skill_timerskill,"skill_timerskill");
 	add_timer_func_list(skill_blockpc_end, "skill_blockpc_end");
 	add_timer_func_list(skill_keep_using, "skill_keep_using");
+	add_timer_func_list(skill_deadly_puppet_end, "skill_deadly_puppet_end"); // Custom (Necromancer): Deadly Puppet detonation
 
 	add_timer_interval(gettick()+SKILLUNITTIMER_INTERVAL,skill_unit_timer,0,0,SKILLUNITTIMER_INTERVAL);
 }
