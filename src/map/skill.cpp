@@ -4732,9 +4732,11 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 		}
 		break;
 
-	case NEC_TWIST_SOUL: // Twist Soul - the enemy's healing items harm instead of heal
+	case NEC_TWIST_SOUL: // Twist Soul - all of the enemy's healing is inverted into damage
 		if( sd ){
 			sc_start( src, bl, SC_NEC_TWIST_SOUL, 100, skill_lv, skill_get_time( skill_id, skill_lv ) );
+			// Dark "soul explosion" burst on the enemy as the curse takes hold.
+			clif_specialeffect( bl, EF_SOUL_EXPLOSION, AREA );
 			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
 		}
 		break;

@@ -54,7 +54,10 @@ Body:
   # healing item they consume harms instead of heals (handled in pc_itemheal,
   # src/map/pc.cpp). No CalcFlags - it changes no stats, it just flags the target.
   - Status: Nec_Twist_Soul
-    Icon: EFST_CURSE          # cursed-healing theme; shows a countdown timer
+    Opt2:
+      Curse: true             # cursed visual on the enemy; also keeps the status
+                              # from being "bare" (an icon-only/EFST_CURSE entry is
+                              # rejected by status_change_start -> the SC never applied)
 
   # SC_NEC_CONFINED_SHADOWS - Confined Shadows (Necromancer). A self toggle stance:
   # the caster is rooted (NoMove/NoAttack/NoCast) while HP/SP regenerate strongly
