@@ -10811,24 +10811,10 @@ int32 pc_itemheal(map_session_data *sd, t_itemid itemid, int32 hp, int32 sp)
 #endif
 		if (sd->sc.getSCE(SC_BITESCAR))
 			hp = 0;
-
-		// Custom (Necromancer): Twist Soul - the unholy will inverts every healing
-		// item the cursed enemy consumes (HP/SP restore becomes loss). It can never
-		// kill: HP damage is floored so at least 1 HP always remains.
-		if (sd->sc.getSCE(SC_NEC_TWIST_SOUL)) {
-			if (hp > 0) {
-				int32 survivable = sd->battle_status.hp - 1;
-				if (survivable < 0)
-					survivable = 0;
-				if (hp > survivable)
-					hp = survivable;
-				hp = -hp;
-			}
-			if (sp > 0)
-				sp = -sp;
-		}
 	}
 
+	// Note: the Twist Soul (Necromancer) heal inversion is handled centrally in
+	// status_heal so it covers heal skills and regen too, not just items.
 	return status_heal(sd, hp, sp, 1);
 }
 

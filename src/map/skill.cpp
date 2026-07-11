@@ -4725,6 +4725,9 @@ int32 skill_castend_nodamage_id (block_list *src, block_list *bl, uint16 skill_i
 			// ...and grant the caster half of its stats for the same duration.
 			sc_start4( src, src, SC_NEC_CORPSE_POSSESSION, 100, skill_lv, 0, pval3, pval4, duration );
 
+			// Play Shadow Chaser's Shadow Formation animation on the trapped enemy
+			// (visual only - the client renders whatever skill id we pass here).
+			clif_skill_nodamage( src, *bl, SC_SHADOWFORM, skill_lv );
 			clif_skill_nodamage( src, *bl, skill_id, skill_lv );
 		}
 		break;

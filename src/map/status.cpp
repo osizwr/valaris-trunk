@@ -1816,6 +1816,22 @@ int32 status_heal(block_list *bl,int64 hhp,int64 hsp, int64 hap, int32 flag)
 	if (sc != nullptr && sc->empty())
 		sc = nullptr;
 
+	// Custom (Necromancer): Twist Soul - the unholy will inverts EVERY heal on the
+	// cursed target (items, heal skills, regen) into damage. It can never kill: the
+	// HP damage is floored so at least 1 HP always remains ("stops at 1 HP").
+	if (sc != nullptr && sc->getSCE(SC_NEC_TWIST_SOUL)) {
+		if (hp > 0) {
+			int32 survivable = status->hp - 1;
+			if (survivable < 0)
+				survivable = 0;
+			if (hp > survivable)
+				hp = survivable;
+			hp = -hp;
+		}
+		if (sp > 0)
+			sp = -sp;
+	}
+
 	if (hp < 0) {
 		if (hp == INT_MIN) // -INT_MIN == INT_MIN in some architectures!
 			hp++;

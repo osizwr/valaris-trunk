@@ -63,7 +63,7 @@ Body:
   # the NoCast lock in status.cpp). No CalcFlags - it changes no stats.
   - Status: Nec_Confined_Shadows
     Icon: EFST_TENSIONRELAX   # HP-recovery stance icon; shows a countdown timer
-    Flags:
+    States:                   # movement/action restrictions (NOT "Flags:")
       NoMove: true
       NoAttack: true
       NoCast: true
