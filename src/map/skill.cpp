@@ -4407,7 +4407,9 @@ TIMER_FUNC(skill_deadly_puppet_end)
 	if( splash < 1 )
 		splash = 3;
 
-	// Explosion visual at the decoy (plays even with no targets in range).
+	// Explosion visual at the decoy (plays even with no targets in range): a big
+	// "nuke" ground blast layered with the self-destruct animation.
+	clif_specialeffect(md, EF_GROUND_EXPLOSION, AREA);
 	clif_skill_damage(*md, *md, tick, status_get_amotion(md), 0, 0, 1, NPC_SELFDESTRUCTION, -1, DMG_SPLASH);
 	map_foreachinallrange(skill_deadly_puppet_boom_sub, md, splash, BL_CHAR, static_cast<block_list *>(md), damage, tick);
 

@@ -834,28 +834,12 @@ Body:
     AfterCastActDelay:
       - Level: 1
         Time: 1000
-    Cooldown:
-      - Level: 1
-        Time: 11000
-      - Level: 2
-        Time: 12000
-      - Level: 3
-        Time: 13000
-      - Level: 4
-        Time: 14000
-      - Level: 5
-        Time: 15000
-    Duration1:                 # bomb timer / hide duration
+    Cooldown:                  # kept above Duration1 so puppets can't overlap
       - Level: 1
         Time: 5000
-      - Level: 2
-        Time: 6000
-      - Level: 3
-        Time: 7000
-      - Level: 4
-        Time: 8000
-      - Level: 5
-        Time: 9000
+    Duration1:                 # bomb timer / hide duration (3s, flat)
+      - Level: 1
+        Time: 3000
     Requires:
       SpCost:
         - Level: 1
