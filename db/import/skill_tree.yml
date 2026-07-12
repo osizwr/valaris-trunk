@@ -96,6 +96,8 @@ Body:
   #########################################################################
   - Job: Necromancer
     Inherit:
+      Novice: true                # NV_BASIC/NV_FIRSTAID - inherit is NON-transitive,
+                                  # so Acolyte alone does NOT pass Novice skills down
       Acolyte: true               # full Acolyte skill set
     Tree:
       - Name: NEC_RAISE_INFERNO       # Raise Inferno - summons Ifrit (7013)

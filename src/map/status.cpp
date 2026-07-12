@@ -14679,6 +14679,7 @@ TIMER_FUNC(status_change_timer){
 			int32 heal_hp = (int32)status->max_hp * 4 * sce->val1 / 100;
 			int32 heal_sp = (int32)status->max_sp * 4 * sce->val1 / 100;
 			status_heal(bl, heal_hp, heal_sp, 3);
+			clif_specialeffect(bl, EF_HEAL, AREA); // regeneration pulse each second
 			sc_timer_next(1000 + tick);
 			return 0;
 		}
